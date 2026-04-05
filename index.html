@@ -48,6 +48,10 @@
       padding: 18px;
     }
 
+    body.overlay-open {
+      overflow: hidden;
+    }
+
     .layout {
       min-height: calc(100vh - 36px);
       display: grid;
@@ -386,6 +390,231 @@
       color: #dce8f1;
     }
 
+    .scene-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 2400;
+      display: grid;
+      place-items: center;
+      padding: 28px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 320ms ease;
+    }
+
+    .scene-overlay.is-open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .scene-overlay-backdrop {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at center, rgba(255, 255, 255, 0.06), transparent 40%),
+        rgba(4, 7, 10, 0.76);
+      backdrop-filter: blur(14px);
+    }
+
+    .scene-overlay-panel {
+      position: relative;
+      z-index: 1;
+      width: min(1120px, 100%);
+      max-height: calc(100vh - 56px);
+      display: grid;
+      grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.85fr);
+      gap: 20px;
+      padding: 20px;
+      border-radius: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(10, 14, 20, 0.92);
+      box-shadow: 0 40px 120px rgba(0, 0, 0, 0.5);
+      transform: translateY(24px) scale(0.985);
+      transition: transform 320ms ease;
+      overflow: hidden;
+    }
+
+    .scene-overlay.is-open .scene-overlay-panel {
+      transform: translateY(0) scale(1);
+    }
+
+    .scene-overlay-media {
+      position: relative;
+      min-height: 70vh;
+      border-radius: 24px;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02)),
+        #0a0d11;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .scene-overlay-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: saturate(0.7) contrast(1.03) brightness(0.92);
+    }
+
+    .scene-overlay-fallback {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      align-content: end;
+      gap: 14px;
+      padding: 28px;
+      background:
+        linear-gradient(180deg, rgba(17, 20, 23, 0.05), rgba(8, 10, 12, 0.92)),
+        radial-gradient(circle at 50% 16%, rgba(239, 232, 220, 0.32), transparent 20%),
+        radial-gradient(circle at 76% 24%, rgba(255, 245, 220, 0.18), transparent 10%),
+        linear-gradient(180deg, #211d17 0%, #0f0d0c 100%);
+      color: #f5eee6;
+    }
+
+    .scene-overlay-fallback[hidden] {
+      display: none;
+    }
+
+    .scene-overlay-fallback::before,
+    .scene-overlay-fallback::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .scene-overlay-fallback::before {
+      background:
+        linear-gradient(0deg, transparent 49.5%, rgba(244, 235, 220, 0.28) 50%, transparent 50.5%),
+        radial-gradient(circle at 28% 28%, rgba(0, 0, 0, 0.38) 0 14%, transparent 14.5%),
+        radial-gradient(circle at 68% 28%, rgba(0, 0, 0, 0.34) 0 13%, transparent 13.5%),
+        radial-gradient(circle at 26% 66%, rgba(0, 0, 0, 0.42) 0 16%, transparent 16.5%),
+        radial-gradient(circle at 71% 68%, rgba(0, 0, 0, 0.36) 0 14%, transparent 14.5%);
+      mix-blend-mode: multiply;
+      opacity: 0.9;
+    }
+
+    .scene-overlay-fallback::after {
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 18%),
+        repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.045) 0 2px, transparent 2px 10px);
+      opacity: 0.28;
+    }
+
+    .scene-overlay-fallback strong {
+      position: relative;
+      z-index: 1;
+      font-size: clamp(1.4rem, 2vw, 2rem);
+      letter-spacing: -0.03em;
+    }
+
+    .scene-overlay-fallback span {
+      position: relative;
+      z-index: 1;
+      max-width: 28rem;
+      color: rgba(245, 238, 230, 0.78);
+      line-height: 1.6;
+    }
+
+    .scene-overlay-copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 18px;
+      min-width: 0;
+    }
+
+    .scene-overlay-copy-card {
+      padding: 22px;
+      border-radius: 22px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02)),
+        rgba(7, 11, 16, 0.84);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .scene-overlay-label {
+      margin: 0 0 8px;
+      color: var(--accent);
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    .scene-overlay-title {
+      margin: 0 0 10px;
+      font-size: clamp(1.8rem, 3vw, 2.8rem);
+      line-height: 0.96;
+      letter-spacing: -0.045em;
+    }
+
+    .scene-overlay-subtitle {
+      margin: 0 0 18px;
+      color: var(--muted);
+      line-height: 1.58;
+      font-size: 0.98rem;
+    }
+
+    .scene-overlay-meta {
+      display: grid;
+      gap: 12px;
+    }
+
+    .scene-overlay-meta div {
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .scene-overlay-meta h4 {
+      margin: 0 0 6px;
+      color: var(--cold);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .scene-overlay-meta p {
+      margin: 0;
+      color: var(--text);
+      line-height: 1.58;
+      font-size: 0.94rem;
+    }
+
+    .scene-overlay-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .scene-overlay-close {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      z-index: 2;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      background: rgba(9, 13, 18, 0.82);
+      color: var(--text);
+      padding: 11px 14px;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+    }
+
+    .scene-overlay-close:hover,
+    .scene-overlay-close:focus-visible {
+      outline: none;
+      transform: translateY(-1px);
+      border-color: rgba(255, 255, 255, 0.14);
+      background: rgba(15, 21, 29, 0.94);
+    }
+
     @media (max-width: 1120px) {
       body {
         padding: 12px;
@@ -399,6 +628,15 @@
       .panel,
       .map-shell {
         min-height: 50vh;
+      }
+
+      .scene-overlay-panel {
+        grid-template-columns: 1fr;
+        max-height: calc(100vh - 32px);
+      }
+
+      .scene-overlay-media {
+        min-height: 44vh;
       }
     }
 
@@ -418,6 +656,23 @@
 
       .map-banner {
         max-width: calc(100% - 36px);
+      }
+
+      .scene-overlay {
+        padding: 12px;
+      }
+
+      .scene-overlay-panel {
+        padding: 14px;
+      }
+
+      .scene-overlay-copy-card {
+        padding: 18px;
+      }
+
+      .scene-overlay-close {
+        top: 12px;
+        right: 12px;
       }
     }
   </style>
@@ -540,6 +795,58 @@
     </main>
   </div>
 
+  <section class="scene-overlay" id="scene-overlay" aria-hidden="true">
+    <div class="scene-overlay-backdrop" data-overlay-close></div>
+    <div class="scene-overlay-panel" role="dialog" aria-modal="true" aria-labelledby="scene-overlay-title">
+      <button class="scene-overlay-close" id="scene-overlay-close" type="button">Back To Map</button>
+      <div class="scene-overlay-media">
+        <img
+          class="scene-overlay-image"
+          id="scene-overlay-image"
+          alt="Illustrated literary scene from Crime and Punishment"
+        >
+        <div class="scene-overlay-fallback" id="scene-overlay-fallback">
+          <strong id="scene-overlay-fallback-title">The tavern encounter</strong>
+          <span id="scene-overlay-fallback-copy">
+            If the artwork cannot load, this fallback keeps the scene transition readable and atmospheric.
+          </span>
+        </div>
+      </div>
+      <div class="scene-overlay-copy">
+        <div class="scene-overlay-copy-card">
+          <p class="scene-overlay-label">Scene Close Reading</p>
+          <h2 class="scene-overlay-title" id="scene-overlay-title">Marmeladov&rsquo;s Tavern</h2>
+          <p class="scene-overlay-subtitle" id="scene-overlay-subtitle">
+            Raskolnikov enters trying to remain cold and theoretical, but the tavern scene forces him into proximity with human suffering.
+          </p>
+          <div class="scene-overlay-meta">
+            <div>
+              <h4>What The Space Does</h4>
+              <p id="scene-overlay-psych">
+                The tavern saturates him with poverty, confession, humiliation, and pity. It weakens his fantasy that he can think beyond ordinary moral feeling.
+              </p>
+            </div>
+            <div>
+              <h4>Why It Matters</h4>
+              <p id="scene-overlay-meaning">
+                Marmeladov&rsquo;s speech reveals that Raskolnikov is not detached from suffering at all. His compassion keeps returning, and that instability becomes central to the novel.
+              </p>
+            </div>
+            <div>
+              <h4>Modern Anchor</h4>
+              <p id="scene-overlay-address">
+                Cholka, Sankt-Peterburg, Russia, 190068 (mapped as an approximate district anchor for the assignment).
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="scene-overlay-actions">
+          <button class="button primary" id="scene-overlay-return" type="button">Return To Route</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <script
     src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
@@ -564,7 +871,7 @@
       },
       {
         id: "bridge",
-        title: "The Bridge",
+        title: "The Bridge / Canal",
         short: "threshold, hesitation, dissociation",
         place: "St. Petersburg",
         phase: "Before the crime",
@@ -788,6 +1095,36 @@
     const viewStPButton = document.getElementById("view-stp");
     const viewSiberiaButton = document.getElementById("view-siberia");
     const viewRussiaButton = document.getElementById("view-russia");
+    const sceneOverlay = document.getElementById("scene-overlay");
+    const sceneOverlayImage = document.getElementById("scene-overlay-image");
+    const sceneOverlayFallback = document.getElementById("scene-overlay-fallback");
+    const sceneOverlayFallbackTitle = document.getElementById("scene-overlay-fallback-title");
+    const sceneOverlayFallbackCopy = document.getElementById("scene-overlay-fallback-copy");
+    const sceneOverlayClose = document.getElementById("scene-overlay-close");
+    const sceneOverlayReturn = document.getElementById("scene-overlay-return");
+    const sceneOverlayAssets = {
+      tavern: {
+        imageSrc: "assets/marmeladov-tavern.png",
+        alt: "Illustration of Raskolnikov and Marmeladov in the tavern",
+        subtitle: "Raskolnikov enters trying to remain cold and theoretical, but the tavern scene forces him into proximity with human suffering.",
+        fallbackTitle: "The tavern encounter",
+        fallbackCopy: "If the artwork cannot load, this fallback keeps the scene transition readable and atmospheric."
+      },
+      bridge: {
+        imageSrc: "assets/bridge-canal-scene.png",
+        alt: "Illustration of Raskolnikov at the canal bridge in St. Petersburg",
+        subtitle: "At the canal, he performs detachment as gesture, but the bridge scene exposes how unstable and theatrical that numbness really is.",
+        fallbackTitle: "The bridge and canal",
+        fallbackCopy: "The bridge scene now uses the same fade-in introduction. Add the local bridge artwork at assets/bridge-canal-scene.png to replace this fallback automatically."
+      }
+    };
+    const sceneOverlayNodes = {
+      title: document.getElementById("scene-overlay-title"),
+      subtitle: document.getElementById("scene-overlay-subtitle"),
+      psych: document.getElementById("scene-overlay-psych"),
+      meaning: document.getElementById("scene-overlay-meaning"),
+      address: document.getElementById("scene-overlay-address")
+    };
 
     const sceneCardNodes = {
       kicker: document.getElementById("scene-kicker"),
@@ -933,6 +1270,51 @@
       streetCardNodes.coords.textContent = payload.coords;
     }
 
+    function closeSceneOverlay() {
+      sceneOverlay.classList.remove("is-open");
+      sceneOverlay.setAttribute("aria-hidden", "true");
+      document.body.classList.remove("overlay-open");
+    }
+
+    function openSceneOverlay(scene) {
+      const overlayAsset = sceneOverlayAssets[scene.id];
+
+      if (!overlayAsset) {
+        closeSceneOverlay();
+        return;
+      }
+
+      sceneOverlayNodes.title.textContent = scene.title;
+      sceneOverlayNodes.subtitle.textContent = overlayAsset.subtitle;
+      sceneOverlayNodes.psych.textContent = scene.psych;
+      sceneOverlayNodes.meaning.textContent = scene.meaning;
+      sceneOverlayNodes.address.textContent = scene.address;
+      sceneOverlayFallbackTitle.textContent = overlayAsset.fallbackTitle;
+      sceneOverlayFallbackCopy.textContent = overlayAsset.fallbackCopy;
+
+      sceneOverlayFallback.hidden = false;
+      sceneOverlayImage.hidden = true;
+      sceneOverlayImage.alt = overlayAsset.alt;
+      sceneOverlayImage.onload = () => {
+        sceneOverlayFallback.hidden = true;
+        sceneOverlayImage.hidden = false;
+      };
+      sceneOverlayImage.onerror = () => {
+        sceneOverlayFallback.hidden = false;
+        sceneOverlayImage.hidden = true;
+      };
+      sceneOverlayImage.src = overlayAsset.imageSrc;
+
+      if (sceneOverlayImage.complete && sceneOverlayImage.naturalWidth > 0) {
+        sceneOverlayFallback.hidden = true;
+        sceneOverlayImage.hidden = false;
+      }
+
+      sceneOverlay.classList.add("is-open");
+      sceneOverlay.setAttribute("aria-hidden", "false");
+      document.body.classList.add("overlay-open");
+    }
+
     function activateSceneButton(sceneId) {
       sceneButtons.forEach((button, id) => {
         button.classList.toggle("is-active", id === sceneId);
@@ -956,6 +1338,7 @@
     }
 
     function openOverview() {
+      closeSceneOverlay();
       if (map.hasLayer(stPLayer)) {
         map.removeLayer(stPLayer);
       }
@@ -977,6 +1360,7 @@
     }
 
     function showStPetersburg() {
+      closeSceneOverlay();
       unlockScenes();
       addSceneLayer();
       map.flyToBounds(stPBounds.pad(0.22), {
@@ -997,6 +1381,7 @@
     }
 
     function showSiberia() {
+      closeSceneOverlay();
       if (map.hasLayer(stPLayer)) {
         map.removeLayer(stPLayer);
       }
@@ -1036,6 +1421,12 @@
 
       if (scene.marker) {
         scene.marker.openPopup();
+      }
+
+      if (sceneOverlayAssets[scene.id]) {
+        openSceneOverlay(scene);
+      } else {
+        closeSceneOverlay();
       }
     }
 
@@ -1204,6 +1595,7 @@
     viewRussiaButton.addEventListener("click", openOverview);
 
     map.on("click", (event) => {
+      closeSceneOverlay();
       popups.click
         .setLatLng(event.latlng)
         .setContent(`
@@ -1226,6 +1618,19 @@
       street: "Zoom in and click the map",
       house: "Not selected",
       coords: "61.5240, 105.3188"
+    });
+
+    sceneOverlayClose.addEventListener("click", closeSceneOverlay);
+    sceneOverlayReturn.addEventListener("click", closeSceneOverlay);
+    sceneOverlay.addEventListener("click", (event) => {
+      if (event.target.hasAttribute("data-overlay-close")) {
+        closeSceneOverlay();
+      }
+    });
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && sceneOverlay.classList.contains("is-open")) {
+        closeSceneOverlay();
+      }
     });
 
     openOverview();
