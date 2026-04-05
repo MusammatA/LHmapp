@@ -1087,7 +1087,6 @@
       siberiaPoint
     ]);
     const overviewBounds = assignmentBounds.pad(0.18);
-    const movementBounds = assignmentBounds.pad(0.34);
 
     const sceneWrap = document.getElementById("scene-wrap");
     const sceneGrid = document.getElementById("scene-grid");
@@ -1152,10 +1151,9 @@
 
     const map = L.map("map", {
       zoomControl: false,
-      minZoom: 4,
+      minZoom: 2,
       maxZoom: 19,
-      maxBounds: movementBounds,
-      maxBoundsViscosity: 0.72,
+      worldCopyJump: true,
       preferCanvas: true
     });
 
