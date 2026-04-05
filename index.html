@@ -546,7 +546,6 @@
     crossorigin=""
   ></script>
   <script>
-    const russiaBounds = L.latLngBounds([41.15, 19.0], [82.1, 180.0]);
     const stPHub = [59.9311, 30.3609];
     const siberiaPoint = [56.0935263, 73.5099936];
 
@@ -774,6 +773,15 @@
       siberiaPoint
     ];
 
+    const assignmentBounds = L.latLngBounds([
+      ...stPScenes.map((scene) => scene.coords),
+      ...exileRoute,
+      stPHub,
+      siberiaPoint
+    ]);
+    const overviewBounds = assignmentBounds.pad(0.18);
+    const movementBounds = assignmentBounds.pad(0.34);
+
     const sceneWrap = document.getElementById("scene-wrap");
     const sceneGrid = document.getElementById("scene-grid");
     const statusChip = document.getElementById("status-chip");
@@ -807,10 +815,10 @@
 
     const map = L.map("map", {
       zoomControl: false,
-      minZoom: 3,
+      minZoom: 4,
       maxZoom: 19,
-      maxBounds: russiaBounds.pad(0.08),
-      maxBoundsViscosity: 0.9,
+      maxBounds: movementBounds,
+      maxBoundsViscosity: 0.72,
       preferCanvas: true
     });
 
@@ -822,7 +830,7 @@
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    map.fitBounds(russiaBounds, {
+    map.fitBounds(overviewBounds, {
       padding: [26, 26]
     });
 
@@ -951,12 +959,12 @@
       if (map.hasLayer(stPLayer)) {
         map.removeLayer(stPLayer);
       }
-      map.flyToBounds(russiaBounds, {
+      map.flyToBounds(overviewBounds, {
         padding: [26, 26],
         duration: 1.4
       });
       activateSceneButton("");
-      setStatus("Russia overview loaded");
+      setStatus("Assignment overview loaded");
       setSceneCard({
         title: "Raskolnikov's map across Russia",
         short: "St. Petersburg holds the crime and delirium; Siberia opens the epilogue's horizon of punishment and renewal.",
