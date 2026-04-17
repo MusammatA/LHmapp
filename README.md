@@ -22,10 +22,10 @@ A vanilla HTML, CSS, and JavaScript literary mapping project built around *Crime
   Google Maps loading, map creation, route line drawing, marker setup, and scene-to-scene pan/zoom behavior.
 
 - `js/ui.js`
-  DOM rendering, media switching, delayed text reveal, admin modal behavior, and editor visibility.
+  DOM rendering, media switching, delayed text reveal, and the scene text editing interface.
 
 - `js/app.js`
-  Application state, scene navigation, admin-mode orchestration, and `localStorage` persistence.
+  Application state, scene navigation, and `localStorage` persistence for editable scene text.
 
 ## Add Your Google Maps API Key
 
@@ -34,8 +34,7 @@ Open `index.html` and find:
 ```html
 window.GEOGRAPHY_OF_GUILT_CONFIG = Object.freeze({
   googleMapsApiKey: "YOUR_GOOGLE_MAPS_API_KEY",
-  googleMapsMapId: "DEMO_MAP_ID",
-  adminPassword: "change-this-password"
+  googleMapsMapId: "DEMO_MAP_ID"
 });
 ```
 
@@ -121,19 +120,15 @@ mediaSrc: "assets/videos/your-scene-video.mp4"
 
 If a file is missing, the app shows a fallback message instead of crashing.
 
-## Admin Mode
+## Scene Text Editing
 
-Admin mode is intentionally lightweight and hidden.
-
-How to open it:
-
-- Double-click the main title in the app header, or
-- Press `Shift + A` while the experience is open
+Quote and interpretation fields are directly editable for any visitor.
 
 How it works:
 
-- Enter the password from `window.GEOGRAPHY_OF_GUILT_CONFIG.adminPassword` in `index.html`
-- Once unlocked, only `quote` and `interpretation` become editable
+- Open the experience and move to any scene
+- Edit the `Quote` and `Interpretation` fields directly
+- Click `Save Edits`
 - Saved changes are stored in the browser under the `localStorage` key:
 
 ```text
@@ -142,12 +137,11 @@ geography-of-guilt.scene-edits.v1
 
 Important:
 
-- Admin edits are local to the browser and device
+- Edits are local to the browser and device
 - They do not rewrite `js/data.js`
-- To clear local admin edits, either use the reset button for a scene or clear that `localStorage` key
+- To clear local edits, either use the reset button for a scene or clear that `localStorage` key
 
 ## Maintenance Notes
 
 - The app is intentionally dependency-free.
 - If you later want more scenes, add them in `js/data.js` and drop new media into `assets/images/` or `assets/videos/`.
-- If you want to change the hidden admin password, update `adminPassword` in `index.html`.

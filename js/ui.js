@@ -8,10 +8,6 @@ function queryRequired(selector, root = document) {
   return element;
 }
 
-function queryAll(selector, root = document) {
-  return Array.from(root.querySelectorAll(selector));
-}
-
 function setHidden(element, isHidden) {
   element.hidden = isHidden;
 }
@@ -52,9 +48,11 @@ function collectDom() {
       role: queryRequired("[data-scene-role]"),
       locationName: queryRequired("[data-scene-location-name]"),
       address: queryRequired("[data-scene-address]"),
-      quote: queryRequired("[data-scene-quote]"),
-      interpretation: queryRequired("[data-scene-interpretation]"),
-      readOnlyView: queryRequired("[data-scene-view]")
+      editorForm: queryRequired("[data-editor-form]"),
+      editorQuote: queryRequired("[data-editor-quote]"),
+      editorInterpretation: queryRequired("[data-editor-interpretation]"),
+      editorFeedback: queryRequired("[data-editor-feedback]"),
+      editorResetButton: queryRequired("[data-editor-reset]")
     },
     media: {
       image: queryRequired("[data-scene-image]"),
@@ -62,20 +60,6 @@ function collectDom() {
       fallback: queryRequired("[data-media-fallback]"),
       fallbackTitle: queryRequired("[data-media-fallback-title]"),
       fallbackCopy: queryRequired("[data-media-fallback-copy]")
-    },
-    admin: {
-      toggle: queryRequired("[data-admin-toggle]"),
-      trigger: queryRequired("[data-admin-trigger]"),
-      modal: queryRequired("[data-admin-modal]"),
-      form: queryRequired("[data-admin-form]"),
-      password: queryRequired("[data-admin-password]"),
-      error: queryRequired("[data-admin-error]"),
-      closeButtons: queryAll("[data-admin-close]"),
-      editor: queryRequired("[data-admin-editor]"),
-      quote: queryRequired("[data-admin-quote]"),
-      interpretation: queryRequired("[data-admin-interpretation]"),
-      feedback: queryRequired("[data-admin-feedback]"),
-      resetButton: queryRequired("[data-admin-reset]")
     },
     map: {
       canvas: queryRequired("#map"),
@@ -205,16 +189,9 @@ export function createUIController() {
     setText(dom.scene.role, scene.psychologicalRole);
     setText(dom.scene.locationName, scene.locationName);
     setText(dom.scene.address, scene.modernAddress);
-    setText(dom.scene.quote, scene.quote);
-    setText(dom.scene.interpretation, scene.interpretation);
-    dom.admin.quote.value = scene.quote;
-    dom.admin.interpretation.value = scene.interpretation;
-    setText(dom.admin.feedback, "");
-  }
-
-  function setEditorState(isAdmin) {
-    setHidden(dom.scene.readOnlyView, isAdmin);
-    setHidden(dom.admin.editor, !isAdmin);
+    dom.scene.editorQuote.value = scene.quote;
+    dom.scene.editorInterpretation.value = scene.interpretation;
+    setText(dom.scene.editorFeedback, "");
   }
 
   function scheduleSceneReveal(delayMs) {
@@ -229,32 +206,24 @@ export function createUIController() {
     sceneNumber,
     totalScenes,
     isFirstScene,
-    isLastScene,
-    isAdmin,
-    revealImmediately = false
+    isLastScene
   }) {
     clearSceneRevealTimer();
     hideSceneCard();
     renderMedia(scene);
     renderSceneChrome(scene, sceneNumber, totalScenes);
     renderSceneBody(scene);
-    setEditorState(isAdmin);
 
     dom.controls.previous.disabled = isFirstScene;
     dom.controls.next.disabled = isLastScene;
 
     // The text deliberately arrives after the media so the scene can land visually first.
-    scheduleSceneReveal(revealImmediately ? 0 : scene.delayBeforeText || 0);
+    scheduleSceneReveal(scene.delayBeforeText || 0);
   }
 
   function handleGlobalKeydown(event, handlers) {
     if (!document.body.classList.contains("is-experience-active")) {
       return;
-    }
-
-    if (event.shiftKey && event.key.toLowerCase() === "a") {
-      event.preventDefault();
-      handlers.onAdminPrompt();
     }
 
     if (event.key === "ArrowRight") {
@@ -264,52 +233,28 @@ export function createUIController() {
     if (event.key === "ArrowLeft") {
       handlers.onPrevious();
     }
-
-    if (event.key === "Escape") {
-      closeAdminModal();
-    }
   }
 
   function bindEvents(handlers) {
     dom.controls.start.addEventListener("click", handlers.onStart);
     dom.controls.previous.addEventListener("click", handlers.onPrevious);
     dom.controls.next.addEventListener("click", handlers.onNext);
-    dom.admin.toggle.addEventListener("click", handlers.onAdminExit);
-
-    dom.admin.trigger.addEventListener("dblclick", handlers.onAdminPrompt);
-    dom.admin.trigger.addEventListener("keydown", (event) => {
-      if (event.key !== "Enter" && event.key !== " ") {
-        return;
-      }
-
-      event.preventDefault();
-      handlers.onAdminPrompt();
-    });
 
     document.addEventListener("keydown", (event) => {
       handleGlobalKeydown(event, handlers);
     });
 
-    dom.admin.form.addEventListener("submit", (event) => {
+    dom.scene.editorForm.addEventListener("submit", (event) => {
       event.preventDefault();
-      handlers.onAdminSubmit(dom.admin.password.value);
-    });
-
-    dom.admin.closeButtons.forEach((button) => {
-      button.addEventListener("click", closeAdminModal);
-    });
-
-    dom.admin.editor.addEventListener("submit", (event) => {
-      event.preventDefault();
-      handlers.onAdminSave({
+      handlers.onSceneTextSave({
         sceneId: dom.scene.card.dataset.sceneId,
-        quote: dom.admin.quote.value,
-        interpretation: dom.admin.interpretation.value
+        quote: dom.scene.editorQuote.value,
+        interpretation: dom.scene.editorInterpretation.value
       });
     });
 
-    dom.admin.resetButton.addEventListener("click", () => {
-      handlers.onAdminReset(dom.scene.card.dataset.sceneId);
+    dom.scene.editorResetButton.addEventListener("click", () => {
+      handlers.onSceneTextReset(dom.scene.card.dataset.sceneId);
     });
   }
 
@@ -324,35 +269,8 @@ export function createUIController() {
     });
   }
 
-  function setAdminMode(isAdmin) {
-    setHidden(dom.admin.toggle, !isAdmin);
-  }
-
-  function resetAdminForm() {
-    setText(dom.admin.error, "");
-    dom.admin.form.reset();
-  }
-
-  function openAdminModal() {
-    setHidden(dom.admin.modal, false);
-    resetAdminForm();
-
-    requestAnimationFrame(() => {
-      dom.admin.password.focus();
-    });
-  }
-
-  function closeAdminModal() {
-    setHidden(dom.admin.modal, true);
-    resetAdminForm();
-  }
-
-  function showAdminError(message) {
-    setText(dom.admin.error, message);
-  }
-
-  function flashAdminFeedback(message) {
-    setText(dom.admin.feedback, message);
+  function flashEditorFeedback(message) {
+    setText(dom.scene.editorFeedback, message);
   }
 
   return {
@@ -366,10 +284,6 @@ export function createUIController() {
     bindEvents,
     showExperience,
     renderScene,
-    setAdminMode,
-    openAdminModal,
-    closeAdminModal,
-    showAdminError,
-    flashAdminFeedback
+    flashEditorFeedback
   };
 }
