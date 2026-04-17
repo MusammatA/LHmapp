@@ -5,8 +5,12 @@ const GOOGLE_MAPS_CALLBACK_NAME = "__geographyOfGuiltMapsReady";
 const DEFAULT_MAP_CENTER = Object.freeze({ lat: 59.9311, lng: 30.3609 });
 const DEFAULT_MAP_ZOOM = 13;
 const DEFAULT_SCENE_ZOOM = 16;
-const SCENE_ZOOM_DELAY_MS = 420;
-const SCENE_INFO_DELAY_MS = 680;
+
+const SCENE_PACING = Object.freeze({
+  secondary: Object.freeze({ zoomDelay: 320, infoDelay: 560 }),
+  important: Object.freeze({ zoomDelay: 520, infoDelay: 860 }),
+  major: Object.freeze({ zoomDelay: 820, infoDelay: 1280 })
+});
 
 const ROUTE_STYLE = Object.freeze({
   strokeColor: "#b9ab93",
@@ -14,11 +18,25 @@ const ROUTE_STYLE = Object.freeze({
   strokeWeight: 3
 });
 
-const ACTIVE_PIN_STYLE = Object.freeze({
+const ACTIVE_MAJOR_PIN_STYLE = Object.freeze({
   background: "#e7decf",
   borderColor: "#f7f0e5",
   glyphColor: "#111111",
-  scale: 1.16
+  scale: 1.28
+});
+
+const ACTIVE_PIN_STYLE = Object.freeze({
+  background: "#d6c8b0",
+  borderColor: "#f0e5d5",
+  glyphColor: "#111111",
+  scale: 1.12
+});
+
+const IDLE_MAJOR_PIN_STYLE = Object.freeze({
+  background: "#8d7a63",
+  borderColor: "#c9baa1",
+  glyphColor: "#111111",
+  scale: 0.98
 });
 
 const IDLE_PIN_STYLE = Object.freeze({
@@ -38,14 +56,27 @@ function toLatLngLiteral(scene) {
   return { lat: scene.lat, lng: scene.lng };
 }
 
-function createMarkerPin(PinElement, isActive) {
-  const pinStyle = isActive ? ACTIVE_PIN_STYLE : IDLE_PIN_STYLE;
+function resolveScenePacing(scene) {
+  return SCENE_PACING[scene.importance] || SCENE_PACING.secondary;
+}
+
+function resolvePinStyle(scene, isActive) {
+  if (isActive) {
+    return scene.isMajorTurningPoint ? ACTIVE_MAJOR_PIN_STYLE : ACTIVE_PIN_STYLE;
+  }
+
+  return scene.isMajorTurningPoint ? IDLE_MAJOR_PIN_STYLE : IDLE_PIN_STYLE;
+}
+
+function createMarkerPin(PinElement, scene, isActive) {
+  const pinStyle = resolvePinStyle(scene, isActive);
   return new PinElement(pinStyle).element;
 }
 
 function buildInfoWindowContent(scene) {
   return `
     <div class="map-popover">
+      <span class="map-popover__meta">${scene.dayLabel} · ${scene.importanceLabel}</span>
       <strong class="map-popover__title">${scene.title}</strong>
       <span class="map-popover__location">${scene.locationName}</span>
       <span class="map-popover__address">${scene.modernAddress}</span>
@@ -104,6 +135,7 @@ export class SceneMapController {
     this.infoWindow = null;
     this.routeLine = null;
     this.markers = new Map();
+    this.sceneLookup = new Map();
     this.scenes = [];
     this.isReady = false;
     this.pendingZoomTimer = null;
@@ -112,6 +144,7 @@ export class SceneMapController {
 
   async initialize({ apiKey, mapId, scenes }) {
     this.scenes = scenes.slice();
+    this.sceneLookup = new Map(this.scenes.map((scene) => [scene.id, scene]));
 
     if (!isConfiguredApiKey(apiKey)) {
       this.showPlaceholder(
@@ -166,7 +199,7 @@ export class SceneMapController {
         map: this.map,
         position: toLatLngLiteral(scene),
         title: scene.title,
-        content: createMarkerPin(PinElement, false)
+        content: createMarkerPin(PinElement, scene, false)
       });
 
       this.markers.set(scene.id, marker);
@@ -183,10 +216,12 @@ export class SceneMapController {
     this.updateMarkerStates(scene.id);
     this.map.panTo(toLatLngLiteral(scene));
 
+    const pacing = resolveScenePacing(scene);
+
     // The small stagger makes the move feel deliberate instead of snapping both pan and zoom at once.
     this.pendingZoomTimer = window.setTimeout(() => {
       this.map.setZoom(scene.mapZoom || DEFAULT_SCENE_ZOOM);
-    }, SCENE_ZOOM_DELAY_MS);
+    }, pacing.zoomDelay);
 
     this.pendingInfoTimer = window.setTimeout(() => {
       const marker = this.markers.get(scene.id);
@@ -199,7 +234,7 @@ export class SceneMapController {
         anchor: marker,
         map: this.map
       });
-    }, SCENE_INFO_DELAY_MS);
+    }, pacing.infoDelay);
   }
 
   clearPendingFocus() {
@@ -215,7 +250,8 @@ export class SceneMapController {
     const { PinElement } = this.googleMaps;
 
     this.markers.forEach((marker, sceneId) => {
-      marker.content = createMarkerPin(PinElement, sceneId === activeSceneId);
+      const scene = this.sceneLookup.get(sceneId);
+      marker.content = createMarkerPin(PinElement, scene, sceneId === activeSceneId);
     });
   }
 

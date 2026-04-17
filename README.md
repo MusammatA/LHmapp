@@ -49,6 +49,8 @@ All scenes live in `js/data.js`.
 
 Each scene object supports:
 
+- `sequence`
+- `dayLabel`
 - `id`
 - `title`
 - `locationName`
@@ -57,6 +59,10 @@ Each scene object supports:
 - `lng`
 - `mediaType`
 - `mediaSrc`
+- `importance`
+- `importanceLabel`
+- `isMajorTurningPoint`
+- `psychologicalRole`
 - `quote`
 - `interpretation`
 - `delayBeforeText`
@@ -67,10 +73,21 @@ To add a new scene:
 
 1. Duplicate an existing scene object in `js/data.js`.
 2. Give it a unique `id`.
-3. Update the title, location, coordinates, media path, and text.
-4. Keep it in the array where you want it to appear in the linear sequence.
+3. Update the title, day label, location, coordinates, media path, and text.
+4. Set `importance` to `secondary`, `important`, or `major`.
+5. Add a short `psychologicalRole` line that explains the scene's mental or moral function.
+6. Keep it in the array where you want it to appear in the linear sequence.
 
 The site renders scene order directly from the array order.
+
+Importance controls pacing and emphasis:
+
+- `secondary`
+  Faster reveal and lighter treatment.
+- `important`
+  Moderate delay and stronger emphasis.
+- `major`
+  Longest reveal delay and the strongest visual treatment in the interface.
 
 ## Change Coordinates
 

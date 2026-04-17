@@ -41,7 +41,7 @@
         </div>
 
         <div class="app-header__meta">
-          <p class="scene-counter" data-scene-counter>Scene 01 / 08</p>
+          <p class="scene-counter" data-scene-counter>Scene 01 / 42</p>
           <button class="admin-pill" type="button" data-admin-toggle hidden>
             Admin Mode
           </button>
@@ -73,16 +73,16 @@
           </div>
         </section>
 
-        <section class="panel panel--scene">
+        <section class="panel panel--scene" data-scene-panel>
           <div class="panel__header">
             <div>
               <p class="panel__eyebrow">Scene</p>
               <h3 class="panel__title" data-scene-title-chrome>Marmeladov&rsquo;s Tavern</h3>
             </div>
-            <p class="panel__meta" data-scene-phase-chrome>Before the crime</p>
+            <p class="panel__meta" data-scene-phase-chrome>Day 1 · Important Psychological Pressure</p>
           </div>
 
-          <div class="scene-stage">
+          <div class="scene-stage" data-scene-stage>
             <div class="scene-stage__media">
               <img class="scene-media scene-media--image" data-scene-image alt="" hidden>
               <video
@@ -103,8 +103,14 @@
             </div>
 
             <article class="scene-card" data-scene-card hidden aria-live="polite">
-              <p class="scene-card__eyebrow" data-scene-phase></p>
+              <p class="scene-card__eyebrow" data-scene-phase>Day 1</p>
+              <div class="scene-card__meta-row">
+                <span class="scene-chip scene-chip--importance" data-scene-importance>
+                  Important Psychological Pressure
+                </span>
+              </div>
               <h3 class="scene-card__title" data-scene-title></h3>
+              <p class="scene-card__role" data-scene-role></p>
 
               <div class="scene-card__location">
                 <p data-scene-location-name></p>

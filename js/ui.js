@@ -43,9 +43,13 @@ function collectDom() {
       notes: queryRequired("[data-scene-notes]")
     },
     scene: {
+      panel: queryRequired("[data-scene-panel]"),
+      stage: queryRequired("[data-scene-stage]"),
       card: queryRequired("[data-scene-card]"),
       phase: queryRequired("[data-scene-phase]"),
+      importance: queryRequired("[data-scene-importance]"),
       title: queryRequired("[data-scene-title]"),
+      role: queryRequired("[data-scene-role]"),
       locationName: queryRequired("[data-scene-location-name]"),
       address: queryRequired("[data-scene-address]"),
       quote: queryRequired("[data-scene-quote]"),
@@ -185,15 +189,20 @@ export function createUIController() {
   function renderSceneChrome(scene, sceneNumber, totalScenes) {
     setText(dom.header.sceneCounter, formatSceneCounter(sceneNumber, totalScenes));
     setText(dom.header.title, scene.title);
-    setText(dom.header.subtitle, scene.locationName);
+    setText(dom.header.subtitle, `${scene.dayLabel} · ${scene.importanceLabel}`);
     setText(dom.header.locationLine, `${scene.locationName} — ${scene.modernAddress}`);
     setText(dom.header.notes, scene.notes || "");
   }
 
   function renderSceneBody(scene) {
     dom.scene.card.dataset.sceneId = scene.id;
-    setText(dom.scene.phase, scene.locationName);
+    dom.scene.panel.dataset.sceneImportance = scene.importance;
+    dom.scene.stage.dataset.sceneImportance = scene.importance;
+    dom.scene.card.dataset.sceneImportance = scene.importance;
+    setText(dom.scene.phase, scene.dayLabel);
+    setText(dom.scene.importance, scene.importanceLabel);
     setText(dom.scene.title, scene.title);
+    setText(dom.scene.role, scene.psychologicalRole);
     setText(dom.scene.locationName, scene.locationName);
     setText(dom.scene.address, scene.modernAddress);
     setText(dom.scene.quote, scene.quote);
