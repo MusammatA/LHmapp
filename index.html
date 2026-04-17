@@ -179,6 +179,10 @@
       googleMapsMapId: "DEMO_MAP_ID"
     });
   </script>
-  <script type="module" src="js/app.js"></script>
+  <!-- Ordered deferred scripts keep the project file-based and compatible with direct local opening. -->
+  <script defer src="js/data.js"></script>
+  <script defer src="js/map.js"></script>
+  <script defer src="js/ui.js"></script>
+  <script defer src="js/app.js"></script>
 </body>
 </html>

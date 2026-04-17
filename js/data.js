@@ -1,216 +1,217 @@
-const SCENE_IMPORTANCE = Object.freeze({
-  secondary: Object.freeze({
-    key: "secondary",
-    label: "Secondary Passage",
-    delayBeforeText: 2400
-  }),
-  important: Object.freeze({
-    key: "important",
-    label: "Important Psychological Pressure",
-    delayBeforeText: 3400
-  }),
-  major: Object.freeze({
-    key: "major",
-    label: "Major Psychological Turning Point",
-    delayBeforeText: 4800
-  })
-});
-
-function createAnchor(locationName, modernAddress, lat, lng, mapZoom = 17, notes = "") {
-  return Object.freeze({
-    locationName,
-    modernAddress,
-    lat,
-    lng,
-    mapZoom,
-    notes
+(function attachSceneData(globalScope) {
+  const SCENE_IMPORTANCE = Object.freeze({
+    secondary: Object.freeze({
+      key: "secondary",
+      label: "Secondary Passage",
+      delayBeforeText: 2400
+    }),
+    important: Object.freeze({
+      key: "important",
+      label: "Important Psychological Pressure",
+      delayBeforeText: 3400
+    }),
+    major: Object.freeze({
+      key: "major",
+      label: "Major Psychological Turning Point",
+      delayBeforeText: 4800
+    })
   });
-}
 
-const LOCATION = Object.freeze({
-  pawnbrokerApartment: createAnchor(
-    "Pawnbroker's House district anchor",
-    "Bolshaya Podyacheskaya, 16, St. Petersburg, Russia, 190068",
-    59.9246885,
-    30.3057083,
-    18,
-    "Approximate modern anchor for the pawnbroker's building and its surrounding stairwell."
-  ),
-  tavern: createAnchor(
-    "Haymarket tavern district anchor",
-    "Cholka, Sankt-Peterburg, Russia, 190068",
-    59.9242,
-    30.3032,
-    17,
-    "Modern-day stand-in for the tavern sequence near the Haymarket social geography of the novel."
-  ),
-  marmeladovHome: createAnchor(
-    "Marmeladov family district anchor",
-    "Sennaya Square district, St Petersburg, Russia, 190068",
-    59.9238,
-    30.3019,
-    17,
-    "Approximate family-home anchor in the same impoverished district as the tavern scenes."
-  ),
-  raskolnikovRoom: createAnchor(
-    "Raskolnikov's lodging district anchor",
-    "Stolyarnyy Pereulok, 7/18, St Petersburg, Russia, 190031",
-    59.9275272,
-    30.3114796,
-    18,
-    "Modern-day district stand-in for Raskolnikov's room and nearby passages of fever, isolation, and return."
-  ),
-  razumihinThreshold: createAnchor(
-    "Razumihin district stand-in",
-    "Stolyarnyy Pereulok district, St Petersburg, Russia, 190031",
-    59.9269,
-    30.3132,
-    17,
-    "Approximate modern anchor for the threshold scene outside Razumihin's rooms."
-  ),
-  bridge: createAnchor(
-    "Voznesenskiy Most",
-    "Voznesensky Ave, 23, St Petersburg, Russia, 190000",
-    59.9264715,
-    30.3081607,
-    18,
-    "Real bridge location used throughout the project as a threshold space for hesitation, wandering, and turning back."
-  ),
-  petrovskyIsland: createAnchor(
-    "Petrovsky Island",
-    "Petrovsky Island, Petrogradsky District, St. Petersburg, Russia",
-    59.9583503,
-    30.2691772,
-    15,
-    "Island anchor for the horse dream sequence."
-  ),
-  policeStation: createAnchor(
-    "Police station district anchor",
-    "Stolyarnyy Pereulok, 7/18, St Petersburg, Russia, 190031",
-    59.9264618,
-    30.314236,
-    17,
-    "Approximate modern anchor for police, Porfiry, and official pressure scenes."
-  ),
-  lootRock: createAnchor(
-    "Loot hiding place anchor",
-    "Stolyarnyy Pereulok, 7/18, St Petersburg, Russia, 190031",
-    59.92715,
-    30.3121,
-    17,
-    "Approximate modern anchor for the rock under which the stolen items are hidden."
-  ),
-  crystalPalace: createAnchor(
-    "Crystal Palace district anchor",
-    "Griboyedov Canal Embankment, 83-91, St Petersburg, Russia, 190000",
-    59.9274508,
-    30.3033333,
-    16,
-    "Modern canal-side anchor for the restaurant and wandering scenes."
-  ),
-  familyLodging: createAnchor(
-    "Pulcheria and Dounia lodging district anchor",
-    "Bol'shaya Pod'yacheskaya Ulitsa, 35, Sankt-Peterburg, Russia, 190068",
-    59.9211164,
-    30.3050881,
-    17,
-    "Approximate family lodging anchor for visits, letters, and the Luzhin conflict."
-  ),
-  porfiryOffice: createAnchor(
-    "Porfiry district anchor",
-    "Bolshaya Podyacheskaya district, St Petersburg, Russia, 190068",
-    59.92438,
-    30.30492,
-    17,
-    "Approximate investigative-office anchor for the Porfiry scenes."
-  ),
-  luzhinDinner: createAnchor(
-    "Luzhin meeting rooms anchor",
-    "Bol'shaya Pod'yacheskaya Ulitsa, 35, Sankt-Peterburg, Russia, 190068",
-    59.92084,
-    30.30434,
-    17,
-    "Approximate modern anchor for the dinner and confrontation with Luzhin."
-  ),
-  sonyaRoom: createAnchor(
-    "Sonya's Room district anchor",
-    "Stolyarnyy Pereulok, 7/18, St Petersburg, Russia, 190031",
-    59.92662,
-    30.31316,
-    17,
-    "Approximate modern anchor for the Sonya scenes, confession, and movement toward rebirth."
-  ),
-  svidrigailovBar: createAnchor(
-    "Svidrigailov tavern district anchor",
-    "Stolyarnyy Pereulok district, St Petersburg, Russia, 190031",
-    59.92688,
-    30.31356,
-    17,
-    "Approximate tavern/bar anchor for the Svidrigailov encounters."
-  ),
-  streetCrossroads: createAnchor(
-    "Crossroads and street procession anchor",
-    "Griboyedov Canal Embankment district, St Petersburg, Russia, 190000",
-    59.9283,
-    30.3092,
-    16,
-    "Modern-day street anchor for public movement, processions, and the pressure of confession."
-  ),
-  siberia: createAnchor(
-    "Omsk Oblast / Siberian horizon anchor",
-    "Omsk Oblast, Russia",
-    56.0935263,
-    73.5099936,
-    6,
-    "A broad Siberian anchor rather than a single exact prison site."
-  )
-});
+  function createAnchor(locationName, modernAddress, lat, lng, mapZoom = 17, notes = "") {
+    return Object.freeze({
+      locationName,
+      modernAddress,
+      lat,
+      lng,
+      mapZoom,
+      notes
+    });
+  }
 
-const MEDIA = Object.freeze({
-  tavern: "assets/images/marmeladov-tavern.png",
-  bridge: "assets/images/bridge-canal-scene.png",
-  murder: "assets/images/pawnbroker-murder.png",
-  stairwell: "assets/images/stairwell-panic.png",
-  hiding: "assets/images/hiding-the-loot.png",
-  police: "assets/images/police-station.png",
-  staircase: "assets/images/ascending-staircase.jpg",
-  torment: "assets/images/torment-and-tragedy.png"
-});
+  const LOCATION = Object.freeze({
+    pawnbrokerApartment: createAnchor(
+      "Pawnbroker's House district anchor",
+      "Bolshaya Podyacheskaya, 16, St. Petersburg, Russia, 190068",
+      59.9246885,
+      30.3057083,
+      18,
+      "Approximate modern anchor for the pawnbroker's building and its surrounding stairwell."
+    ),
+    tavern: createAnchor(
+      "Haymarket tavern district anchor",
+      "Cholka, Sankt-Peterburg, Russia, 190068",
+      59.9242,
+      30.3032,
+      17,
+      "Modern-day stand-in for the tavern sequence near the Haymarket social geography of the novel."
+    ),
+    marmeladovHome: createAnchor(
+      "Marmeladov family district anchor",
+      "Sennaya Square district, St Petersburg, Russia, 190068",
+      59.9238,
+      30.3019,
+      17,
+      "Approximate family-home anchor in the same impoverished district as the tavern scenes."
+    ),
+    raskolnikovRoom: createAnchor(
+      "Raskolnikov's lodging district anchor",
+      "Stolyarnyy Pereulok, 7/18, St Petersburg, Russia, 190031",
+      59.9275272,
+      30.3114796,
+      18,
+      "Modern-day district stand-in for Raskolnikov's room and nearby passages of fever, isolation, and return."
+    ),
+    razumihinThreshold: createAnchor(
+      "Razumihin district stand-in",
+      "Stolyarnyy Pereulok district, St Petersburg, Russia, 190031",
+      59.9269,
+      30.3132,
+      17,
+      "Approximate modern anchor for the threshold scene outside Razumihin's rooms."
+    ),
+    bridge: createAnchor(
+      "Voznesenskiy Most",
+      "Voznesensky Ave, 23, St Petersburg, Russia, 190000",
+      59.9264715,
+      30.3081607,
+      18,
+      "Real bridge location used throughout the project as a threshold space for hesitation, wandering, and turning back."
+    ),
+    petrovskyIsland: createAnchor(
+      "Petrovsky Island",
+      "Petrovsky Island, Petrogradsky District, St. Petersburg, Russia",
+      59.9583503,
+      30.2691772,
+      15,
+      "Island anchor for the horse dream sequence."
+    ),
+    policeStation: createAnchor(
+      "Police station district anchor",
+      "Stolyarnyy Pereulok, 7/18, St Petersburg, Russia, 190031",
+      59.9264618,
+      30.314236,
+      17,
+      "Approximate modern anchor for police, Porfiry, and official pressure scenes."
+    ),
+    lootRock: createAnchor(
+      "Loot hiding place anchor",
+      "Stolyarnyy Pereulok, 7/18, St Petersburg, Russia, 190031",
+      59.92715,
+      30.3121,
+      17,
+      "Approximate modern anchor for the rock under which the stolen items are hidden."
+    ),
+    crystalPalace: createAnchor(
+      "Crystal Palace district anchor",
+      "Griboyedov Canal Embankment, 83-91, St Petersburg, Russia, 190000",
+      59.9274508,
+      30.3033333,
+      16,
+      "Modern canal-side anchor for the restaurant and wandering scenes."
+    ),
+    familyLodging: createAnchor(
+      "Pulcheria and Dounia lodging district anchor",
+      "Bol'shaya Pod'yacheskaya Ulitsa, 35, Sankt-Peterburg, Russia, 190068",
+      59.9211164,
+      30.3050881,
+      17,
+      "Approximate family lodging anchor for visits, letters, and the Luzhin conflict."
+    ),
+    porfiryOffice: createAnchor(
+      "Porfiry district anchor",
+      "Bolshaya Podyacheskaya district, St Petersburg, Russia, 190068",
+      59.92438,
+      30.30492,
+      17,
+      "Approximate investigative-office anchor for the Porfiry scenes."
+    ),
+    luzhinDinner: createAnchor(
+      "Luzhin meeting rooms anchor",
+      "Bol'shaya Pod'yacheskaya Ulitsa, 35, Sankt-Peterburg, Russia, 190068",
+      59.92084,
+      30.30434,
+      17,
+      "Approximate modern anchor for the dinner and confrontation with Luzhin."
+    ),
+    sonyaRoom: createAnchor(
+      "Sonya's Room district anchor",
+      "Stolyarnyy Pereulok, 7/18, St Petersburg, Russia, 190031",
+      59.92662,
+      30.31316,
+      17,
+      "Approximate modern anchor for the Sonya scenes, confession, and movement toward rebirth."
+    ),
+    svidrigailovBar: createAnchor(
+      "Svidrigailov tavern district anchor",
+      "Stolyarnyy Pereulok district, St Petersburg, Russia, 190031",
+      59.92688,
+      30.31356,
+      17,
+      "Approximate tavern/bar anchor for the Svidrigailov encounters."
+    ),
+    streetCrossroads: createAnchor(
+      "Crossroads and street procession anchor",
+      "Griboyedov Canal Embankment district, St Petersburg, Russia, 190000",
+      59.9283,
+      30.3092,
+      16,
+      "Modern-day street anchor for public movement, processions, and the pressure of confession."
+    ),
+    siberia: createAnchor(
+      "Omsk Oblast / Siberian horizon anchor",
+      "Omsk Oblast, Russia",
+      56.0935263,
+      73.5099936,
+      6,
+      "A broad Siberian anchor rather than a single exact prison site."
+    )
+  });
 
-function resolveEditableText(defaultValue, editedValue) {
-  return typeof editedValue === "string" && editedValue.trim()
-    ? editedValue.trim()
-    : defaultValue;
-}
+  const MEDIA = Object.freeze({
+    tavern: "assets/images/marmeladov-tavern.png",
+    bridge: "assets/images/bridge-canal-scene.png",
+    murder: "assets/images/pawnbroker-murder.png",
+    stairwell: "assets/images/stairwell-panic.png",
+    hiding: "assets/images/hiding-the-loot.png",
+    police: "assets/images/police-station.png",
+    staircase: "assets/images/ascending-staircase.jpg",
+    torment: "assets/images/torment-and-tragedy.png"
+  });
 
-function createScene(anchor, scene, sequence) {
-  const importance = SCENE_IMPORTANCE[scene.importance] || SCENE_IMPORTANCE.secondary;
+  function resolveEditableText(defaultValue, editedValue) {
+    return typeof editedValue === "string" && editedValue.trim()
+      ? editedValue.trim()
+      : defaultValue;
+  }
 
-  return {
-    mediaType: "image",
-    ...anchor,
-    ...scene,
-    sequence,
-    importance: importance.key,
-    importanceLabel: importance.label,
-    isMajorTurningPoint: importance.key === "major",
-    delayBeforeText: scene.delayBeforeText || importance.delayBeforeText,
-    mapZoom: scene.mapZoom || anchor.mapZoom,
-    notes: scene.notes || anchor.notes
-  };
-}
+  function createScene(anchor, scene, sequence) {
+    const importance = SCENE_IMPORTANCE[scene.importance] || SCENE_IMPORTANCE.secondary;
 
-function fromAnchor(anchorKey, scene, sequence) {
-  return createScene(LOCATION[anchorKey], scene, sequence);
-}
+    return {
+      mediaType: "image",
+      ...anchor,
+      ...scene,
+      sequence,
+      importance: importance.key,
+      importanceLabel: importance.label,
+      isMajorTurningPoint: importance.key === "major",
+      delayBeforeText: scene.delayBeforeText || importance.delayBeforeText,
+      mapZoom: scene.mapZoom || anchor.mapZoom,
+      notes: scene.notes || anchor.notes
+    };
+  }
 
-export const APP_METADATA = Object.freeze({
-  title: "The Geography of Guilt",
-  subtitle: "A scene-by-scene literary mapping project built around Crime and Punishment.",
-  sceneEditsStorageKey: "geography-of-guilt.scene-edits.v1"
-});
+  function fromAnchor(anchorKey, scene, sequence) {
+    return createScene(LOCATION[anchorKey], scene, sequence);
+  }
 
-const RAW_SCENES = [
+  const APP_METADATA = Object.freeze({
+    title: "The Geography of Guilt",
+    subtitle: "A scene-by-scene literary mapping project built around Crime and Punishment.",
+    sceneEditsStorageKey: "geography-of-guilt.scene-edits.v1"
+  });
+
+  const RAW_SCENES = [
   {
     anchor: "pawnbrokerApartment",
     id: "day-1-rehearsal",
@@ -717,14 +718,21 @@ const RAW_SCENES = [
   }
 ];
 
-export const SCENES = RAW_SCENES.map((scene, index) =>
-  fromAnchor(scene.anchor, scene, index + 1)
-);
+  const SCENES = RAW_SCENES.map((scene, index) =>
+    fromAnchor(scene.anchor, scene, index + 1)
+  );
 
-export function mergeSceneContent(scene, sceneEdit = {}) {
-  return {
-    ...scene,
-    quote: resolveEditableText(scene.quote, sceneEdit.quote),
-    interpretation: resolveEditableText(scene.interpretation, sceneEdit.interpretation)
-  };
-}
+  function mergeSceneContent(scene, sceneEdit = {}) {
+    return {
+      ...scene,
+      quote: resolveEditableText(scene.quote, sceneEdit.quote),
+      interpretation: resolveEditableText(scene.interpretation, sceneEdit.interpretation)
+    };
+  }
+
+  globalScope.GeographyOfGuiltData = Object.freeze({
+    APP_METADATA,
+    SCENES,
+    mergeSceneContent
+  });
+})(window);

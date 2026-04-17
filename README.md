@@ -13,6 +13,8 @@ A vanilla HTML, CSS, and JavaScript literary mapping project built around *Crime
 - `assets/images/`
 - `assets/videos/`
 
+The scripts load with plain deferred `<script>` tags instead of ES modules so the project can still run when `index.html` is opened directly in a browser.
+
 ## Where The Main Logic Lives
 
 - `js/data.js`

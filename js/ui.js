@@ -1,79 +1,80 @@
-function queryRequired(selector, root = document) {
-  const element = root.querySelector(selector);
+(function attachUIController(globalScope) {
+  function queryRequired(selector, root = document) {
+    const element = root.querySelector(selector);
 
-  if (!element) {
-    throw new Error(`Missing required element: ${selector}`);
+    if (!element) {
+      throw new Error(`Missing required element: ${selector}`);
+    }
+
+    return element;
   }
 
-  return element;
-}
+  function setHidden(element, isHidden) {
+    element.hidden = isHidden;
+  }
 
-function setHidden(element, isHidden) {
-  element.hidden = isHidden;
-}
+  function setText(element, value = "") {
+    element.textContent = value;
+  }
 
-function setText(element, value = "") {
-  element.textContent = value;
-}
+  function formatSceneCounter(sceneNumber, totalScenes) {
+    return `Scene ${String(sceneNumber).padStart(2, "0")} / ${String(totalScenes).padStart(2, "0")}`;
+  }
 
-function formatSceneCounter(sceneNumber, totalScenes) {
-  return `Scene ${String(sceneNumber).padStart(2, "0")} / ${String(totalScenes).padStart(2, "0")}`;
-}
+  function collectDom() {
+    return {
+      screens: {
+        landing: queryRequired("[data-landing-screen]"),
+        experience: queryRequired("[data-experience-screen]")
+      },
+      controls: {
+        start: queryRequired("[data-start-button]"),
+        previous: queryRequired("[data-prev-button]"),
+        next: queryRequired("[data-next-button]")
+      },
+      header: {
+        sceneCounter: queryRequired("[data-scene-counter]"),
+        title: queryRequired("[data-scene-title-chrome]"),
+        subtitle: queryRequired("[data-scene-phase-chrome]"),
+        locationLine: queryRequired("[data-scene-location-line]"),
+        notes: queryRequired("[data-scene-notes]")
+      },
+      scene: {
+        panel: queryRequired("[data-scene-panel]"),
+        stage: queryRequired("[data-scene-stage]"),
+        card: queryRequired("[data-scene-card]"),
+        phase: queryRequired("[data-scene-phase]"),
+        importance: queryRequired("[data-scene-importance]"),
+        title: queryRequired("[data-scene-title]"),
+        role: queryRequired("[data-scene-role]"),
+        locationName: queryRequired("[data-scene-location-name]"),
+        address: queryRequired("[data-scene-address]"),
+        editorForm: queryRequired("[data-editor-form]"),
+        editorQuote: queryRequired("[data-editor-quote]"),
+        editorInterpretation: queryRequired("[data-editor-interpretation]"),
+        editorFeedback: queryRequired("[data-editor-feedback]"),
+        editorResetButton: queryRequired("[data-editor-reset]")
+      },
+      media: {
+        image: queryRequired("[data-scene-image]"),
+        video: queryRequired("[data-scene-video]"),
+        fallback: queryRequired("[data-media-fallback]"),
+        fallbackTitle: queryRequired("[data-media-fallback-title]"),
+        fallbackCopy: queryRequired("[data-media-fallback-copy]")
+      },
+      map: {
+        canvas: queryRequired("#map"),
+        status: queryRequired("[data-map-status]"),
+        placeholder: queryRequired("[data-map-placeholder]"),
+        placeholderTitle: queryRequired("[data-map-placeholder-title]"),
+        placeholderCopy: queryRequired("[data-map-placeholder-copy]")
+      }
+    };
+  }
 
-function collectDom() {
-  return {
-    screens: {
-      landing: queryRequired("[data-landing-screen]"),
-      experience: queryRequired("[data-experience-screen]")
-    },
-    controls: {
-      start: queryRequired("[data-start-button]"),
-      previous: queryRequired("[data-prev-button]"),
-      next: queryRequired("[data-next-button]")
-    },
-    header: {
-      sceneCounter: queryRequired("[data-scene-counter]"),
-      title: queryRequired("[data-scene-title-chrome]"),
-      subtitle: queryRequired("[data-scene-phase-chrome]"),
-      locationLine: queryRequired("[data-scene-location-line]"),
-      notes: queryRequired("[data-scene-notes]")
-    },
-    scene: {
-      panel: queryRequired("[data-scene-panel]"),
-      stage: queryRequired("[data-scene-stage]"),
-      card: queryRequired("[data-scene-card]"),
-      phase: queryRequired("[data-scene-phase]"),
-      importance: queryRequired("[data-scene-importance]"),
-      title: queryRequired("[data-scene-title]"),
-      role: queryRequired("[data-scene-role]"),
-      locationName: queryRequired("[data-scene-location-name]"),
-      address: queryRequired("[data-scene-address]"),
-      editorForm: queryRequired("[data-editor-form]"),
-      editorQuote: queryRequired("[data-editor-quote]"),
-      editorInterpretation: queryRequired("[data-editor-interpretation]"),
-      editorFeedback: queryRequired("[data-editor-feedback]"),
-      editorResetButton: queryRequired("[data-editor-reset]")
-    },
-    media: {
-      image: queryRequired("[data-scene-image]"),
-      video: queryRequired("[data-scene-video]"),
-      fallback: queryRequired("[data-media-fallback]"),
-      fallbackTitle: queryRequired("[data-media-fallback-title]"),
-      fallbackCopy: queryRequired("[data-media-fallback-copy]")
-    },
-    map: {
-      canvas: queryRequired("#map"),
-      status: queryRequired("[data-map-status]"),
-      placeholder: queryRequired("[data-map-placeholder]"),
-      placeholderTitle: queryRequired("[data-map-placeholder-title]"),
-      placeholderCopy: queryRequired("[data-map-placeholder-copy]")
-    }
-  };
-}
-
-export function createUIController() {
-  const dom = collectDom();
-  let sceneRevealTimer = null;
+  function createUIController() {
+    const dom = collectDom();
+    let sceneRevealTimer = null;
 
   function clearSceneRevealTimer() {
     if (!sceneRevealTimer) {
@@ -273,17 +274,22 @@ export function createUIController() {
     setText(dom.scene.editorFeedback, message);
   }
 
-  return {
-    mapElements: {
-      mapElement: dom.map.canvas,
-      placeholderElement: dom.map.placeholder,
-      placeholderTitleElement: dom.map.placeholderTitle,
-      placeholderCopyElement: dom.map.placeholderCopy,
-      statusElement: dom.map.status
-    },
-    bindEvents,
-    showExperience,
-    renderScene,
-    flashEditorFeedback
-  };
-}
+    return {
+      mapElements: {
+        mapElement: dom.map.canvas,
+        placeholderElement: dom.map.placeholder,
+        placeholderTitleElement: dom.map.placeholderTitle,
+        placeholderCopyElement: dom.map.placeholderCopy,
+        statusElement: dom.map.status
+      },
+      bindEvents,
+      showExperience,
+      renderScene,
+      flashEditorFeedback
+    };
+  }
+
+  globalScope.GeographyOfGuiltUI = Object.freeze({
+    createUIController
+  });
+})(window);

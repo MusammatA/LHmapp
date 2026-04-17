@@ -1,128 +1,129 @@
-const GOOGLE_MAPS_PLACEHOLDER_KEY = "YOUR_GOOGLE_MAPS_API_KEY";
-const GOOGLE_MAPS_SCRIPT_ID = "geography-of-guilt-google-maps";
-const GOOGLE_MAPS_CALLBACK_NAME = "__geographyOfGuiltMapsReady";
+(function attachMapController(globalScope) {
+  const GOOGLE_MAPS_PLACEHOLDER_KEY = "YOUR_GOOGLE_MAPS_API_KEY";
+  const GOOGLE_MAPS_SCRIPT_ID = "geography-of-guilt-google-maps";
+  const GOOGLE_MAPS_CALLBACK_NAME = "__geographyOfGuiltMapsReady";
 
-const DEFAULT_MAP_CENTER = Object.freeze({ lat: 59.9311, lng: 30.3609 });
-const DEFAULT_MAP_ZOOM = 13;
-const DEFAULT_SCENE_ZOOM = 16;
+  const DEFAULT_MAP_CENTER = Object.freeze({ lat: 59.9311, lng: 30.3609 });
+  const DEFAULT_MAP_ZOOM = 13;
+  const DEFAULT_SCENE_ZOOM = 16;
 
-const SCENE_PACING = Object.freeze({
-  secondary: Object.freeze({ zoomDelay: 320, infoDelay: 560 }),
-  important: Object.freeze({ zoomDelay: 520, infoDelay: 860 }),
-  major: Object.freeze({ zoomDelay: 820, infoDelay: 1280 })
-});
+  const SCENE_PACING = Object.freeze({
+    secondary: Object.freeze({ zoomDelay: 320, infoDelay: 560 }),
+    important: Object.freeze({ zoomDelay: 520, infoDelay: 860 }),
+    major: Object.freeze({ zoomDelay: 820, infoDelay: 1280 })
+  });
 
-const ROUTE_STYLE = Object.freeze({
-  strokeColor: "#b9ab93",
-  strokeOpacity: 0.6,
-  strokeWeight: 3
-});
+  const ROUTE_STYLE = Object.freeze({
+    strokeColor: "#b9ab93",
+    strokeOpacity: 0.6,
+    strokeWeight: 3
+  });
 
-const ACTIVE_MAJOR_PIN_STYLE = Object.freeze({
-  background: "#e7decf",
-  borderColor: "#f7f0e5",
-  glyphColor: "#111111",
-  scale: 1.28
-});
+  const ACTIVE_MAJOR_PIN_STYLE = Object.freeze({
+    background: "#e7decf",
+    borderColor: "#f7f0e5",
+    glyphColor: "#111111",
+    scale: 1.28
+  });
 
-const ACTIVE_PIN_STYLE = Object.freeze({
-  background: "#d6c8b0",
-  borderColor: "#f0e5d5",
-  glyphColor: "#111111",
-  scale: 1.12
-});
+  const ACTIVE_PIN_STYLE = Object.freeze({
+    background: "#d6c8b0",
+    borderColor: "#f0e5d5",
+    glyphColor: "#111111",
+    scale: 1.12
+  });
 
-const IDLE_MAJOR_PIN_STYLE = Object.freeze({
-  background: "#8d7a63",
-  borderColor: "#c9baa1",
-  glyphColor: "#111111",
-  scale: 0.98
-});
+  const IDLE_MAJOR_PIN_STYLE = Object.freeze({
+    background: "#8d7a63",
+    borderColor: "#c9baa1",
+    glyphColor: "#111111",
+    scale: 0.98
+  });
 
-const IDLE_PIN_STYLE = Object.freeze({
-  background: "#585049",
-  borderColor: "#84786d",
-  glyphColor: "#111111",
-  scale: 0.88
-});
+  const IDLE_PIN_STYLE = Object.freeze({
+    background: "#585049",
+    borderColor: "#84786d",
+    glyphColor: "#111111",
+    scale: 0.88
+  });
 
-let mapsLoaderPromise = null;
+  let mapsLoaderPromise = null;
 
-function isConfiguredApiKey(apiKey) {
-  return Boolean(apiKey) && apiKey !== GOOGLE_MAPS_PLACEHOLDER_KEY;
-}
-
-function toLatLngLiteral(scene) {
-  return { lat: scene.lat, lng: scene.lng };
-}
-
-function resolveScenePacing(scene) {
-  return SCENE_PACING[scene.importance] || SCENE_PACING.secondary;
-}
-
-function resolvePinStyle(scene, isActive) {
-  if (isActive) {
-    return scene.isMajorTurningPoint ? ACTIVE_MAJOR_PIN_STYLE : ACTIVE_PIN_STYLE;
+  function isConfiguredApiKey(apiKey) {
+    return Boolean(apiKey) && apiKey !== GOOGLE_MAPS_PLACEHOLDER_KEY;
   }
 
-  return scene.isMajorTurningPoint ? IDLE_MAJOR_PIN_STYLE : IDLE_PIN_STYLE;
-}
-
-function createMarkerPin(PinElement, scene, isActive) {
-  const pinStyle = resolvePinStyle(scene, isActive);
-  return new PinElement(pinStyle).element;
-}
-
-function buildInfoWindowContent(scene) {
-  return `
-    <div class="map-popover">
-      <span class="map-popover__meta">${scene.dayLabel} · ${scene.importanceLabel}</span>
-      <strong class="map-popover__title">${scene.title}</strong>
-      <span class="map-popover__location">${scene.locationName}</span>
-      <span class="map-popover__address">${scene.modernAddress}</span>
-    </div>
-  `;
-}
-
-function loadGoogleMapsApi(apiKey) {
-  if (window.google?.maps) {
-    return Promise.resolve(window.google.maps);
+  function toLatLngLiteral(scene) {
+    return { lat: scene.lat, lng: scene.lng };
   }
 
-  if (mapsLoaderPromise) {
+  function resolveScenePacing(scene) {
+    return SCENE_PACING[scene.importance] || SCENE_PACING.secondary;
+  }
+
+  function resolvePinStyle(scene, isActive) {
+    if (isActive) {
+      return scene.isMajorTurningPoint ? ACTIVE_MAJOR_PIN_STYLE : ACTIVE_PIN_STYLE;
+    }
+
+    return scene.isMajorTurningPoint ? IDLE_MAJOR_PIN_STYLE : IDLE_PIN_STYLE;
+  }
+
+  function createMarkerPin(PinElement, scene, isActive) {
+    const pinStyle = resolvePinStyle(scene, isActive);
+    return new PinElement(pinStyle).element;
+  }
+
+  function buildInfoWindowContent(scene) {
+    return `
+      <div class="map-popover">
+        <span class="map-popover__meta">${scene.dayLabel} · ${scene.importanceLabel}</span>
+        <strong class="map-popover__title">${scene.title}</strong>
+        <span class="map-popover__location">${scene.locationName}</span>
+        <span class="map-popover__address">${scene.modernAddress}</span>
+      </div>
+    `;
+  }
+
+  function loadGoogleMapsApi(apiKey) {
+    if (window.google?.maps) {
+      return Promise.resolve(window.google.maps);
+    }
+
+    if (mapsLoaderPromise) {
+      return mapsLoaderPromise;
+    }
+
+    mapsLoaderPromise = new Promise((resolve, reject) => {
+      window[GOOGLE_MAPS_CALLBACK_NAME] = () => {
+        resolve(window.google.maps);
+        delete window[GOOGLE_MAPS_CALLBACK_NAME];
+      };
+
+      const existingScript = document.getElementById(GOOGLE_MAPS_SCRIPT_ID);
+      if (existingScript) {
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.id = GOOGLE_MAPS_SCRIPT_ID;
+      script.src =
+        `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(apiKey)}` +
+        `&loading=async&callback=${GOOGLE_MAPS_CALLBACK_NAME}&v=weekly&libraries=marker`;
+      script.async = true;
+      script.defer = true;
+      script.onerror = () => {
+        reject(new Error("Google Maps could not load. Check your API key, billing, and allowed referrers."));
+        delete window[GOOGLE_MAPS_CALLBACK_NAME];
+      };
+
+      document.head.append(script);
+    });
+
     return mapsLoaderPromise;
   }
 
-  mapsLoaderPromise = new Promise((resolve, reject) => {
-    window[GOOGLE_MAPS_CALLBACK_NAME] = () => {
-      resolve(window.google.maps);
-      delete window[GOOGLE_MAPS_CALLBACK_NAME];
-    };
-
-    const existingScript = document.getElementById(GOOGLE_MAPS_SCRIPT_ID);
-    if (existingScript) {
-      return;
-    }
-
-    const script = document.createElement("script");
-    script.id = GOOGLE_MAPS_SCRIPT_ID;
-    script.src =
-      `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(apiKey)}` +
-      `&loading=async&callback=${GOOGLE_MAPS_CALLBACK_NAME}&v=weekly&libraries=marker`;
-    script.async = true;
-    script.defer = true;
-    script.onerror = () => {
-      reject(new Error("Google Maps could not load. Check your API key, billing, and allowed referrers."));
-      delete window[GOOGLE_MAPS_CALLBACK_NAME];
-    };
-
-    document.head.append(script);
-  });
-
-  return mapsLoaderPromise;
-}
-
-export class SceneMapController {
+  class SceneMapController {
   constructor(elements) {
     this.mapElement = elements.mapElement;
     this.placeholderElement = elements.placeholderElement;
@@ -270,4 +271,9 @@ export class SceneMapController {
   setStatus(message) {
     this.statusElement.textContent = message;
   }
-}
+  }
+
+  globalScope.GeographyOfGuiltMap = Object.freeze({
+    SceneMapController
+  });
+})(window);
