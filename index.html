@@ -3,1635 +3,216 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Crime And Punishment Mapping Assignment</title>
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-    crossorigin=""
+  <meta
+    name="description"
+    content="A cinematic literary mapping project following Raskolnikov's psychological journey through modern-day St. Petersburg."
   >
-  <style>
-    :root {
-      color-scheme: dark;
-      --bg: #090d12;
-      --panel: rgba(12, 18, 26, 0.92);
-      --panel-border: rgba(255, 255, 255, 0.08);
-      --text: #eef4f8;
-      --muted: #a6b4c0;
-      --accent: #f0534f;
-      --accent-soft: rgba(240, 83, 79, 0.18);
-      --accent-line: rgba(240, 83, 79, 0.74);
-      --cold: #9ab8d1;
-      --cold-soft: rgba(154, 184, 209, 0.2);
-      --radius: 24px;
-      --line: rgba(255, 255, 255, 0.08);
-      --shadow: 0 28px 90px rgba(0, 0, 0, 0.42);
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html,
-    body {
-      margin: 0;
-      min-height: 100%;
-      background:
-        radial-gradient(circle at top left, rgba(240, 83, 79, 0.14), transparent 24%),
-        radial-gradient(circle at bottom right, rgba(154, 184, 209, 0.18), transparent 32%),
-        var(--bg);
-      color: var(--text);
-      font-family: "Avenir Next", "Segoe UI", Helvetica, Arial, sans-serif;
-    }
-
-    body {
-      padding: 18px;
-    }
-
-    body.overlay-open {
-      overflow: hidden;
-    }
-
-    .layout {
-      min-height: calc(100vh - 36px);
-      display: grid;
-      grid-template-columns: 390px minmax(0, 1fr);
-      gap: 18px;
-    }
-
-    .panel,
-    .map-shell {
-      border: 1px solid var(--panel-border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
-
-    .panel {
-      background: var(--panel);
-      backdrop-filter: blur(18px);
-      padding: 24px;
-      overflow: auto;
-    }
-
-    .eyebrow {
-      margin: 0 0 10px;
-      color: var(--accent);
-      font-size: 0.78rem;
-      font-weight: 800;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-    }
-
-    h1,
-    h2,
-    h3,
-    p {
-      margin-top: 0;
-    }
-
-    .title {
-      margin-bottom: 12px;
-      font-size: clamp(2rem, 4vw, 3rem);
-      line-height: 0.95;
-      letter-spacing: -0.045em;
-    }
-
-    .intro {
-      margin-bottom: 18px;
-      color: var(--muted);
-      line-height: 1.58;
-    }
-
-    .control-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-      margin-bottom: 22px;
-    }
-
-    .button,
-    .scene-button {
-      border: 1px solid transparent;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.04);
-      color: var(--text);
-      cursor: pointer;
-      transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, background 160ms ease;
-    }
-
-    .button {
-      padding: 12px 16px;
-      font-size: 0.94rem;
-      font-weight: 800;
-    }
-
-    .button:hover,
-    .button:focus-visible,
-    .scene-button:hover,
-    .scene-button:focus-visible {
-      outline: none;
-      transform: translateY(-1px);
-      border-color: rgba(255, 255, 255, 0.12);
-      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
-    }
-
-    .button.primary {
-      background: linear-gradient(135deg, var(--accent), #b63b37);
-      box-shadow: 0 12px 32px rgba(240, 83, 79, 0.28);
-    }
-
-    .button.secondary {
-      background: linear-gradient(135deg, rgba(154, 184, 209, 0.16), rgba(154, 184, 209, 0.06));
-      border-color: rgba(154, 184, 209, 0.22);
-    }
-
-    .status-chip {
-      padding: 10px 14px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.04);
-      color: var(--muted);
-      font-size: 0.86rem;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
-    .section + .section {
-      margin-top: 26px;
-      padding-top: 24px;
-      border-top: 1px solid var(--line);
-    }
-
-    .section-title {
-      margin-bottom: 10px;
-      font-size: 1rem;
-      letter-spacing: 0.01em;
-    }
-
-    .hint {
-      margin-bottom: 14px;
-      color: var(--muted);
-      font-size: 0.92rem;
-      line-height: 1.52;
-    }
-
-    .scene-wrap.is-locked .scene-button {
-      opacity: 0.46;
-      pointer-events: none;
-      filter: grayscale(0.2);
-    }
-
-    .scene-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-    }
-
-    .scene-button {
-      width: 100%;
-      padding: 12px 14px;
-      text-align: left;
-      background: rgba(255, 255, 255, 0.03);
-    }
-
-    .scene-button strong,
-    .scene-button span {
-      display: block;
-    }
-
-    .scene-button strong {
-      font-size: 0.92rem;
-      font-weight: 800;
-      line-height: 1.28;
-    }
-
-    .scene-button span {
-      margin-top: 4px;
-      color: var(--muted);
-      font-size: 0.76rem;
-      line-height: 1.35;
-    }
-
-    .scene-button.is-active {
-      background: linear-gradient(135deg, rgba(240, 83, 79, 0.18), rgba(240, 83, 79, 0.08));
-      border-color: rgba(240, 83, 79, 0.5);
-    }
-
-    .card {
-      padding: 18px;
-      border-radius: 20px;
-      background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02)),
-        rgba(6, 12, 18, 0.84);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
-    .card-kicker {
-      margin-bottom: 8px;
-      color: var(--accent);
-      font-size: 0.76rem;
-      font-weight: 800;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-    }
-
-    .card h3 {
-      margin-bottom: 10px;
-      font-size: 1.35rem;
-      letter-spacing: -0.03em;
-    }
-
-    .card-copy {
-      margin-bottom: 16px;
-      color: var(--muted);
-      font-size: 0.95rem;
-      line-height: 1.56;
-    }
-
-    .meta-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-      margin: 0;
-    }
-
-    .meta-grid div {
-      padding: 12px;
-      border-radius: 16px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .meta-grid .full {
-      grid-column: 1 / -1;
-    }
-
-    .meta-grid dt {
-      margin-bottom: 6px;
-      color: var(--muted);
-      font-size: 0.74rem;
-      font-weight: 800;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
-
-    .meta-grid dd {
-      margin: 0;
-      font-size: 0.94rem;
-      line-height: 1.45;
-      word-break: break-word;
-    }
-
-    .footnote {
-      margin-top: 16px;
-      color: var(--muted);
-      font-size: 0.82rem;
-      line-height: 1.52;
-    }
-
-    .map-shell {
-      position: relative;
-      min-height: calc(100vh - 36px);
-      background: #0f1720;
-    }
-
-    #map {
-      position: absolute;
-      inset: 0;
-    }
-
-    .map-banner {
-      position: absolute;
-      top: 18px;
-      left: 18px;
-      z-index: 500;
-      max-width: min(460px, calc(100% - 116px));
-      padding: 14px 16px;
-      border-radius: 18px;
-      background: rgba(9, 14, 22, 0.86);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(14px);
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.34);
-    }
-
-    .map-banner strong,
-    .map-banner span {
-      display: block;
-    }
-
-    .map-banner strong {
-      margin-bottom: 5px;
-      font-size: 1rem;
-    }
-
-    .map-banner span {
-      color: var(--muted);
-      font-size: 0.88rem;
-      line-height: 1.44;
-    }
-
-    .leaflet-container {
-      background: #101821;
-      font: inherit;
-    }
-
-    .leaflet-control-zoom,
-    .leaflet-control-scale {
-      filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.28));
-    }
-
-    .leaflet-popup-content-wrapper,
-    .leaflet-popup-tip {
-      background: rgba(10, 16, 24, 0.97);
-      color: var(--text);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .leaflet-popup-content {
-      margin: 14px 16px;
-      min-width: 240px;
-      line-height: 1.5;
-    }
-
-    .popup-title {
-      margin-bottom: 4px;
-      font-size: 1rem;
-      font-weight: 800;
-    }
-
-    .popup-copy {
-      color: var(--muted);
-      font-size: 0.9rem;
-      line-height: 1.46;
-    }
-
-    .scene-tooltip,
-    .hub-tooltip {
-      background: rgba(10, 16, 24, 0.93);
-      color: var(--text);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 999px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.24);
-      padding: 8px 12px;
-    }
-
-    .scene-tooltip::before,
-    .hub-tooltip::before {
-      display: none;
-    }
-
-    .leaflet-control-attribution {
-      background: rgba(10, 16, 24, 0.82);
-      color: var(--muted);
-      border-top-left-radius: 10px;
-    }
-
-    .leaflet-control-attribution a {
-      color: #dce8f1;
-    }
-
-    .scene-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 2400;
-      display: grid;
-      place-items: center;
-      padding: 28px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 320ms ease;
-    }
-
-    .scene-overlay.is-open {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .scene-overlay-backdrop {
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(circle at center, rgba(255, 255, 255, 0.06), transparent 40%),
-        rgba(4, 7, 10, 0.76);
-      backdrop-filter: blur(14px);
-    }
-
-    .scene-overlay-panel {
-      position: relative;
-      z-index: 1;
-      width: min(1120px, 100%);
-      max-height: calc(100vh - 56px);
-      display: grid;
-      grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.85fr);
-      gap: 20px;
-      padding: 20px;
-      border-radius: 30px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background: rgba(10, 14, 20, 0.92);
-      box-shadow: 0 40px 120px rgba(0, 0, 0, 0.5);
-      transform: translateY(24px) scale(0.985);
-      transition: transform 320ms ease;
-      overflow: hidden;
-    }
-
-    .scene-overlay.is-open .scene-overlay-panel {
-      transform: translateY(0) scale(1);
-    }
-
-    .scene-overlay-media {
-      position: relative;
-      min-height: 70vh;
-      border-radius: 24px;
-      overflow: hidden;
-      background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02)),
-        #0a0d11;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .scene-overlay-image {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      filter: saturate(0.7) contrast(1.03) brightness(0.92);
-    }
-
-    .scene-overlay-fallback {
-      position: absolute;
-      inset: 0;
-      display: grid;
-      align-content: end;
-      gap: 14px;
-      padding: 28px;
-      background:
-        linear-gradient(180deg, rgba(17, 20, 23, 0.05), rgba(8, 10, 12, 0.92)),
-        radial-gradient(circle at 50% 16%, rgba(239, 232, 220, 0.32), transparent 20%),
-        radial-gradient(circle at 76% 24%, rgba(255, 245, 220, 0.18), transparent 10%),
-        linear-gradient(180deg, #211d17 0%, #0f0d0c 100%);
-      color: #f5eee6;
-    }
-
-    .scene-overlay-fallback[hidden] {
-      display: none;
-    }
-
-    .scene-overlay-fallback::before,
-    .scene-overlay-fallback::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-    }
-
-    .scene-overlay-fallback::before {
-      background:
-        linear-gradient(0deg, transparent 49.5%, rgba(244, 235, 220, 0.28) 50%, transparent 50.5%),
-        radial-gradient(circle at 28% 28%, rgba(0, 0, 0, 0.38) 0 14%, transparent 14.5%),
-        radial-gradient(circle at 68% 28%, rgba(0, 0, 0, 0.34) 0 13%, transparent 13.5%),
-        radial-gradient(circle at 26% 66%, rgba(0, 0, 0, 0.42) 0 16%, transparent 16.5%),
-        radial-gradient(circle at 71% 68%, rgba(0, 0, 0, 0.36) 0 14%, transparent 14.5%);
-      mix-blend-mode: multiply;
-      opacity: 0.9;
-    }
-
-    .scene-overlay-fallback::after {
-      background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 18%),
-        repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.045) 0 2px, transparent 2px 10px);
-      opacity: 0.28;
-    }
-
-    .scene-overlay-fallback strong {
-      position: relative;
-      z-index: 1;
-      font-size: clamp(1.4rem, 2vw, 2rem);
-      letter-spacing: -0.03em;
-    }
-
-    .scene-overlay-fallback span {
-      position: relative;
-      z-index: 1;
-      max-width: 28rem;
-      color: rgba(245, 238, 230, 0.78);
-      line-height: 1.6;
-    }
-
-    .scene-overlay-copy {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 18px;
-      min-width: 0;
-    }
-
-    .scene-overlay-copy-card {
-      padding: 22px;
-      border-radius: 22px;
-      background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02)),
-        rgba(7, 11, 16, 0.84);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
-    .scene-overlay-label {
-      margin: 0 0 8px;
-      color: var(--accent);
-      font-size: 0.76rem;
-      font-weight: 800;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-    }
-
-    .scene-overlay-title {
-      margin: 0 0 10px;
-      font-size: clamp(1.8rem, 3vw, 2.8rem);
-      line-height: 0.96;
-      letter-spacing: -0.045em;
-    }
-
-    .scene-overlay-subtitle {
-      margin: 0 0 18px;
-      color: var(--muted);
-      line-height: 1.58;
-      font-size: 0.98rem;
-    }
-
-    .scene-overlay-meta {
-      display: grid;
-      gap: 12px;
-    }
-
-    .scene-overlay-meta div {
-      padding: 14px;
-      border-radius: 16px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .scene-overlay-meta h4 {
-      margin: 0 0 6px;
-      color: var(--cold);
-      font-size: 0.78rem;
-      font-weight: 800;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
-
-    .scene-overlay-meta p {
-      margin: 0;
-      color: var(--text);
-      line-height: 1.58;
-      font-size: 0.94rem;
-    }
-
-    .scene-overlay-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .scene-overlay-close {
-      position: absolute;
-      top: 18px;
-      right: 18px;
-      z-index: 2;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 999px;
-      background: rgba(9, 13, 18, 0.82);
-      color: var(--text);
-      padding: 11px 14px;
-      font: inherit;
-      font-weight: 800;
-      cursor: pointer;
-      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
-    }
-
-    .scene-overlay-close:hover,
-    .scene-overlay-close:focus-visible {
-      outline: none;
-      transform: translateY(-1px);
-      border-color: rgba(255, 255, 255, 0.14);
-      background: rgba(15, 21, 29, 0.94);
-    }
-
-    @media (max-width: 1120px) {
-      body {
-        padding: 12px;
-      }
-
-      .layout {
-        min-height: auto;
-        grid-template-columns: 1fr;
-      }
-
-      .panel,
-      .map-shell {
-        min-height: 50vh;
-      }
-
-      .scene-overlay-panel {
-        grid-template-columns: 1fr;
-        max-height: calc(100vh - 32px);
-      }
-
-      .scene-overlay-media {
-        min-height: 44vh;
-      }
-    }
-
-    @media (max-width: 640px) {
-      .panel {
-        padding: 18px;
-      }
-
-      .scene-grid,
-      .meta-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .meta-grid .full {
-        grid-column: auto;
-      }
-
-      .map-banner {
-        max-width: calc(100% - 36px);
-      }
-
-      .scene-overlay {
-        padding: 12px;
-      }
-
-      .scene-overlay-panel {
-        padding: 14px;
-      }
-
-      .scene-overlay-copy-card {
-        padding: 18px;
-      }
-
-      .scene-overlay-close {
-        top: 12px;
-        right: 12px;
-      }
-    }
-  </style>
+  <title>The Geography of Guilt</title>
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-  <div class="layout">
-    <aside class="panel">
-      <p class="eyebrow">Lit Hub x Columbia</p>
-      <h1 class="title">Raskolnikov&rsquo;s Psychological Map</h1>
-      <p class="intro">
-        This map treats <em>Crime and Punishment</em> as a geography of guilt. St. Petersburg is not just a backdrop:
-        it externalizes Raskolnikov&rsquo;s fever, alienation, rationalization, paranoia, and eventual movement toward confession.
-        Click <strong>St. Petersburg</strong> to open the route, then step through the scenes and what each space reveals about his mind.
-      </p>
-
-      <div class="control-row">
-        <button class="button primary" id="view-stp" type="button">Open St. Petersburg</button>
-        <button class="button secondary" id="view-siberia" type="button">Jump To Siberia</button>
-        <button class="button" id="view-russia" type="button">Russia Overview</button>
-        <div class="status-chip" id="status-chip">Russia overview loaded</div>
-      </div>
-
-      <section class="section">
-        <h2 class="section-title">Scene Route</h2>
-        <p class="hint">
-          The red route marks his wandering movement through the city. The scene buttons unlock after you open St. Petersburg.
+  <div class="site-shell">
+    <section class="landing-screen" data-landing-screen>
+      <div class="landing-screen__scrim"></div>
+      <div class="landing-screen__content">
+        <p class="eyebrow">Crime and Punishment Literary Mapping Project</p>
+        <h1 class="landing-screen__title">The Geography of Guilt</h1>
+        <p class="landing-screen__subtitle">
+          A guided descent through the modern streets of St. Petersburg, where Raskolnikov&rsquo;s physical route becomes a map
+          of fear, rationalization, collapse, and the first pressure of confession.
         </p>
-        <div class="scene-wrap is-locked" id="scene-wrap">
-          <div class="scene-grid" id="scene-grid"></div>
-        </div>
-      </section>
-
-      <section class="section">
-        <h2 class="section-title">Selected Scene</h2>
-        <div class="card">
-          <div class="card-kicker" id="scene-kicker">Assignment Focus</div>
-          <h3 id="scene-title">Choose St. Petersburg to begin</h3>
-          <p class="card-copy" id="scene-copy">
-            The selected scene card explains how a location functions psychologically in the novel, not just where it sits on the map.
-          </p>
-          <dl class="meta-grid">
-            <div>
-              <dt>Phase</dt>
-              <dd id="scene-phase">Russia overview</dd>
-            </div>
-            <div>
-              <dt>Place</dt>
-              <dd id="scene-place">St. Petersburg and Siberia</dd>
-            </div>
-            <div class="full">
-              <dt>Modern Anchor</dt>
-              <dd id="scene-address">Use the city buttons to focus the assignment map.</dd>
-            </div>
-            <div class="full">
-              <dt>Psychological Reveal</dt>
-              <dd id="scene-psych">Each scene will explain what the space reveals about Raskolnikov&rsquo;s psyche.</dd>
-            </div>
-            <div class="full">
-              <dt>Why It Matters</dt>
-              <dd id="scene-meaning">The city route turns plot into a map of breakdown, compulsion, and possible renewal.</dd>
-            </div>
-          </dl>
-        </div>
-      </section>
-
-      <section class="section">
-        <h2 class="section-title">Live Street Detail</h2>
-        <div class="card">
-          <div class="card-kicker" id="street-kicker">Modern Map Click</div>
-          <h3 id="street-title">Click anywhere on the map</h3>
-          <p class="card-copy" id="street-copy">
-            This secondary card uses live reverse geocoding so you can connect the literary scene to the modern street fabric of St. Petersburg.
-          </p>
-          <dl class="meta-grid">
-            <div>
-              <dt>Country</dt>
-              <dd id="street-country">Russia</dd>
-            </div>
-            <div>
-              <dt>Region</dt>
-              <dd id="street-region">Waiting for click</dd>
-            </div>
-            <div>
-              <dt>City</dt>
-              <dd id="street-city">Waiting for click</dd>
-            </div>
-            <div>
-              <dt>District</dt>
-              <dd id="street-district">Waiting for click</dd>
-            </div>
-            <div>
-              <dt>Street</dt>
-              <dd id="street-name">Zoom in and click the map</dd>
-            </div>
-            <div>
-              <dt>House</dt>
-              <dd id="street-house">Not selected</dd>
-            </div>
-            <div class="full">
-              <dt>Coordinates</dt>
-              <dd id="street-coords">61.5240, 105.3188</dd>
-            </div>
-          </dl>
-          <p class="footnote">
-            The route and literary scenes are curated manually for the assignment. The modern street card uses Leaflet with OpenStreetMap tiles and
-            Nominatim reverse geocoding when you click the map.
-          </p>
-        </div>
-      </section>
-    </aside>
-
-    <main class="map-shell">
-      <div class="map-banner">
-        <strong>Open St. Petersburg, follow the red route, then click scenes</strong>
-        <span>
-          The city cluster maps Raskolnikov&rsquo;s wandering, while the Siberia point marks the novel&rsquo;s punitive and regenerative horizon.
-        </span>
+        <button class="button button--primary landing-screen__button" type="button" data-start-button>
+          Start
+        </button>
+        <p class="landing-screen__note">
+          Move scene by scene. Watch the city close in. Let the text arrive only after the image has had time to work.
+        </p>
       </div>
-      <div id="map" aria-label="Interactive literary map of Russia"></div>
-    </main>
-  </div>
+    </section>
 
-  <section class="scene-overlay" id="scene-overlay" aria-hidden="true">
-    <div class="scene-overlay-backdrop" data-overlay-close></div>
-    <div class="scene-overlay-panel" role="dialog" aria-modal="true" aria-labelledby="scene-overlay-title">
-      <button class="scene-overlay-close" id="scene-overlay-close" type="button">Back To Map</button>
-      <div class="scene-overlay-media">
-        <img
-          class="scene-overlay-image"
-          id="scene-overlay-image"
-          alt="Illustrated literary scene from Crime and Punishment"
-        >
-        <div class="scene-overlay-fallback" id="scene-overlay-fallback">
-          <strong id="scene-overlay-fallback-title">The tavern encounter</strong>
-          <span id="scene-overlay-fallback-copy">
-            If the artwork cannot load, this fallback keeps the scene transition readable and atmospheric.
-          </span>
-        </div>
-      </div>
-      <div class="scene-overlay-copy">
-        <div class="scene-overlay-copy-card">
-          <p class="scene-overlay-label">Scene Close Reading</p>
-          <h2 class="scene-overlay-title" id="scene-overlay-title">Marmeladov&rsquo;s Tavern</h2>
-          <p class="scene-overlay-subtitle" id="scene-overlay-subtitle">
-            Raskolnikov enters trying to remain cold and theoretical, but the tavern scene forces him into proximity with human suffering.
+    <section class="experience-screen" data-experience-screen hidden aria-hidden="true">
+      <header class="app-header">
+        <div>
+          <p class="eyebrow">Interactive Literary Map</p>
+          <h2 class="app-header__title" data-admin-trigger tabindex="0">The Geography of Guilt</h2>
+          <p class="app-header__subtitle">
+            Real modern-day locations in St. Petersburg paired with the moral and psychological pressure of the novel.
           </p>
-          <div class="scene-overlay-meta">
+        </div>
+
+        <div class="app-header__meta">
+          <p class="scene-counter" data-scene-counter>Scene 01 / 08</p>
+          <button class="admin-pill" type="button" data-admin-toggle hidden>
+            Admin Mode
+          </button>
+        </div>
+      </header>
+
+      <main class="experience-grid">
+        <section class="panel panel--map">
+          <div class="panel__header">
             <div>
-              <h4>What The Space Does</h4>
-              <p id="scene-overlay-psych">
-                The tavern saturates him with poverty, confession, humiliation, and pity. It weakens his fantasy that he can think beyond ordinary moral feeling.
-              </p>
+              <p class="panel__eyebrow">Map</p>
+              <h3 class="panel__title">Modern-Day St. Petersburg</h3>
             </div>
-            <div>
-              <h4>Why It Matters</h4>
-              <p id="scene-overlay-meaning">
-                Marmeladov&rsquo;s speech reveals that Raskolnikov is not detached from suffering at all. His compassion keeps returning, and that instability becomes central to the novel.
-              </p>
-            </div>
-            <div>
-              <h4>Modern Anchor</h4>
-              <p id="scene-overlay-address">
-                Cholka, Sankt-Peterburg, Russia, 190068 (mapped as an approximate district anchor for the assignment).
+            <p class="panel__meta" data-map-status>
+              Add your Google Maps API key to activate the live map.
+            </p>
+          </div>
+
+          <div class="map-stage">
+            <div class="map-canvas" id="map" aria-label="Google Map of scene locations"></div>
+
+            <div class="map-placeholder" data-map-placeholder hidden>
+              <h4 data-map-placeholder-title>Google Maps is waiting for your API key.</h4>
+              <p data-map-placeholder-copy>
+                Insert your key in <code>window.GEOGRAPHY_OF_GUILT_CONFIG.googleMapsApiKey</code> inside
+                <code>index.html</code>.
               </p>
             </div>
           </div>
+        </section>
+
+        <section class="panel panel--scene">
+          <div class="panel__header">
+            <div>
+              <p class="panel__eyebrow">Scene</p>
+              <h3 class="panel__title" data-scene-title-chrome>Marmeladov&rsquo;s Tavern</h3>
+            </div>
+            <p class="panel__meta" data-scene-phase-chrome>Before the crime</p>
+          </div>
+
+          <div class="scene-stage">
+            <div class="scene-stage__media">
+              <img class="scene-media scene-media--image" data-scene-image alt="" hidden>
+              <video
+                class="scene-media scene-media--video"
+                data-scene-video
+                playsinline
+                preload="metadata"
+                controls
+                hidden
+              ></video>
+              <div class="scene-media__fallback" data-media-fallback hidden>
+                <p class="scene-media__fallback-kicker">Media unavailable</p>
+                <h4 data-media-fallback-title>Attach scene artwork or a video file.</h4>
+                <p data-media-fallback-copy>
+                  The scene can still be navigated, but this panel is waiting for its media source.
+                </p>
+              </div>
+            </div>
+
+            <article class="scene-card" data-scene-card hidden aria-live="polite">
+              <p class="scene-card__eyebrow" data-scene-phase></p>
+              <h3 class="scene-card__title" data-scene-title></h3>
+
+              <div class="scene-card__location">
+                <p data-scene-location-name></p>
+                <p data-scene-address></p>
+              </div>
+
+              <div class="scene-card__view" data-scene-view>
+                <blockquote class="scene-card__quote">
+                  <p data-scene-quote></p>
+                </blockquote>
+                <p class="scene-card__interpretation" data-scene-interpretation></p>
+              </div>
+
+              <form class="scene-card__editor" data-admin-editor hidden>
+                <label class="field">
+                  <span class="field__label">Quote</span>
+                  <textarea data-admin-quote rows="4"></textarea>
+                </label>
+
+                <label class="field">
+                  <span class="field__label">Interpretation</span>
+                  <textarea data-admin-interpretation rows="7"></textarea>
+                </label>
+
+                <div class="scene-card__editor-actions">
+                  <button class="button button--primary" type="submit">Save Scene Text</button>
+                  <button class="button button--secondary" type="button" data-admin-reset>
+                    Reset Scene Text
+                  </button>
+                </div>
+
+                <p class="scene-card__admin-note">
+                  Admin edits are saved to this browser with <code>localStorage</code>.
+                </p>
+              </form>
+
+              <p class="scene-card__feedback" data-admin-feedback></p>
+            </article>
+          </div>
+        </section>
+      </main>
+
+      <footer class="app-footer">
+        <div class="app-footer__scene-meta">
+          <p class="app-footer__location" data-scene-location-line></p>
+          <p class="app-footer__notes" data-scene-notes></p>
         </div>
-        <div class="scene-overlay-actions">
-          <button class="button primary" id="scene-overlay-return" type="button">Return To Route</button>
+
+        <nav class="scene-nav" aria-label="Scene navigation">
+          <button class="button button--secondary" type="button" data-prev-button>
+            Back
+          </button>
+          <button class="button button--primary" type="button" data-next-button>
+            Next
+          </button>
+        </nav>
+      </footer>
+    </section>
+  </div>
+
+  <section class="admin-modal" data-admin-modal hidden>
+    <div class="admin-modal__backdrop" data-admin-close></div>
+
+    <div class="admin-modal__panel" role="dialog" aria-modal="true" aria-labelledby="admin-modal-title">
+      <p class="eyebrow">Hidden Admin Access</p>
+      <h3 id="admin-modal-title">Unlock Editing</h3>
+      <p class="admin-modal__copy">
+        Only quote and interpretation fields become editable. This is lightweight client-side protection, intended for fast
+        project maintenance rather than real security.
+      </p>
+
+      <form class="admin-modal__form" data-admin-form>
+        <label class="field">
+          <span class="field__label">Password</span>
+          <input data-admin-password type="password" autocomplete="current-password">
+        </label>
+
+        <p class="admin-modal__error" data-admin-error></p>
+
+        <div class="admin-modal__actions">
+          <button class="button button--primary" type="submit">Enter Admin Mode</button>
+          <button class="button button--secondary" type="button" data-admin-close>
+            Cancel
+          </button>
         </div>
-      </div>
+      </form>
     </div>
   </section>
 
-  <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-    crossorigin=""
-  ></script>
+  <noscript>
+    <div class="noscript-warning">
+      This project requires JavaScript for the cinematic scene flow and Google Maps integration.
+    </div>
+  </noscript>
+
   <script>
-    const stPHub = [59.9311, 30.3609];
-    const siberiaPoint = [56.0935263, 73.5099936];
-
-    const sceneData = [
-      {
-        id: "tavern",
-        title: "Marmeladov's Tavern",
-        short: "social misery and unstable empathy",
-        place: "St. Petersburg",
-        phase: "Before the crime",
-        address: "Cholka, Sankt-Peterburg, Russia, 190068 (mapped here as an approximate district anchor)",
-        coords: [59.9242, 30.3032],
-        zoom: 16,
-        psych: "Raskolnikov's theory of hardness immediately collides with pity. The tavern scene shows that he cannot actually detach himself from suffering; compassion keeps breaking through disgust.",
-        meaning: "This is where the novel first makes his mind porous. He wants to think like an exceptional man, but the misery of others still enters him and unsettles the theory."
-      },
-      {
-        id: "bridge",
-        title: "The Bridge / Canal",
-        short: "threshold, hesitation, dissociation",
-        place: "St. Petersburg",
-        phase: "Before the crime",
-        address: "Voznesenskiy Most, Voznesensky Ave, 23, St Petersburg, Russia, 190000",
-        coords: [59.9264715, 30.3081607],
-        zoom: 17,
-        psych: "The bridge is a liminal structure: he is always crossing but never arriving. It stages indecision, self-division, and the feeling of standing between moral worlds.",
-        meaning: "Spatially, the bridge turns his wavering into a visible movement. He keeps translating thought into motion, then freezing again at the edge of action."
-      },
-      {
-        id: "horse-dream",
-        title: "Dream Of The Horse",
-        short: "repressed compassion before violence",
-        place: "St. Petersburg",
-        phase: "Dream sequence",
-        address: "Petrovsky Island, Petrogradsky District, St. Petersburg, Russia",
-        coords: [59.9583503, 30.2691772],
-        zoom: 15,
-        psych: "The dream exposes a moral core that his theory cannot erase. He experiences violence not as triumph but as unbearable cruelty.",
-        meaning: "This scene is the subconscious rebuttal to the crime before the crime happens. The dream proves that pity and horror are still active inside him."
-      },
-      {
-        id: "pawnbroker",
-        title: "Pawnbroker's Apartment (Murder)",
-        short: "theory becomes bodily horror",
-        place: "St. Petersburg",
-        phase: "The crime",
-        address: "Mini-Hotel Anizan, Bolshaya Podyacheskaya, 16, St. Petersburg, Russia, 190068",
-        coords: [59.9246885, 30.3057083],
-        zoom: 18,
-        psych: "At the apartment threshold, abstraction collapses. The murder forces him out of ideological fantasy and into blood, panic, and physical reality.",
-        meaning: "This is the central rupture of the novel: he tries to prove a doctrine, but the space converts it into nausea, accident, and irreversible consequence."
-      },
-      {
-        id: "stairwell",
-        title: "Streets / Stairwell After The Murder",
-        short: "panic, fragmentation, hypervigilance",
-        place: "St. Petersburg",
-        phase: "Immediate aftermath",
-        address: "Mini-Hotel Anizan, Bolshaya Podyacheskaya, 16, St. Petersburg, Russia, 190068",
-        coords: [59.92492, 30.30652],
-        zoom: 18,
-        psych: "After the murder, space turns hostile. Every landing, doorway, and passerby becomes a threat. His consciousness fragments into fragments of escape, concealment, and shock.",
-        meaning: "The stairwell and streets show guilt as a spatial condition. The city no longer feels navigable; it becomes an instrument of fear."
-      },
-      {
-        id: "loot",
-        title: "Hiding The Loot (Under The Rock)",
-        short: "erasing motive, denying profit",
-        place: "St. Petersburg",
-        phase: "After the crime",
-        address: "Kalinka, Stolyarnyy Pereulok, 7/18, St Petersburg, Russia, 190031",
-        coords: [59.92715, 30.3121],
-        zoom: 17,
-        psych: "He cannot convert the crime into gain. Hiding the loot is less practical than symbolic: he is trying to bury motive itself.",
-        meaning: "This scene matters because it reveals that the murder never functions as rational self-advancement. The act already exceeds the theory that justified it."
-      },
-      {
-        id: "room",
-        title: "His Room (Repeated Setting)",
-        short: "claustrophobia, fever, self-entombment",
-        place: "St. Petersburg",
-        phase: "Recurring interior",
-        address: "Kalinka, Stolyarnyy Pereulok, 7/18, St Petersburg, Russia, 190031",
-        coords: [59.9275272, 30.3114796],
-        zoom: 18,
-        psych: "His room is almost a coffin. It condenses self-isolation, illness, self-absorption, and the shrinking of the world into obsession.",
-        meaning: "The room repeatedly translates his psychology into architecture: narrow, oppressive, airless, and incapable of sustaining a healthy moral perspective."
-      },
-      {
-        id: "police",
-        title: "Police Station (Summons Scene)",
-        short: "anticipatory guilt and paranoia",
-        place: "St. Petersburg",
-        phase: "Institutional pressure",
-        address: "Kalinka, Stolyarnyy Pereulok, 7/18, St Petersburg, Russia, 190031",
-        coords: [59.9264618, 30.3142360],
-        zoom: 17,
-        psych: "The police station dramatizes his split impulse: he both fears exposure and feels drawn toward confession.",
-        meaning: "This space matters because formal authority is not yet the strongest force on him. His own guilty imagination is already interrogating him from within."
-      },
-      {
-        id: "return-scene",
-        title: "Returning To The Crime Scene",
-        short: "compulsion and self-punishment",
-        place: "St. Petersburg",
-        phase: "Obsessive return",
-        address: "Bol'shaya Pod'yacheskaya Ulitsa, 35, Sankt-Peterburg, Russia, 190068",
-        coords: [59.9211164, 30.3050881],
-        zoom: 17,
-        psych: "Returning is not rational. It is compulsive, almost masochistic, as though he needs to stand again inside the wound he made.",
-        meaning: "The return scene shows that guilt is not only avoidance. It also produces repetition, reenactment, and a strange desire to test the limits of punishment."
-      },
-      {
-        id: "porfiry",
-        title: "Porfiry Petrovich Meetings",
-        short: "intellectual duel and exposure",
-        place: "St. Petersburg",
-        phase: "Psychological investigation",
-        address: "Mini-Hotel Anizan, Bolshaya Podyacheskaya, 16, St. Petersburg, Russia, 190068",
-        coords: [59.92438, 30.30492],
-        zoom: 17,
-        psych: "Porfiry attacks the theory indirectly, forcing Raskolnikov to feel himself read. He is most destabilized when another intelligence sees through the self-image he built.",
-        meaning: "These meetings matter because they turn the novel from a murder plot into a drama of interpretation. Porfiry pressures not just evidence, but consciousness."
-      },
-      {
-        id: "luzhin",
-        title: "Luzhin Encounters",
-        short: "a cold utilitarian mirror",
-        place: "St. Petersburg",
-        phase: "Social confrontation",
-        address: "Bol'shaya Pod'yacheskaya Ulitsa, 35, Sankt-Peterburg, Russia, 190068",
-        coords: [59.92084, 30.30434],
-        zoom: 17,
-        psych: "Luzhin embodies selfish calculation stripped of heroic rhetoric. In him, Raskolnikov confronts a vulgar version of instrumental reason.",
-        meaning: "Luzhin matters as a mirror: he exposes how ugly egoistic logic looks when it loses its philosophical glamour."
-      },
-      {
-        id: "svidrigailov",
-        title: "Svidrigailov Encounters",
-        short: "the dark double",
-        place: "St. Petersburg",
-        phase: "Moral doubling",
-        address: "Kalinka, Stolyarnyy Pereulok, 7/18, St Petersburg, Russia, 190031",
-        coords: [59.92688, 30.31356],
-        zoom: 17,
-        psych: "Svidrigailov represents a future in which transgression persists without repentance. He is the nihilistic double Raskolnikov could become.",
-        meaning: "These encounters sharpen the novel's moral stakes: the problem is not simply crime, but what kind of self can survive after crime."
-      },
-      {
-        id: "sonya",
-        title: "Sonya's Room (Lazarus Reading)",
-        short: "humility, suffering, resurrection",
-        place: "St. Petersburg",
-        phase: "Toward confession",
-        address: "Kalinka, Stolyarnyy Pereulok, 7/18, St Petersburg, Russia, 190031",
-        coords: [59.92662, 30.31316],
-        zoom: 17,
-        psych: "Sonya's room is the counter-space to his theory. Here he encounters humility, witness, and the possibility that suffering can become transformative rather than merely degrading.",
-        meaning: "This scene marks the beginning of another route through the city: not domination, but confession and spiritual rebirth."
-      },
-      {
-        id: "wandering",
-        title: "Wandering The Streets",
-        short: "delirium, overload, urban alienation",
-        place: "St. Petersburg",
-        phase: "Recurring drift",
-        address: "Scorpena, Griboyedov channel embankment, 83-91, St Petersburg, Russia, 190000",
-        coords: [59.9274508, 30.3033333],
-        zoom: 16,
-        psych: "His wandering makes the city feel feverish. Streets, canals, crossings, and markets become extensions of cognitive overload and moral disorientation.",
-        meaning: "The wandering route is the map's main formal device: the city itself becomes a medium of consciousness, never stable long enough for him to master it."
-      },
-      {
-        id: "siberia",
-        title: "Rural Siberia",
-        short: "punishment, emptiness, possible renewal",
-        place: "Siberia",
-        phase: "Epilogue",
-        address: "Rural Siberia (mapped here through Omsk Oblast as the novel's punitive horizon)",
-        coords: siberiaPoint,
-        zoom: 6,
-        psych: "Siberia is both punishment and stripped-down possibility. The city of fever gives way to distance, labor, and the slow chance of moral regeneration.",
-        meaning: "The endpoint matters because the novel does not close with mastery. It closes with exposure, endurance, and the fragile beginning of change."
-      }
-    ];
-
-    const stPSceneIds = sceneData.filter((scene) => scene.place === "St. Petersburg").map((scene) => scene.id);
-    const stPScenes = sceneData.filter((scene) => scene.place === "St. Petersburg");
-    const siberiaScene = sceneData.find((scene) => scene.id === "siberia");
-
-    const wanderingRoute = [
-      [59.9242, 30.3032],
-      [59.9253, 30.3068],
-      [59.9264715, 30.3081607],
-      [59.9348, 30.2971],
-      [59.9444, 30.2842],
-      [59.9583503, 30.2691772],
-      [59.9447, 30.2868],
-      [59.9346, 30.2957],
-      [59.9246885, 30.3057083],
-      [59.92492, 30.30652],
-      [59.9258, 30.3087],
-      [59.92715, 30.3121],
-      [59.9275272, 30.3114796],
-      [59.9264618, 30.3142360],
-      [59.9222, 30.3097],
-      [59.9211164, 30.3050881],
-      [59.9234, 30.3047],
-      [59.92438, 30.30492],
-      [59.9221, 30.3040],
-      [59.92084, 30.30434],
-      [59.9259, 30.3096],
-      [59.92688, 30.31356],
-      [59.92662, 30.31316],
-      [59.9283, 30.3092],
-      [59.9274508, 30.3033333]
-    ];
-
-    const exileRoute = [
-      [59.9274508, 30.3033333],
-      [60.3, 37.9],
-      [58.7, 48.5],
-      [57.6, 61.4],
-      [56.7, 73.0],
-      siberiaPoint
-    ];
-
-    const assignmentBounds = L.latLngBounds([
-      ...stPScenes.map((scene) => scene.coords),
-      ...exileRoute,
-      stPHub,
-      siberiaPoint
-    ]);
-    const overviewBounds = assignmentBounds.pad(0.18);
-
-    const sceneWrap = document.getElementById("scene-wrap");
-    const sceneGrid = document.getElementById("scene-grid");
-    const statusChip = document.getElementById("status-chip");
-    const viewStPButton = document.getElementById("view-stp");
-    const viewSiberiaButton = document.getElementById("view-siberia");
-    const viewRussiaButton = document.getElementById("view-russia");
-    const sceneOverlay = document.getElementById("scene-overlay");
-    const sceneOverlayImage = document.getElementById("scene-overlay-image");
-    const sceneOverlayFallback = document.getElementById("scene-overlay-fallback");
-    const sceneOverlayFallbackTitle = document.getElementById("scene-overlay-fallback-title");
-    const sceneOverlayFallbackCopy = document.getElementById("scene-overlay-fallback-copy");
-    const sceneOverlayClose = document.getElementById("scene-overlay-close");
-    const sceneOverlayReturn = document.getElementById("scene-overlay-return");
-    const sceneOverlayAssets = {
-      tavern: {
-        imageSrc: "assets/marmeladov-tavern.png",
-        alt: "Illustration of Raskolnikov and Marmeladov in the tavern",
-        subtitle: "Raskolnikov enters trying to remain cold and theoretical, but the tavern scene forces him into proximity with human suffering.",
-        fallbackTitle: "The tavern encounter",
-        fallbackCopy: "If the artwork cannot load, this fallback keeps the scene transition readable and atmospheric."
-      },
-      bridge: {
-        imageSrc: "assets/bridge-canal-scene.png",
-        alt: "Illustration of Raskolnikov at the canal bridge in St. Petersburg",
-        subtitle: "At the canal, he performs detachment as gesture, but the bridge scene exposes how unstable and theatrical that numbness really is.",
-        fallbackTitle: "The bridge and canal",
-        fallbackCopy: "If the bridge artwork cannot load, this fallback keeps the canal scene readable while preserving the same faded introduction."
-      }
-    };
-    const sceneOverlayNodes = {
-      title: document.getElementById("scene-overlay-title"),
-      subtitle: document.getElementById("scene-overlay-subtitle"),
-      psych: document.getElementById("scene-overlay-psych"),
-      meaning: document.getElementById("scene-overlay-meaning"),
-      address: document.getElementById("scene-overlay-address")
-    };
-
-    const sceneCardNodes = {
-      kicker: document.getElementById("scene-kicker"),
-      title: document.getElementById("scene-title"),
-      copy: document.getElementById("scene-copy"),
-      phase: document.getElementById("scene-phase"),
-      place: document.getElementById("scene-place"),
-      address: document.getElementById("scene-address"),
-      psych: document.getElementById("scene-psych"),
-      meaning: document.getElementById("scene-meaning")
-    };
-
-    const streetCardNodes = {
-      kicker: document.getElementById("street-kicker"),
-      title: document.getElementById("street-title"),
-      copy: document.getElementById("street-copy"),
-      country: document.getElementById("street-country"),
-      region: document.getElementById("street-region"),
-      city: document.getElementById("street-city"),
-      district: document.getElementById("street-district"),
-      street: document.getElementById("street-name"),
-      house: document.getElementById("street-house"),
-      coords: document.getElementById("street-coords")
-    };
-
-    const map = L.map("map", {
-      zoomControl: false,
-      minZoom: 2,
-      maxZoom: 19,
-      worldCopyJump: true,
-      preferCanvas: true
+    /*
+      Replace these placeholders before publishing the live Google Maps version.
+      - googleMapsApiKey: your browser-restricted Google Maps JavaScript API key
+      - googleMapsMapId: optional custom map style ID; DEMO_MAP_ID works for development
+      - adminPassword: lightweight client-side password for the hidden admin editor
+    */
+    window.GEOGRAPHY_OF_GUILT_CONFIG = Object.freeze({
+      googleMapsApiKey: "YOUR_GOOGLE_MAPS_API_KEY",
+      googleMapsMapId: "DEMO_MAP_ID",
+      adminPassword: "change-this-password"
     });
-
-    L.control.zoom({ position: "topright" }).addTo(map);
-    L.control.scale({ imperial: false, position: "bottomright" }).addTo(map);
-
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-
-    map.fitBounds(overviewBounds, {
-      padding: [26, 26]
-    });
-
-    const sceneButtons = new Map();
-    const requestCache = new Map();
-    let currentController = null;
-    let stPUnlocked = false;
-
-    const stPLayer = L.layerGroup();
-    const hubLayer = L.layerGroup().addTo(map);
-    const popups = {
-      click: L.popup({ maxWidth: 320 })
-    };
-
-    const routeGlow = L.polyline(wanderingRoute, {
-      color: "rgba(240, 83, 79, 0.16)",
-      weight: 16,
-      opacity: 1,
-      lineCap: "round",
-      lineJoin: "round"
-    });
-
-    const routeLine = L.polyline(wanderingRoute, {
-      color: "#f0534f",
-      weight: 4,
-      opacity: 0.9,
-      lineCap: "round",
-      lineJoin: "round"
-    });
-
-    const exileLine = L.polyline(exileRoute, {
-      color: "#f0534f",
-      weight: 3,
-      opacity: 0.7,
-      dashArray: "10 14",
-      lineCap: "round"
-    }).addTo(map);
-
-    const stPHubMarker = L.circleMarker(stPHub, {
-      radius: 10,
-      color: "#102030",
-      weight: 4,
-      fillColor: "#f0534f",
-      fillOpacity: 1,
-      bubblingMouseEvents: false
-    }).addTo(hubLayer);
-
-    stPHubMarker.bindTooltip("St. Petersburg", {
-      direction: "top",
-      offset: [0, -8],
-      className: "hub-tooltip"
-    });
-
-    const siberiaMarker = L.circleMarker(siberiaPoint, {
-      radius: 10,
-      color: "#102030",
-      weight: 4,
-      fillColor: "#9ab8d1",
-      fillOpacity: 1,
-      bubblingMouseEvents: false
-    }).addTo(hubLayer);
-
-    siberiaMarker.bindTooltip("Rural Siberia", {
-      direction: "top",
-      offset: [0, -8],
-      className: "hub-tooltip"
-    });
-
-    const stPBounds = L.latLngBounds(stPScenes.map((scene) => scene.coords));
-
-    function setStatus(message) {
-      statusChip.textContent = message;
-    }
-
-    function formatCoords(latlng) {
-      return `${latlng.lat.toFixed(5)}, ${latlng.lng.toFixed(5)}`;
-    }
-
-    function setSceneCard(scene) {
-      sceneCardNodes.kicker.textContent = scene.place === "Siberia" ? "Epilogue Horizon" : "Selected Literary Scene";
-      sceneCardNodes.title.textContent = scene.title;
-      sceneCardNodes.copy.textContent = scene.short;
-      sceneCardNodes.phase.textContent = scene.phase;
-      sceneCardNodes.place.textContent = scene.place;
-      sceneCardNodes.address.textContent = scene.address;
-      sceneCardNodes.psych.textContent = scene.psych;
-      sceneCardNodes.meaning.textContent = scene.meaning;
-    }
-
-    function setStreetCard(payload) {
-      streetCardNodes.kicker.textContent = payload.kicker;
-      streetCardNodes.title.textContent = payload.title;
-      streetCardNodes.copy.textContent = payload.copy;
-      streetCardNodes.country.textContent = payload.country;
-      streetCardNodes.region.textContent = payload.region;
-      streetCardNodes.city.textContent = payload.city;
-      streetCardNodes.district.textContent = payload.district;
-      streetCardNodes.street.textContent = payload.street;
-      streetCardNodes.house.textContent = payload.house;
-      streetCardNodes.coords.textContent = payload.coords;
-    }
-
-    function closeSceneOverlay() {
-      sceneOverlay.classList.remove("is-open");
-      sceneOverlay.setAttribute("aria-hidden", "true");
-      document.body.classList.remove("overlay-open");
-    }
-
-    function openSceneOverlay(scene) {
-      const overlayAsset = sceneOverlayAssets[scene.id];
-
-      if (!overlayAsset) {
-        closeSceneOverlay();
-        return;
-      }
-
-      sceneOverlayNodes.title.textContent = scene.title;
-      sceneOverlayNodes.subtitle.textContent = overlayAsset.subtitle;
-      sceneOverlayNodes.psych.textContent = scene.psych;
-      sceneOverlayNodes.meaning.textContent = scene.meaning;
-      sceneOverlayNodes.address.textContent = scene.address;
-      sceneOverlayFallbackTitle.textContent = overlayAsset.fallbackTitle;
-      sceneOverlayFallbackCopy.textContent = overlayAsset.fallbackCopy;
-
-      sceneOverlayFallback.hidden = false;
-      sceneOverlayImage.hidden = true;
-      sceneOverlayImage.alt = overlayAsset.alt;
-      sceneOverlayImage.onload = () => {
-        sceneOverlayFallback.hidden = true;
-        sceneOverlayImage.hidden = false;
-      };
-      sceneOverlayImage.onerror = () => {
-        sceneOverlayFallback.hidden = false;
-        sceneOverlayImage.hidden = true;
-      };
-      sceneOverlayImage.src = overlayAsset.imageSrc;
-
-      if (sceneOverlayImage.complete && sceneOverlayImage.naturalWidth > 0) {
-        sceneOverlayFallback.hidden = true;
-        sceneOverlayImage.hidden = false;
-      }
-
-      sceneOverlay.classList.add("is-open");
-      sceneOverlay.setAttribute("aria-hidden", "false");
-      document.body.classList.add("overlay-open");
-    }
-
-    function activateSceneButton(sceneId) {
-      sceneButtons.forEach((button, id) => {
-        button.classList.toggle("is-active", id === sceneId);
-      });
-    }
-
-    function unlockScenes() {
-      if (!stPUnlocked) {
-        sceneWrap.classList.remove("is-locked");
-        stPUnlocked = true;
-      }
-    }
-
-    function addSceneLayer() {
-      if (map.hasLayer(stPLayer)) {
-        return;
-      }
-      routeGlow.addTo(stPLayer);
-      routeLine.addTo(stPLayer);
-      stPLayer.addTo(map);
-    }
-
-    function openOverview() {
-      closeSceneOverlay();
-      if (map.hasLayer(stPLayer)) {
-        map.removeLayer(stPLayer);
-      }
-      map.flyToBounds(overviewBounds, {
-        padding: [26, 26],
-        duration: 1.4
-      });
-      activateSceneButton("");
-      setStatus("Assignment overview loaded");
-      setSceneCard({
-        title: "Raskolnikov's map across Russia",
-        short: "St. Petersburg holds the crime and delirium; Siberia opens the epilogue's horizon of punishment and renewal.",
-        phase: "Assignment overview",
-        place: "Russia",
-        address: "Use St. Petersburg to open the literary route and Siberia to jump to the novel's endpoint.",
-        psych: "The project maps space as psychology: cramped interiors, thresholds, police offices, bridges, and wandering streets all externalize Raskolnikov's divided mind.",
-        meaning: "Instead of treating place as background, the assignment uses geography to show how the novel thinks through guilt, rationalization, alienation, and spiritual pressure."
-      });
-    }
-
-    function showStPetersburg() {
-      closeSceneOverlay();
-      unlockScenes();
-      addSceneLayer();
-      map.flyToBounds(stPBounds.pad(0.22), {
-        padding: [36, 36],
-        duration: 1.3
-      });
-      activateSceneButton("");
-      setStatus("St. Petersburg route unlocked");
-      setSceneCard({
-        title: "St. Petersburg route",
-        short: "The red line tracks wandering, recurrence, and psychic pressure through the city.",
-        phase: "City route",
-        place: "St. Petersburg",
-        address: "Use the scene buttons to move between the tavern, bridge, apartment, room, police station, Sonya's room, and the wandering street route.",
-        psych: "The city is crowded, feverish, and spatially unstable. It converts abstract theory into pressure, chance encounter, repetition, and bodily disorientation.",
-        meaning: "Press a scene button to connect a place to the psychological structure of the novel."
-      });
-    }
-
-    function showSiberia() {
-      closeSceneOverlay();
-      if (map.hasLayer(stPLayer)) {
-        map.removeLayer(stPLayer);
-      }
-      map.flyTo(siberiaPoint, 6, {
-        duration: 1.4
-      });
-      activateSceneButton("siberia");
-      setStatus("Siberia endpoint selected");
-      setSceneCard(siberiaScene);
-      siberiaMarker.openPopup();
-    }
-
-    function popupMarkup(scene) {
-      return `
-        <div class="popup-title">${scene.title}</div>
-        <div class="popup-copy">
-          ${scene.phase}<br>
-          ${scene.short}<br>
-          ${scene.place}
-        </div>
-      `;
-    }
-
-    function focusScene(scene) {
-      if (scene.place === "St. Petersburg") {
-        showStPetersburg();
-      } else {
-        showSiberia();
-      }
-
-      activateSceneButton(scene.id);
-      map.flyTo(scene.coords, scene.zoom, {
-        duration: 1.25
-      });
-      setStatus(`Scene selected: ${scene.title}`);
-      setSceneCard(scene);
-
-      if (scene.marker) {
-        scene.marker.openPopup();
-      }
-
-      if (sceneOverlayAssets[scene.id]) {
-        openSceneOverlay(scene);
-      } else {
-        closeSceneOverlay();
-      }
-    }
-
-    function createSceneButton(scene) {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "scene-button";
-      button.innerHTML = `<strong>${scene.title}</strong><span>${scene.short}</span>`;
-      button.addEventListener("click", () => focusScene(scene));
-      sceneButtons.set(scene.id, button);
-      sceneGrid.append(button);
-    }
-
-    function createSceneMarker(scene) {
-      const isSiberia = scene.place === "Siberia";
-      const marker = L.circleMarker(scene.coords, {
-        radius: isSiberia ? 8.5 : 7,
-        color: "#102030",
-        weight: 3,
-        fillColor: isSiberia ? "#9ab8d1" : "#f0534f",
-        fillOpacity: 1,
-        bubblingMouseEvents: false
-      });
-
-      marker.bindTooltip(scene.title, {
-        direction: "top",
-        offset: [0, -8],
-        className: isSiberia ? "hub-tooltip" : "scene-tooltip"
-      });
-
-      marker.bindPopup(popupMarkup(scene), {
-        maxWidth: 300
-      });
-
-      marker.on("click", () => focusScene(scene));
-      scene.marker = marker;
-
-      if (isSiberia) {
-        marker.addTo(hubLayer);
-      } else {
-        marker.addTo(stPLayer);
-      }
-    }
-
-    function normalizeReverseResult(data, fallbackLatLng, fallbackTitle) {
-      const feature = Array.isArray(data.features) ? data.features[0] : data.features;
-      const geocoding = feature && feature.properties ? feature.properties.geocoding || {} : {};
-      const admin = geocoding.admin || {};
-
-      return {
-        title: geocoding.name || fallbackTitle || geocoding.label || "Selected point",
-        kicker: "Modern map click",
-        copy: geocoding.label || "Reverse geocoding returned limited information for this point.",
-        country: geocoding.country || "Russia",
-        region: geocoding.state || geocoding.county || admin.level4 || admin.level5 || "Not available",
-        city: geocoding.city || geocoding.town || geocoding.village || geocoding.county || "Not available",
-        district: geocoding.district || geocoding.locality || geocoding.suburb || geocoding.neighbourhood || admin.level8 || admin.level7 || "Not available",
-        street: geocoding.street || "Zoom in for street detail",
-        house: geocoding.housenumber || "Not available",
-        coords: formatCoords(fallbackLatLng)
-      };
-    }
-
-    function clickPopupMarkup(result) {
-      return `
-        <div class="popup-title">${result.title}</div>
-        <div class="popup-copy">
-          ${result.city}<br>
-          ${result.district}<br>
-          ${result.street}${result.house !== "Not available" ? `, ${result.house}` : ""}
-        </div>
-      `;
-    }
-
-    async function reverseLookup(latlng, fallbackTitle) {
-      const lookupZoom = Math.max(10, Math.min(18, Math.round(map.getZoom())));
-      const cacheKey = `${latlng.lat.toFixed(5)}:${latlng.lng.toFixed(5)}:${lookupZoom}`;
-
-      if (requestCache.has(cacheKey)) {
-        const cached = requestCache.get(cacheKey);
-        setStreetCard(cached);
-        popups.click.setContent(clickPopupMarkup(cached));
-        setStatus(`Modern street detail loaded at zoom ${lookupZoom}`);
-        return;
-      }
-
-      if (currentController) {
-        currentController.abort();
-      }
-
-      currentController = new AbortController();
-      setStatus(`Looking up modern street detail at zoom ${lookupZoom}...`);
-
-      try {
-        const url = new URL("https://nominatim.openstreetmap.org/reverse");
-        url.searchParams.set("format", "geocodejson");
-        url.searchParams.set("lat", latlng.lat.toFixed(6));
-        url.searchParams.set("lon", latlng.lng.toFixed(6));
-        url.searchParams.set("zoom", String(lookupZoom));
-        url.searchParams.set("layer", "address");
-        url.searchParams.set("addressdetails", "1");
-        url.searchParams.set("accept-language", "en");
-
-        const response = await fetch(url.toString(), {
-          signal: currentController.signal,
-          headers: { Accept: "application/json" }
-        });
-
-        if (!response.ok) {
-          throw new Error(`Reverse lookup failed with status ${response.status}`);
-        }
-
-        const data = await response.json();
-        const result = normalizeReverseResult(data, latlng, fallbackTitle);
-        requestCache.set(cacheKey, result);
-        setStreetCard(result);
-        popups.click.setContent(clickPopupMarkup(result));
-        setStatus(`Modern street detail loaded at zoom ${lookupZoom}`);
-      } catch (error) {
-        if (error.name === "AbortError") {
-          return;
-        }
-
-        const fallback = {
-          title: fallbackTitle || "Selected point",
-          kicker: "Modern map click",
-          copy: "Reverse geocoding is unavailable right now, but you can keep using the literary route and zoom controls.",
-          country: "Russia",
-          region: "Unavailable",
-          city: "Unavailable",
-          district: "Unavailable",
-          street: "Unavailable",
-          house: "Unavailable",
-          coords: formatCoords(latlng)
-        };
-
-        setStreetCard(fallback);
-        popups.click.setContent(clickPopupMarkup(fallback));
-        setStatus("Modern street detail is unavailable right now");
-      }
-    }
-
-    sceneData.forEach((scene) => {
-      createSceneButton(scene);
-      if (scene.id === "siberia") {
-        scene.marker = siberiaMarker;
-      } else {
-        createSceneMarker(scene);
-      }
-    });
-
-    stPHubMarker.bindPopup(`
-      <div class="popup-title">St. Petersburg</div>
-      <div class="popup-copy">Open the literary route, then move through the selected scenes to map Raskolnikov's psyche.</div>
-    `);
-    stPHubMarker.on("click", showStPetersburg);
-
-    siberiaMarker.bindPopup(`
-      <div class="popup-title">Rural Siberia</div>
-      <div class="popup-copy">The epilogue horizon of punishment, endurance, and fragile renewal.</div>
-    `);
-    siberiaMarker.on("click", showSiberia);
-
-    viewStPButton.addEventListener("click", showStPetersburg);
-    viewSiberiaButton.addEventListener("click", showSiberia);
-    viewRussiaButton.addEventListener("click", openOverview);
-
-    map.on("click", (event) => {
-      closeSceneOverlay();
-      popups.click
-        .setLatLng(event.latlng)
-        .setContent(`
-          <div class="popup-title">Loading modern street detail</div>
-          <div class="popup-copy">Finding the nearest district and street...</div>
-        `)
-        .openOn(map);
-
-      reverseLookup(event.latlng, "Selected modern location");
-    });
-
-    setStreetCard({
-      kicker: "Modern map click",
-      title: "Click anywhere on the map",
-      copy: "This secondary card uses live reverse geocoding so you can connect the literary scene to the modern street fabric of St. Petersburg.",
-      country: "Russia",
-      region: "Waiting for click",
-      city: "Waiting for click",
-      district: "Waiting for click",
-      street: "Zoom in and click the map",
-      house: "Not selected",
-      coords: "61.5240, 105.3188"
-    });
-
-    sceneOverlayClose.addEventListener("click", closeSceneOverlay);
-    sceneOverlayReturn.addEventListener("click", closeSceneOverlay);
-    sceneOverlay.addEventListener("click", (event) => {
-      if (event.target.hasAttribute("data-overlay-close")) {
-        closeSceneOverlay();
-      }
-    });
-    window.addEventListener("keydown", (event) => {
-      if (event.key === "Escape" && sceneOverlay.classList.contains("is-open")) {
-        closeSceneOverlay();
-      }
-    });
-
-    openOverview();
   </script>
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>
