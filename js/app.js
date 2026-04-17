@@ -1,129 +1,172 @@
-import { APP_METADATA, SCENES, buildSceneState } from "./data.js";
+import { APP_METADATA, SCENES, mergeSceneContent } from "./data.js";
 import { SceneMapController } from "./map.js";
 import { createUIController } from "./ui.js";
 
-const config = window.GEOGRAPHY_OF_GUILT_CONFIG || {};
+const DEFAULT_APP_CONFIG = Object.freeze({
+  googleMapsApiKey: "",
+  googleMapsMapId: "DEMO_MAP_ID",
+  adminPassword: ""
+});
+
+function createSceneEditStore(storageKey) {
+  return {
+    load() {
+      try {
+        const storedValue = window.localStorage.getItem(storageKey);
+
+        if (!storedValue) {
+          return {};
+        }
+
+        const parsedValue = JSON.parse(storedValue);
+        return parsedValue && typeof parsedValue === "object" ? parsedValue : {};
+      } catch (error) {
+        return {};
+      }
+    },
+    save(edits) {
+      try {
+        window.localStorage.setItem(storageKey, JSON.stringify(edits));
+        return true;
+      } catch (error) {
+        return false;
+      }
+    }
+  };
+}
+
+const appConfig = {
+  ...DEFAULT_APP_CONFIG,
+  ...(window.GEOGRAPHY_OF_GUILT_CONFIG || {})
+};
+
+const sceneEditStore = createSceneEditStore(APP_METADATA.sceneEditsStorageKey);
 
 const state = {
-  started: false,
-  currentSceneIndex: 0,
-  isAdmin: false,
-  sceneEdits: loadSceneEdits(),
+  hasStarted: false,
+  activeSceneIndex: 0,
+  isAdminMode: false,
+  sceneEdits: sceneEditStore.load(),
   scenes: []
 };
 
 const ui = createUIController();
-const mapController = new SceneMapController({
-  mapElement: ui.elements.mapElement,
-  placeholderElement: ui.elements.mapPlaceholder,
-  placeholderTitleElement: ui.elements.mapPlaceholderTitle,
-  placeholderCopyElement: ui.elements.mapPlaceholderCopy,
-  statusElement: ui.elements.mapStatus
-});
+const mapController = new SceneMapController(ui.mapElements);
 
-function loadSceneEdits() {
-  try {
-    const stored = window.localStorage.getItem(APP_METADATA.sceneEditsStorageKey);
-    if (!stored) {
-      return {};
-    }
-
-    const parsed = JSON.parse(stored);
-    return parsed && typeof parsed === "object" ? parsed : {};
-  } catch (error) {
-    return {};
-  }
+function rebuildSceneCollection() {
+  state.scenes = SCENES.map((scene) => mergeSceneContent(scene, state.sceneEdits[scene.id]));
 }
 
-function persistSceneEdits() {
-  try {
-    window.localStorage.setItem(
-      APP_METADATA.sceneEditsStorageKey,
-      JSON.stringify(state.sceneEdits)
-    );
-  } catch (error) {
-    ui.flashAdminFeedback("This browser blocked local saving for admin edits.");
-  }
-}
-
-function hydrateScenes() {
-  state.scenes = SCENES.map((scene) => buildSceneState(scene, state.sceneEdits[scene.id]));
-}
-
-function currentScene() {
-  return state.scenes[state.currentSceneIndex];
+function getActiveScene() {
+  return state.scenes[state.activeSceneIndex];
 }
 
 function clampSceneIndex(index) {
   return Math.max(0, Math.min(index, state.scenes.length - 1));
 }
 
-function renderCurrentScene() {
-  const scene = currentScene();
+function renderActiveScene() {
+  const activeScene = getActiveScene();
 
-  if (!scene) {
+  if (!activeScene) {
     return;
   }
 
   ui.renderScene({
-    scene,
-    sceneNumber: state.currentSceneIndex + 1,
+    scene: activeScene,
+    sceneNumber: state.activeSceneIndex + 1,
     totalScenes: state.scenes.length,
-    isFirstScene: state.currentSceneIndex === 0,
-    isLastScene: state.currentSceneIndex === state.scenes.length - 1,
-    isAdmin: state.isAdmin,
-    revealImmediately: state.isAdmin
+    isFirstScene: state.activeSceneIndex === 0,
+    isLastScene: state.activeSceneIndex === state.scenes.length - 1,
+    isAdmin: state.isAdminMode,
+    revealImmediately: state.isAdminMode
   });
 
-  mapController.focusScene(scene);
+  mapController.focusScene(activeScene);
+}
+
+function persistSceneEdits() {
+  const didSave = sceneEditStore.save(state.sceneEdits);
+
+  if (!didSave) {
+    ui.flashAdminFeedback("This browser blocked local saving for admin edits.");
+  }
+
+  return didSave;
+}
+
+function refreshSceneState() {
+  rebuildSceneCollection();
+  renderActiveScene();
+}
+
+function syncSceneEdits(successMessage) {
+  const didSave = persistSceneEdits();
+  refreshSceneState();
+
+  if (didSave) {
+    ui.flashAdminFeedback(successMessage);
+  }
 }
 
 async function startExperience() {
-  if (state.started) {
+  if (state.hasStarted) {
     return;
   }
 
-  state.started = true;
-  hydrateScenes();
+  state.hasStarted = true;
+  rebuildSceneCollection();
   ui.showExperience();
-  ui.setAdminMode(state.isAdmin);
-  renderCurrentScene();
+  ui.setAdminMode(state.isAdminMode);
+  renderActiveScene();
 
-  const mapReady = await mapController.initialize({
-    apiKey: config.googleMapsApiKey,
-    mapId: config.googleMapsMapId,
+  const isMapReady = await mapController.initialize({
+    apiKey: appConfig.googleMapsApiKey,
+    mapId: appConfig.googleMapsMapId,
     scenes: state.scenes
   });
 
-  if (mapReady) {
-    mapController.focusScene(currentScene());
+  if (isMapReady) {
+    mapController.focusScene(getActiveScene());
   }
 }
 
-function goToScene(nextIndex) {
-  if (!state.started) {
+function goToScene(index) {
+  if (!state.hasStarted) {
     return;
   }
 
-  const boundedIndex = clampSceneIndex(nextIndex);
-  if (boundedIndex === state.currentSceneIndex) {
+  const nextIndex = clampSceneIndex(index);
+  if (nextIndex === state.activeSceneIndex) {
     return;
   }
 
-  state.currentSceneIndex = boundedIndex;
-  renderCurrentScene();
+  state.activeSceneIndex = nextIndex;
+  renderActiveScene();
+}
+
+function disableAdminMode() {
+  state.isAdminMode = false;
+  ui.setAdminMode(false);
+  renderActiveScene();
+  ui.flashAdminFeedback("Admin mode disabled.");
+}
+
+function enableAdminMode() {
+  state.isAdminMode = true;
+  ui.closeAdminModal();
+  ui.setAdminMode(true);
+  renderActiveScene();
+  ui.flashAdminFeedback("Admin mode enabled for this browser session.");
 }
 
 function handleAdminPrompt() {
-  if (!state.started) {
+  if (!state.hasStarted) {
     return;
   }
 
-  if (state.isAdmin) {
-    state.isAdmin = false;
-    ui.setAdminMode(false);
-    ui.flashAdminFeedback("Admin mode disabled.");
-    renderCurrentScene();
+  if (state.isAdminMode) {
+    disableAdminMode();
     return;
   }
 
@@ -131,16 +174,12 @@ function handleAdminPrompt() {
 }
 
 function handleAdminSubmit(password) {
-  if (password !== config.adminPassword) {
+  if (password !== appConfig.adminPassword) {
     ui.showAdminError("Incorrect password.");
     return;
   }
 
-  state.isAdmin = true;
-  ui.closeAdminModal();
-  ui.setAdminMode(true);
-  renderCurrentScene();
-  ui.flashAdminFeedback("Admin mode enabled for this browser session.");
+  enableAdminMode();
 }
 
 function handleAdminSave({ sceneId, quote, interpretation }) {
@@ -153,10 +192,7 @@ function handleAdminSave({ sceneId, quote, interpretation }) {
     interpretation: interpretation.trim()
   };
 
-  persistSceneEdits();
-  hydrateScenes();
-  renderCurrentScene();
-  ui.flashAdminFeedback("Scene text saved locally.");
+  syncSceneEdits("Scene text saved locally.");
 }
 
 function handleAdminReset(sceneId) {
@@ -165,16 +201,13 @@ function handleAdminReset(sceneId) {
   }
 
   delete state.sceneEdits[sceneId];
-  persistSceneEdits();
-  hydrateScenes();
-  renderCurrentScene();
-  ui.flashAdminFeedback("Scene text reset to the default dataset.");
+  syncSceneEdits("Scene text reset to the default dataset.");
 }
 
 ui.bindEvents({
   onStart: startExperience,
-  onPrevious: () => goToScene(state.currentSceneIndex - 1),
-  onNext: () => goToScene(state.currentSceneIndex + 1),
+  onPrevious: () => goToScene(state.activeSceneIndex - 1),
+  onNext: () => goToScene(state.activeSceneIndex + 1),
   onAdminPrompt: handleAdminPrompt,
   onAdminSubmit: handleAdminSubmit,
   onAdminSave: handleAdminSave,
