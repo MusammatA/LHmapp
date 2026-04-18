@@ -168,7 +168,7 @@
   });
 
   const MEDIA = Object.freeze({
-    pawnhouseStreetView: "assets/images/pawnhouse-street-view.png",
+    pawnhouseStreetView: "assets/pawnhouse.jpg",
     tavern: "assets/images/marmeladov-tavern.png",
     bridge: "assets/images/bridge-canal-scene.png",
     murder: "assets/images/pawnbroker-murder.png",
