@@ -164,6 +164,7 @@
       dom.scene.intro.classList.add("is-visible");
       introAdvanceCallback = () => {
         hideSceneIntro();
+        renderMedia(scene);
         revealSceneMedia();
         window.setTimeout(() => {
           revealSceneCard();
@@ -315,7 +316,13 @@
       revealImmediately = false
     }) {
       clearSceneSequence();
-      renderMedia(scene);
+      if (scene.introImageSrc && !revealImmediately) {
+        resetMediaStage();
+        dom.scene.stage.dataset.mediaTreatment = scene.mediaTreatment || "standard";
+        dom.scene.mediaStage.dataset.mediaTreatment = scene.mediaTreatment || "standard";
+      } else {
+        renderMedia(scene);
+      }
       renderSceneChrome(scene, sceneNumber, totalScenes);
       renderSceneBody(scene);
 
