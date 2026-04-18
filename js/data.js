@@ -216,6 +216,24 @@
     };
   }
 
+  function sequenceImage(src, mode, prompt, alt = "") {
+    return { type: "image", src, mode, prompt, alt };
+  }
+
+  function sequenceVideo(src, mode, prompt) {
+    return { type: "video", src, mode, prompt };
+  }
+
+  function withIntroSequence(scene, introSequence, overrides = {}) {
+    return {
+      ...scene,
+      mediaTreatment: scene.mediaTreatment || "book-view",
+      introSequence,
+      introAnalysisDelay: scene.introAnalysisDelay ?? (scene.importance === "major" ? 1500 : 1100),
+      ...overrides
+    };
+  }
+
   function resolveEditableText(defaultValue, editedValue) {
     return typeof editedValue === "string" && editedValue.trim()
       ? editedValue.trim()
@@ -310,55 +328,64 @@
     interpretation:
       "He drifts toward help and then refuses it. The hesitation outside Razumihin's door shows how isolation has become a habit as much as a condition."
   }, MEDIA.razumihinStreetView),
-  withIntro({
-    anchor: "bridge",
-    id: "day-2-intent-hardens",
-    dayLabel: "Day 2",
-    title: "Intent Hardening into Plan",
-    mediaSrc: MEDIA.intentBookView,
-    importance: "important",
-    quote: "\"Now it was no longer fantasy.\"",
-    psychologicalRole: "Theory hardening into intent.",
-    interpretation:
-      "What had been speculative begins to gather force. His ideas about power and exception start solidifying into actual intention, and the city becomes a field in which thought is preparing to become action."
-  }, MEDIA.bridgeStreetView),
-  withIntro({
+  withIntroSequence({
     anchor: "petrovskyIsland",
-    id: "day-2-horse-dream-refusal",
+    id: "day-2-plan-dream-refusal",
     dayLabel: "Day 2",
-    title: "The Horse Dream and the Refusal",
+    title: "The Plan, the Horse Dream, and the Refusal",
     mediaSrc: MEDIA.horseDreamBookView,
     importance: "major",
-    quote: "\"He was crying in his sleep... No, I could never do it.\"",
-    psychologicalRole: "Subconscious moral horror breaks into a brief refusal of violence.",
+    quote: "\"Now it was no longer fantasy... He was crying in his sleep... No, I could never do it.\"",
+    psychologicalRole: "The plan sharpens, then conscience revolts and produces a brief refusal.",
     interpretation:
-      "The dream and the waking refusal belong together. The child-self recoils from cruelty, and for one clear instant he obeys that recoil. This is the novel's sharpest early proof that his conscience rejects the act before his theory can force it back into motion."
-  }, MEDIA.petrovskyIslandStreetView),
-  withIntro({
-    anchor: "haymarketSquare",
-    id: "day-3-lizaveta-opportunity",
-    dayLabel: "Day 3",
-    title: "Learning Lizaveta Will Be Away",
-    mediaSrc: MEDIA.lizavetaOpportunityBookView,
-    importance: "important",
-    quote: "\"It was as if everything had been arranged for him.\"",
-    psychologicalRole: "Surrender to compulsion; a sense of inevitability.",
-    interpretation:
-      "The overheard chance feels to him less like contingency than command. Instead of treating it as a warning, he receives it as permission, and his refusal dissolves into passivity before what he calls fate."
-  }, MEDIA.haymarketStreetView),
-  withIntro({
+      "By the time he collapses in the park, the murder has already begun to harden in his mind. Then the dream tears straight through that resolve: the child-self recoils from cruelty, and for one clear instant he obeys that recoil. The planning, the dream, and the refusal belong together because they expose the split between theory and conscience in one continuous movement."
+  }, [
+    sequenceImage(
+      MEDIA.petrovskyIslandStreetView,
+      "location",
+      "Click anywhere to continue.",
+      "Petrovsky Island park"
+    ),
+    sequenceImage(
+      MEDIA.intentBookView,
+      "analysis",
+      "Click anywhere to continue.",
+      "Raskolnikov's plan hardening"
+    ),
+    sequenceImage(
+      MEDIA.horseDreamBookView,
+      "analysis",
+      "",
+      "The horse dream and the refusal"
+    )
+  ]),
+  withIntroSequence({
     anchor: "pawnbrokerApartment",
     id: "day-3-pawnbroker-murder",
     dayLabel: "Day 3",
-    title: "Killing the Pawnbroker",
+    title: "Lizaveta's Absence and the Murder",
     mediaType: "video",
     mediaSrc: MEDIA.murderVideo,
     importance: "major",
-    quote: "\"He brought the axe down.\"",
-    psychologicalRole: "Collapse of theory into violent action.",
+    quote: "\"It was as if everything had been arranged for him... He brought the axe down.\"",
+    psychologicalRole: "Chance becomes permission, then the theory collapses into violent action.",
     interpretation:
-      "This is where the theory dies by becoming real. What was dressed up as a test of greatness collapses into gore, terror, and irreversible bodily fact; the murder does not prove transcendence, it destroys the framework that justified it."
-  }, MEDIA.pawnhouseStreetView),
+      "The overheard news at the Haymarket feels to him like fate clearing a path. He takes that opening as sanction, crosses back to the pawnbroker's house, and the theory dies by becoming real. What follows is not transcendence but gore, panic, and irreversible bodily fact."
+  }, [
+    sequenceImage(
+      MEDIA.haymarketStreetView,
+      "location",
+      "Click anywhere to continue.",
+      "Haymarket square"
+    ),
+    sequenceImage(
+      MEDIA.pawnhouseStreetView,
+      "location",
+      "Click anywhere to continue.",
+      "Pawnbroker's house"
+    ),
+    sequenceVideo(MEDIA.murderVideo, "analysis", "")
+  ]),
   {
     anchor: "pawnbrokerApartment",
     id: "day-3-lizaveta-enters",

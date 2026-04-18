@@ -89,6 +89,41 @@
       landingHide: null
     };
     let introAdvanceCallback = null;
+    let introSequenceToken = 0;
+
+    function hasSceneIntro(scene) {
+      return Boolean(scene.introImageSrc)
+        || (Array.isArray(scene.introSequence) && scene.introSequence.length > 0);
+    }
+
+    function buildIntroSequence(scene) {
+      if (Array.isArray(scene.introSequence) && scene.introSequence.length > 0) {
+        return scene.introSequence;
+      }
+
+      if (!scene.introImageSrc) {
+        return [];
+      }
+
+      const sequence = [
+        {
+          type: "image",
+          src: scene.introImageSrc,
+          mode: "location",
+          prompt: scene.introPrompt || "Click anywhere to continue into the scene and view the analysis."
+        }
+      ];
+
+      if (scene.mediaSrc) {
+        sequence.push({
+          type: scene.mediaType === "video" ? "video" : "image",
+          src: scene.mediaSrc,
+          mode: "analysis"
+        });
+      }
+
+      return sequence;
+    }
 
     function clearTimer(timerName) {
       if (!timers[timerName]) {
@@ -102,6 +137,7 @@
     function clearSceneSequence() {
       clearTimer("mediaReveal");
       clearTimer("cardReveal");
+      introSequenceToken += 1;
       introAdvanceCallback = null;
     }
 
@@ -157,6 +193,7 @@
     }
 
     function hideSceneIntro() {
+      introSequenceToken += 1;
       dom.scene.intro.classList.remove("is-visible");
       dom.scene.intro.classList.remove("is-analysis");
       dom.scene.intro.setAttribute("aria-hidden", "true");
@@ -198,82 +235,102 @@
       }
     }
 
-    function showIntroAnalysisImage(scene, analysisDelay, onAdvance) {
-      preloadImage(scene.mediaSrc).then(() => {
-        dom.scene.intro.classList.add("is-analysis");
-        resetIntroVideo();
-        setHidden(dom.scene.introImage, false);
-        dom.scene.introImage.src = scene.mediaSrc;
-        dom.scene.introImage.alt = `${scene.title} literary image`;
-        setHidden(dom.scene.introPrompt, true);
-        introAdvanceCallback = null;
-        scheduleIntroAnalysisReveal(analysisDelay, onAdvance);
-      }).catch(() => {
-        hideSceneIntro();
-        renderMedia(scene);
-        revealSceneMedia();
-        scheduleIntroAnalysisReveal(analysisDelay, onAdvance);
-      });
-    }
+    function showLoadedIntroStep(scene, step) {
+      const isAnalysisStep = step.mode === "analysis";
 
-    function showIntroAnalysisVideo(scene, analysisDelay, onAdvance) {
-      preloadVideo(scene.mediaSrc).then(() => {
-        dom.scene.intro.classList.add("is-analysis");
+      dom.scene.intro.classList.toggle("is-analysis", isAnalysisStep);
+
+      if (step.type === "video") {
         resetIntroImage();
         setHidden(dom.scene.introVideo, false);
-        dom.scene.introVideo.src = scene.mediaSrc;
+        dom.scene.introVideo.src = step.src;
         dom.scene.introVideo.currentTime = 0;
         dom.scene.introVideo.muted = true;
         dom.scene.introVideo.loop = true;
         dom.scene.introVideo.play().catch(() => {});
+      } else {
+        resetIntroVideo();
+        setHidden(dom.scene.introImage, false);
+        dom.scene.introImage.src = step.src;
+        dom.scene.introImage.alt = step.alt
+          || `${scene.title} ${isAnalysisStep ? "literary image" : "location image"}`;
+      }
+
+      if (step.prompt) {
+        setText(dom.scene.introPrompt, step.prompt);
+        setHidden(dom.scene.introPrompt, false);
+      } else {
         setHidden(dom.scene.introPrompt, true);
-        introAdvanceCallback = null;
-        scheduleIntroAnalysisReveal(analysisDelay, onAdvance);
-      }).catch(() => {
-        hideSceneIntro();
-        renderMedia(scene);
-        revealSceneMedia();
-        scheduleIntroAnalysisReveal(analysisDelay, onAdvance);
-      });
+      }
+    }
+
+    function loadIntroStep(step) {
+      return step.type === "video" ? preloadVideo(step.src) : preloadImage(step.src);
     }
 
     function showSceneIntro(scene, onAdvance) {
+      const introSequence = buildIntroSequence(scene);
       const analysisDelay = typeof scene.introAnalysisDelay === "number"
         ? scene.introAnalysisDelay
         : 700;
 
-      dom.scene.intro.classList.remove("is-analysis");
-      resetIntroVideo();
-      setHidden(dom.scene.introImage, false);
-      dom.scene.introImage.src = scene.introImageSrc;
-      dom.scene.introImage.alt = `${scene.title} street view`;
-      setHidden(dom.scene.introPrompt, false);
-      setText(
-        dom.scene.introPrompt,
-        scene.introPrompt || "Click anywhere to continue into the scene and view the analysis."
-      );
-      dom.scene.intro.setAttribute("aria-hidden", "false");
-      dom.scene.intro.classList.add("is-visible");
-      introAdvanceCallback = () => {
-        if (scene.mediaType === "image" && scene.mediaSrc) {
-          showIntroAnalysisImage(scene, analysisDelay, onAdvance);
-          return;
-        }
-
-        if (scene.mediaType === "video" && scene.mediaSrc) {
-          showIntroAnalysisVideo(scene, analysisDelay, onAdvance);
-          return;
-        }
-
+      if (!introSequence.length) {
         hideSceneIntro();
         renderMedia(scene);
         revealSceneMedia();
         scheduleIntroAnalysisReveal(analysisDelay, onAdvance);
-      };
+        return;
+      }
+
+      const token = introSequenceToken + 1;
+      introSequenceToken = token;
+      dom.scene.intro.setAttribute("aria-hidden", "false");
+      dom.scene.intro.classList.add("is-visible");
+
+      function advanceToStep(stepIndex) {
+        const step = introSequence[stepIndex];
+        const isLastStep = stepIndex === introSequence.length - 1;
+
+        loadIntroStep(step).then(() => {
+          if (token !== introSequenceToken) {
+            return;
+          }
+
+          showLoadedIntroStep(scene, step);
+
+          if (isLastStep) {
+            introAdvanceCallback = null;
+            scheduleIntroAnalysisReveal(analysisDelay, onAdvance);
+            return;
+          }
+
+          const nextStep = introSequence[stepIndex + 1];
+          const prompt = step.prompt
+            || nextStep.prompt
+            || "Click anywhere to continue.";
+
+          setText(dom.scene.introPrompt, prompt);
+          setHidden(dom.scene.introPrompt, false);
+          introAdvanceCallback = () => {
+            advanceToStep(stepIndex + 1);
+          };
+        }).catch(() => {
+          if (token !== introSequenceToken) {
+            return;
+          }
+
+          hideSceneIntro();
+          renderMedia(scene);
+          revealSceneMedia();
+          scheduleIntroAnalysisReveal(analysisDelay, onAdvance);
+        });
+      }
+
+      advanceToStep(0);
     }
 
     function showSceneTransition(scene) {
-      const transitionCopy = scene.introImageSrc
+      const transitionCopy = hasSceneIntro(scene)
         ? "The map lands on the exact point, then the real street-view image takes over."
         : `The map closes in on ${scene.title} before the literary image takes over.`;
 
@@ -412,7 +469,7 @@
       revealImmediately = false
     }) {
       clearSceneSequence();
-      if (scene.introImageSrc && !revealImmediately) {
+      if (hasSceneIntro(scene) && !revealImmediately) {
         resetMediaStage();
         dom.scene.stage.dataset.mediaTreatment = scene.mediaTreatment || "standard";
         dom.scene.mediaStage.dataset.mediaTreatment = scene.mediaTreatment || "standard";
@@ -441,7 +498,7 @@
       const mediaRevealDelay = Math.max(520, mapLeadDelay);
       const cardRevealDelay = mediaRevealDelay + (scene.delayBeforeText || 0);
 
-      if (scene.introImageSrc) {
+      if (hasSceneIntro(scene)) {
         timers.mediaReveal = window.setTimeout(() => {
           timers.mediaReveal = null;
           hideSceneTransition();
