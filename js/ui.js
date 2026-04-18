@@ -33,9 +33,7 @@
         next: queryRequired("[data-next-button]")
       },
       chrome: {
-        sceneCounter: queryRequired("[data-scene-counter]"),
-        locationLine: queryRequired("[data-scene-location-line]"),
-        notes: queryRequired("[data-scene-notes]")
+        sceneCounter: queryRequired("[data-scene-counter]")
       },
       scene: {
         panel: queryRequired("[data-scene-panel]"),
@@ -228,8 +226,6 @@
 
     function renderSceneChrome(scene, sceneNumber, totalScenes) {
       setText(dom.chrome.sceneCounter, formatSceneCounter(sceneNumber, totalScenes));
-      setText(dom.chrome.locationLine, `${scene.locationName} — ${scene.modernAddress}`);
-      setText(dom.chrome.notes, scene.notes || "");
     }
 
     function renderSceneBody(scene) {

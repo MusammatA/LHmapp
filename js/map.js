@@ -154,7 +154,7 @@
       }
 
       this.activeSceneId = scene.id;
-      this.setStatus(`${scene.locationName} — ${scene.modernAddress}`);
+      this.setStatus(`Map centered on ${scene.dayLabel.toLowerCase()}'s scene.`);
 
       if (!this.isReady || !this.map) {
         return pacing;

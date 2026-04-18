@@ -1012,21 +1012,9 @@ code {
 }
 
 .scene-card__footer {
-  display: grid;
-  gap: var(--space-md);
   margin-top: var(--space-md);
   padding-top: var(--space-md);
   border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.scene-card__scene-meta {
-  display: grid;
-  gap: 6px;
-}
-
-.scene-card__scene-meta .app-footer__location,
-.scene-card__scene-meta .app-footer__notes {
-  margin: 0;
 }
 
 .scene-nav--card {
