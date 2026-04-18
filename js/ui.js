@@ -150,6 +150,10 @@
     }
 
     function showSceneIntro(scene, onAdvance) {
+      const analysisDelay = typeof scene.introAnalysisDelay === "number"
+        ? scene.introAnalysisDelay
+        : 700;
+
       dom.scene.introImage.src = scene.introImageSrc;
       dom.scene.introImage.alt = `${scene.title} street view`;
       setText(
@@ -163,7 +167,7 @@
         revealSceneMedia();
         window.setTimeout(() => {
           revealSceneCard();
-        }, 260);
+        }, analysisDelay);
 
         if (typeof onAdvance === "function") {
           onAdvance();

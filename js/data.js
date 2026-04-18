@@ -223,6 +223,7 @@
     mediaTreatment: "book-view",
     introImageSrc: MEDIA.pawnhouseStreetView,
     introPrompt: "Click anywhere to view the analysis and the book-view image.",
+    introAnalysisDelay: 1100,
     importance: "important",
     quote: "\"He had come only to make a trial of it.\"",
     psychologicalRole: "Early calculation; testing the crime in his mind.",
