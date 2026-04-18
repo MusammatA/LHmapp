@@ -88,13 +88,13 @@ code {
   border-radius: var(--radius-md);
 }
 
-:where(.landing-screen__title, .app-header__title, .panel__title, .scene-card__title) {
+:where(.landing-screen__title, .panel__title, .scene-card__title) {
   font-family: var(--font-title);
   font-weight: 600;
   letter-spacing: -0.03em;
 }
 
-:where(.landing-screen__subtitle, .landing-screen__note, .app-header__subtitle, .panel__meta, .app-footer__location, .app-footer__notes, .scene-card__editor-note, .scene-card__feedback, .map-placeholder p, .scene-media__fallback p) {
+:where(.landing-screen__subtitle, .landing-screen__note, .panel__meta, .app-footer__location, .app-footer__notes, .scene-card__editor-note, .scene-card__feedback, .map-placeholder p, .scene-media__fallback p) {
   color: var(--color-text-copy);
   line-height: 1.6;
 }
@@ -332,7 +332,6 @@ code {
 
 .landing-screen__note,
 .scene-counter,
-.app-header__subtitle,
 .panel__meta,
 .app-footer__location,
 .app-footer__notes {
@@ -341,18 +340,6 @@ code {
 
 .landing-screen__note {
   font-size: 0.9rem;
-}
-
-.app-header__title {
-  margin: 0 0 10px;
-  font-size: clamp(2.1rem, 5vw, 3.2rem);
-  line-height: 0.94;
-}
-
-.app-header__meta {
-  display: grid;
-  justify-items: end;
-  gap: var(--space-sm);
 }
 
 .scene-counter {
@@ -480,39 +467,6 @@ code {
 .scene-media__fallback h4 {
   margin: 0;
   font-size: 1.1rem;
-}
-
-.map-popover {
-  max-width: 220px;
-  padding: 6px 4px;
-  color: #1f1b17;
-}
-
-.map-popover__title,
-.map-popover__meta,
-.map-popover__location,
-.map-popover__address {
-  display: block;
-}
-
-.map-popover__meta {
-  margin-bottom: 4px;
-  color: #776d62;
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.map-popover__title {
-  margin-bottom: 6px;
-}
-
-.map-popover__location {
-  margin-bottom: 4px;
-}
-
-.map-popover__address {
-  color: #5c544b;
 }
 
 /* Scene media */
@@ -826,10 +780,6 @@ code {
   .panel__header {
     flex-direction: column;
     align-items: stretch;
-  }
-
-  .app-header__meta {
-    justify-items: start;
   }
 
   .panel__header-side {

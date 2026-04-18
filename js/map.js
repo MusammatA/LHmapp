@@ -65,17 +65,6 @@
     return [scene.lat, scene.lng];
   }
 
-  function buildPopupContent(scene) {
-    return `
-      <div class="map-popover">
-        <span class="map-popover__meta">${scene.dayLabel} · ${scene.importanceLabel}</span>
-        <strong class="map-popover__title">${scene.title}</strong>
-        <span class="map-popover__location">${scene.locationName}</span>
-        <span class="map-popover__address">${scene.modernAddress}</span>
-      </div>
-    `;
-  }
-
   class SceneMapController {
     constructor(elements) {
       this.mapElement = elements.mapElement;
@@ -93,7 +82,6 @@
       this.isReady = false;
       this.activeSceneId = null;
       this.pendingZoomTimer = null;
-      this.pendingInfoTimer = null;
     }
 
     getSceneTransitionTiming(scene) {
@@ -149,13 +137,10 @@
       ).addTo(this.map);
 
       this.scenes.forEach((scene) => {
-        const marker = globalScope.L.circleMarker(toLatLng(scene), resolveMarkerStyle(scene, false))
-          .bindPopup(buildPopupContent(scene), {
-            autoPan: false,
-            closeButton: false,
-            offset: globalScope.L.point(0, -8)
-          })
-          .addTo(this.map);
+        const marker = globalScope.L.circleMarker(
+          toLatLng(scene),
+          resolveMarkerStyle(scene, false)
+        ).addTo(this.map);
 
         this.markers.set(scene.id, marker);
       });
@@ -184,31 +169,17 @@
         });
       }, pacing.zoomDelay);
 
-      this.pendingInfoTimer = window.setTimeout(() => {
-        const marker = this.markers.get(scene.id);
-        if (!marker) {
-          return;
-        }
-
-        marker.openPopup();
-      }, pacing.infoDelay);
-
       return pacing;
     }
 
     clearPendingFocus() {
       window.clearTimeout(this.pendingZoomTimer);
-      window.clearTimeout(this.pendingInfoTimer);
     }
 
     updateMarkerStates(activeSceneId) {
       this.markers.forEach((marker, sceneId) => {
         const scene = this.sceneLookup.get(sceneId);
         marker.setStyle(resolveMarkerStyle(scene, sceneId === activeSceneId));
-
-        if (sceneId !== activeSceneId) {
-          marker.closePopup();
-        }
       });
     }
 

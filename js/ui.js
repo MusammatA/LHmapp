@@ -34,8 +34,6 @@
       },
       chrome: {
         sceneCounter: queryRequired("[data-scene-counter]"),
-        title: queryRequired("[data-scene-title-chrome]"),
-        subtitle: queryRequired("[data-scene-phase-chrome]"),
         locationLine: queryRequired("[data-scene-location-line]"),
         notes: queryRequired("[data-scene-notes]")
       },
@@ -230,8 +228,6 @@
 
     function renderSceneChrome(scene, sceneNumber, totalScenes) {
       setText(dom.chrome.sceneCounter, formatSceneCounter(sceneNumber, totalScenes));
-      setText(dom.chrome.title, scene.title);
-      setText(dom.chrome.subtitle, `${scene.dayLabel} · ${scene.importanceLabel}`);
       setText(dom.chrome.locationLine, `${scene.locationName} — ${scene.modernAddress}`);
       setText(dom.chrome.notes, scene.notes || "");
     }
