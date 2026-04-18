@@ -357,6 +357,7 @@
     }
 
     function showExperience() {
+      window.scrollTo(0, 0);
       document.body.classList.add("is-experience-active");
       dom.screens.landing.classList.add("is-exiting");
       setHidden(dom.screens.experience, false);

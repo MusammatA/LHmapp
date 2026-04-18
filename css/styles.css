@@ -122,6 +122,15 @@ code {
   min-height: 100vh;
 }
 
+.site-shell {
+  display: grid;
+}
+
+.landing-screen,
+.experience-screen {
+  grid-area: 1 / 1;
+}
+
 .landing-screen {
   position: relative;
   display: grid;
@@ -132,6 +141,7 @@ code {
   opacity: 1;
   transform: scale(1);
   transition: opacity 420ms ease, transform 420ms ease;
+  z-index: 2;
 }
 
 .landing-screen.is-exiting {
@@ -164,6 +174,7 @@ code {
   opacity: 0;
   transform: translateY(24px);
   transition: opacity 420ms ease, transform 420ms ease;
+  z-index: 1;
 }
 
 .experience-screen.is-visible {
