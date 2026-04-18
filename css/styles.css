@@ -918,11 +918,6 @@ code {
   align-items: flex-start;
 }
 
-.experience-hud--bottom {
-  bottom: 0;
-  align-items: flex-end;
-}
-
 .experience-hud__copy {
   max-width: min(760px, 100%);
 }
@@ -989,24 +984,37 @@ code {
   inset: 0;
   z-index: 2;
   background: transparent;
+  pointer-events: none;
 }
 
 .scene-stage__media {
-  z-index: 2;
+  top: 132px;
+  right: 32px;
+  bottom: auto;
+  left: auto;
+  z-index: 3;
+  width: min(34vw, 520px);
+  min-width: 320px;
+  height: min(54vh, 520px);
+  border: 1px solid var(--color-surface-border-strong);
+  border-radius: calc(var(--radius-lg) + 4px);
+  background: rgba(8, 9, 11, 0.42);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(12px);
+  pointer-events: auto;
 }
 
 .scene-media__fallback {
-  left: 24px;
-  right: 24px;
-  bottom: 152px;
-  inset-block-start: auto;
-  max-width: 420px;
+  inset: 16px;
+  max-width: none;
+  border-radius: calc(var(--radius-md) + 2px);
 }
 
 .scene-stage__transition {
   z-index: 4;
   align-content: center;
   padding: 48px 32px 160px;
+  pointer-events: auto;
 }
 
 .scene-stage__transition-copy {
@@ -1016,11 +1024,12 @@ code {
 .scene-card {
   left: 32px;
   right: auto;
-  bottom: 112px;
+  bottom: 32px;
   z-index: 5;
   width: min(620px, calc(100% - 64px));
   padding: 24px;
   background: linear-gradient(180deg, rgba(14, 15, 18, 0.66), rgba(8, 9, 11, 0.9));
+  pointer-events: auto;
 }
 
 .scene-card__interpretation {
@@ -1059,6 +1068,36 @@ code {
   text-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
 }
 
+.scene-toolbar {
+  position: absolute;
+  right: 32px;
+  bottom: 32px;
+  z-index: 6;
+  display: grid;
+  gap: var(--space-sm);
+  width: min(420px, calc(100% - 64px));
+  padding: 18px 20px;
+  border: 1px solid var(--color-surface-border-strong);
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, rgba(13, 14, 17, 0.74), rgba(8, 9, 11, 0.94));
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(18px);
+}
+
+.scene-toolbar__meta {
+  display: grid;
+  gap: 6px;
+}
+
+.scene-toolbar .app-footer__location,
+.scene-toolbar .app-footer__notes {
+  margin: 0;
+}
+
+.scene-toolbar .scene-nav {
+  justify-content: flex-end;
+}
+
 @media (max-width: 1080px) {
   .experience-hud {
     flex-direction: column;
@@ -1074,8 +1113,28 @@ code {
     text-align: left;
   }
 
+  .scene-stage__media {
+    top: 168px;
+    right: 24px;
+    width: min(40vw, 420px);
+    min-width: 280px;
+    height: min(44vh, 420px);
+  }
+
   .scene-card {
     width: calc(100% - 48px);
+    max-width: 540px;
+  }
+
+  .scene-toolbar {
+    left: 24px;
+    right: 24px;
+    bottom: 24px;
+    width: auto;
+  }
+
+  .scene-toolbar .scene-nav {
+    justify-content: flex-start;
   }
 }
 
@@ -1094,6 +1153,15 @@ code {
     right: 18px;
   }
 
+  .scene-stage__media {
+    top: 124px;
+    left: 16px;
+    right: 16px;
+    width: auto;
+    min-width: 0;
+    height: 240px;
+  }
+
   .scene-stage__transition {
     padding: 40px 18px 176px;
   }
@@ -1101,8 +1169,24 @@ code {
   .scene-card {
     left: 16px;
     right: 16px;
-    bottom: 136px;
+    bottom: 104px;
     width: auto;
     padding: 18px;
+  }
+
+  .scene-toolbar {
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    padding: 16px;
+  }
+
+  .scene-toolbar .scene-nav {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .scene-toolbar .scene-nav .button {
+    flex: 1;
   }
 }
