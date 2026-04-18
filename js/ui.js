@@ -248,6 +248,7 @@
 
     function renderMedia(scene) {
       resetMediaStage();
+      dom.scene.stage.dataset.mediaTreatment = scene.mediaTreatment || "standard";
       dom.scene.mediaStage.dataset.mediaTreatment = scene.mediaTreatment || "standard";
 
       if (!scene.mediaSrc) {

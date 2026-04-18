@@ -585,27 +585,50 @@ code {
 }
 
 .scene-stage__media[data-media-treatment="book-view"] {
-  inset: 0;
-  width: 100%;
+  top: 132px;
+  left: 32px;
+  right: 42%;
+  bottom: 32px;
+  width: auto;
   min-width: 0;
-  height: 100%;
-  border: 0;
-  border-radius: 0;
+  height: auto;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 22px;
   background: transparent;
-  box-shadow: none;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.24);
   backdrop-filter: none;
 }
 
+.scene-stage__media[data-media-treatment="book-view"]::after {
+  background: none;
+}
+
 .scene-stage__media[data-media-treatment="book-view"] .scene-media {
+  background: #090a0d;
   object-position: center center;
-  transform: scale(1.03);
+  object-fit: contain;
+  filter: none;
+  opacity: 0.01;
+  transform: scale(1);
   transition:
     opacity 760ms ease,
-    transform 1800ms cubic-bezier(0.16, 0.84, 0.24, 1);
+    transform 900ms ease;
 }
 
 .scene-stage__media[data-media-treatment="book-view"].is-visible .scene-media {
-  transform: scale(1.12);
+  transform: scale(1.01);
+}
+
+.scene-stage[data-media-treatment="book-view"] .scene-card {
+  top: 132px;
+  right: 32px;
+  bottom: 32px;
+  left: auto;
+  width: min(34vw, 520px);
+  max-height: calc(100vh - 164px);
+  overflow: auto;
+  background: linear-gradient(180deg, rgba(13, 15, 18, 0.9), rgba(7, 9, 12, 0.96));
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.32);
 }
 
 .scene-media__fallback {
@@ -1163,9 +1186,25 @@ code {
     height: min(44vh, 460px);
   }
 
+  .scene-stage__media[data-media-treatment="book-view"] {
+    top: 168px;
+    left: 24px;
+    right: 40%;
+    bottom: 24px;
+    height: auto;
+  }
+
   .scene-card {
     width: calc(100% - 48px);
     max-width: 540px;
+  }
+
+  .scene-stage[data-media-treatment="book-view"] .scene-card {
+    top: 168px;
+    right: 24px;
+    bottom: 24px;
+    width: min(36vw, 420px);
+    max-height: none;
   }
 }
 
@@ -1193,6 +1232,14 @@ code {
     height: 248px;
   }
 
+  .scene-stage__media[data-media-treatment="book-view"] {
+    top: 124px;
+    left: 16px;
+    right: 16px;
+    bottom: auto;
+    height: 272px;
+  }
+
   .scene-stage__transition {
     padding: 40px 18px 176px;
   }
@@ -1203,6 +1250,15 @@ code {
     bottom: 16px;
     width: auto;
     padding: 18px;
+  }
+
+  .scene-stage[data-media-treatment="book-view"] .scene-card {
+    top: auto;
+    right: 16px;
+    bottom: 16px;
+    left: 16px;
+    width: auto;
+    max-height: calc(100vh - 436px);
   }
 
   .scene-nav--card {
