@@ -115,7 +115,7 @@
     }
   }
 
-  async function startExperience() {
+  function startExperience() {
     if (state.hasStarted) {
       return;
     }
@@ -125,13 +125,20 @@
     ui.showExperience();
     ui.setMapSize(state.mapSize);
 
-    await mapController.initialize({
+    renderActiveScene();
+
+    mapController.initialize({
       apiKey: appConfig.googleMapsApiKey,
       mapId: appConfig.googleMapsMapId,
       scenes: state.scenes
-    });
+    }).then((isMapReady) => {
+      if (!isMapReady || !state.hasStarted) {
+        return;
+      }
 
-    renderActiveScene();
+      mapController.refreshLayout();
+      mapController.focusScene(getActiveScene());
+    });
   }
 
   function goToScene(index) {
