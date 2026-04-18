@@ -113,17 +113,21 @@
     rebuildSceneCollection();
     ui.showExperience();
 
-    renderActiveScene();
-
     mapController.initialize({
       scenes: state.scenes
     }).then((isMapReady) => {
-      if (!isMapReady || !state.hasStarted) {
+      if (!state.hasStarted) {
         return;
       }
 
-      mapController.refreshLayout();
-      mapController.focusScene(getActiveScene());
+      if (isMapReady) {
+        mapController.refreshLayout();
+      }
+
+      renderActiveScene({
+        revealImmediately: false,
+        refocusMap: isMapReady
+      });
     });
   }
 

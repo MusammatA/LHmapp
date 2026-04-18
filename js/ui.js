@@ -301,7 +301,7 @@
       hideSceneMedia();
       hideSceneCard();
 
-      const mediaRevealDelay = Math.max(700, mapLeadDelay);
+      const mediaRevealDelay = Math.max(520, mapLeadDelay);
       const cardRevealDelay = mediaRevealDelay + (scene.delayBeforeText || 0);
 
       scheduleMediaReveal(mediaRevealDelay);
