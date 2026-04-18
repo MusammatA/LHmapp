@@ -1,14 +1,14 @@
 (function attachMapController(globalScope) {
   const DEFAULT_MAP_CENTER = Object.freeze([59.9311, 30.3609]);
-  const DEFAULT_MAP_ZOOM = 13;
+  const DEFAULT_MAP_ZOOM = 12;
   const DEFAULT_SCENE_ZOOM = 16;
   const TILE_LAYER_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
   const TILE_LAYER_ATTRIBUTION = "&copy; OpenStreetMap contributors";
 
   const SCENE_PACING = Object.freeze({
-    secondary: Object.freeze({ zoomDelay: 320, infoDelay: 560, mediaRevealDelay: 1180 }),
-    important: Object.freeze({ zoomDelay: 520, infoDelay: 860, mediaRevealDelay: 1560 }),
-    major: Object.freeze({ zoomDelay: 820, infoDelay: 1280, mediaRevealDelay: 2020 })
+    secondary: Object.freeze({ zoomDelay: 240, infoDelay: 760, mediaRevealDelay: 1080 }),
+    important: Object.freeze({ zoomDelay: 380, infoDelay: 980, mediaRevealDelay: 1320 }),
+    major: Object.freeze({ zoomDelay: 620, infoDelay: 1260, mediaRevealDelay: 1680 })
   });
 
   const ROUTE_STYLE = Object.freeze({
@@ -177,11 +177,12 @@
 
       this.clearPendingFocus();
       this.updateMarkerStates(scene.id);
-      this.map.panTo(toLatLng(scene), { animate: true, duration: 1.2 });
-
       this.pendingZoomTimer = window.setTimeout(() => {
-        this.map.setZoom(scene.mapZoom || DEFAULT_SCENE_ZOOM, { animate: true });
-      }, pacing.zoomDelay);
+        this.map.flyTo(toLatLng(scene), scene.mapZoom || DEFAULT_SCENE_ZOOM, {
+          animate: true,
+          duration: scene.isMajorTurningPoint ? 2.4 : 1.8
+        });
+      }, Math.max(60, pacing.zoomDelay - 220));
 
       this.pendingInfoTimer = window.setTimeout(() => {
         const marker = this.markers.get(scene.id);

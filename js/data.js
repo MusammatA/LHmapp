@@ -3,17 +3,17 @@
     secondary: Object.freeze({
       key: "secondary",
       label: "Secondary Passage",
-      delayBeforeText: 2400
+      delayBeforeText: 1600
     }),
     important: Object.freeze({
       key: "important",
       label: "Important Psychological Pressure",
-      delayBeforeText: 3400
+      delayBeforeText: 2200
     }),
     major: Object.freeze({
       key: "major",
       label: "Major Psychological Turning Point",
-      delayBeforeText: 4800
+      delayBeforeText: 3200
     })
   });
 
