@@ -36,172 +36,137 @@
     </section>
 
     <section class="experience-screen" data-experience-screen hidden aria-hidden="true">
-      <header class="app-header">
-        <div>
-          <p class="eyebrow">Interactive Literary Map</p>
-          <h2 class="app-header__title">The Geography of Guilt</h2>
-          <p class="app-header__subtitle">
-            Real modern-day locations in St. Petersburg paired with the moral and psychological pressure of the novel.
+      <div class="experience-viewport" data-scene-panel>
+        <div class="map-canvas" id="map" aria-label="Google Map of scene locations"></div>
+
+        <div class="map-placeholder" data-map-placeholder hidden>
+          <h4 data-map-placeholder-title>Google Maps is waiting for your API key.</h4>
+          <p data-map-placeholder-copy>
+            Insert your key in <code>window.GEOGRAPHY_OF_GUILT_CONFIG.googleMapsApiKey</code> inside
+            <code>index.html</code>.
           </p>
         </div>
 
-        <div class="app-header__meta">
-          <p class="scene-counter" data-scene-counter>Scene 01 / 42</p>
-        </div>
-      </header>
+        <div class="experience-scrim" aria-hidden="true"></div>
 
-      <main class="experience-grid">
-        <section class="panel panel--map">
-          <div class="panel__header">
-            <div>
-              <p class="panel__eyebrow">Map</p>
-              <h3 class="panel__title">Modern-Day St. Petersburg</h3>
-            </div>
-            <div class="panel__header-side">
-              <p class="panel__meta" data-map-status>
-                Add your Google Maps API key to activate the live map.
-              </p>
-              <div class="segmented-control" role="group" aria-label="Map panel size">
-                <button
-                  class="segmented-control__button"
-                  type="button"
-                  data-map-size-button="compact"
-                  aria-pressed="true"
-                >
-                  Small Map
-                </button>
-                <button
-                  class="segmented-control__button"
-                  type="button"
-                  data-map-size-button="balanced"
-                  aria-pressed="false"
-                >
-                  Balanced
-                </button>
-                <button
-                  class="segmented-control__button"
-                  type="button"
-                  data-map-size-button="expanded"
-                  aria-pressed="false"
-                >
-                  Large Map
-                </button>
-              </div>
-            </div>
+        <header class="experience-hud">
+          <div class="experience-hud__copy">
+            <p class="eyebrow">Interactive Literary Map</p>
+            <p class="scene-counter" data-scene-counter>Scene 01 / 42</p>
+            <h2 class="app-header__title" data-scene-title-chrome>Marmeladov&rsquo;s Tavern</h2>
+            <p class="app-header__subtitle" data-scene-phase-chrome>Day 1 · Important Psychological Pressure</p>
           </div>
 
-          <div class="map-stage">
-            <div class="map-canvas" id="map" aria-label="Google Map of scene locations"></div>
+          <div class="experience-hud__meta">
+            <p class="experience-status" data-map-status>
+              Add your Google Maps API key to activate the live map.
+            </p>
+          </div>
+        </header>
 
-            <div class="map-placeholder" data-map-placeholder hidden>
-              <h4 data-map-placeholder-title>Google Maps is waiting for your API key.</h4>
-              <p data-map-placeholder-copy>
-                Insert your key in <code>window.GEOGRAPHY_OF_GUILT_CONFIG.googleMapsApiKey</code> inside
-                <code>index.html</code>.
+        <div class="scene-stage" data-scene-stage>
+          <div class="scene-stage__media" data-scene-media-stage>
+            <img class="scene-media scene-media--image" data-scene-image alt="" hidden>
+            <video
+              class="scene-media scene-media--video"
+              data-scene-video
+              playsinline
+              preload="metadata"
+              controls
+              hidden
+            ></video>
+            <div class="scene-media__fallback" data-media-fallback hidden>
+              <p class="scene-media__fallback-kicker">Media unavailable</p>
+              <h4 data-media-fallback-title>Attach scene artwork or a video file.</h4>
+              <p data-media-fallback-copy>
+                The scene can still be navigated, but this layer is waiting for its media source.
               </p>
             </div>
           </div>
-        </section>
 
-        <section class="panel panel--scene" data-scene-panel>
-          <div class="panel__header">
-            <div>
-              <p class="panel__eyebrow">Scene</p>
-              <h3 class="panel__title" data-scene-title-chrome>Marmeladov&rsquo;s Tavern</h3>
-            </div>
-            <p class="panel__meta" data-scene-phase-chrome>Day 1 · Important Psychological Pressure</p>
+          <div class="scene-stage__transition" data-scene-transition aria-live="polite">
+            <p class="scene-stage__transition-kicker" data-scene-transition-kicker>Locating the scene</p>
+            <h4 class="scene-stage__transition-title" data-scene-transition-title>
+              Modern-day St. Petersburg
+            </h4>
+            <p class="scene-stage__transition-copy" data-scene-transition-copy>
+              First the route lands on the map, then the scene image arrives.
+            </p>
           </div>
 
-          <div class="scene-stage" data-scene-stage>
-            <div class="scene-stage__media" data-scene-media-stage>
-              <img class="scene-media scene-media--image" data-scene-image alt="" hidden>
-              <video
-                class="scene-media scene-media--video"
-                data-scene-video
-                playsinline
-                preload="metadata"
-                controls
-                hidden
-              ></video>
-              <div class="scene-media__fallback" data-media-fallback hidden>
-                <p class="scene-media__fallback-kicker">Media unavailable</p>
-                <h4 data-media-fallback-title>Attach scene artwork or a video file.</h4>
-                <p data-media-fallback-copy>
-                  The scene can still be navigated, but this panel is waiting for its media source.
-                </p>
-              </div>
+          <article class="scene-card" data-scene-card hidden aria-live="polite">
+            <p class="scene-card__eyebrow" data-scene-phase>Day 1</p>
+            <div class="scene-card__meta-row">
+              <span class="scene-chip scene-chip--importance" data-scene-importance>
+                Important Psychological Pressure
+              </span>
+            </div>
+            <h3 class="scene-card__title" data-scene-title></h3>
+            <p class="scene-card__role" data-scene-role></p>
+
+            <div class="scene-card__location">
+              <p data-scene-location-name></p>
+              <p data-scene-address></p>
             </div>
 
-            <div class="scene-stage__transition" data-scene-transition aria-live="polite">
-              <p class="scene-stage__transition-kicker" data-scene-transition-kicker>Locating the scene</p>
-              <h4 class="scene-stage__transition-title" data-scene-transition-title>
-                Modern-day St. Petersburg
-              </h4>
-              <p class="scene-stage__transition-copy" data-scene-transition-copy>
-                First the route lands on the map, then the scene image arrives.
+            <blockquote class="scene-card__quote">
+              <p data-scene-quote-display></p>
+            </blockquote>
+            <p class="scene-card__interpretation" data-scene-interpretation-display></p>
+
+            <div class="scene-card__actions">
+              <button class="button button--secondary button--small" type="button" data-editor-toggle>
+                Edit Text
+              </button>
+            </div>
+
+            <form class="scene-card__editor" data-editor-form hidden>
+              <label class="field">
+                <span class="field__label">Quote</span>
+                <textarea data-editor-quote rows="4"></textarea>
+              </label>
+
+              <label class="field">
+                <span class="field__label">Interpretation</span>
+                <textarea data-editor-interpretation rows="6"></textarea>
+              </label>
+
+              <div class="scene-card__editor-actions">
+                <button class="button button--primary button--small" type="submit">Save Edits</button>
+                <button class="button button--secondary button--small" type="button" data-editor-reset>
+                  Reset
+                </button>
+                <button class="button button--secondary button--small" type="button" data-editor-close>
+                  Close
+                </button>
+              </div>
+
+              <p class="scene-card__editor-note">
+                Anyone can edit the quote and interpretation here. Changes save to this browser with
+                <code>localStorage</code>.
               </p>
-            </div>
+            </form>
 
-            <article class="scene-card" data-scene-card hidden aria-live="polite">
-              <p class="scene-card__eyebrow" data-scene-phase>Day 1</p>
-              <div class="scene-card__meta-row">
-                <span class="scene-chip scene-chip--importance" data-scene-importance>
-                  Important Psychological Pressure
-                </span>
-              </div>
-              <h3 class="scene-card__title" data-scene-title></h3>
-              <p class="scene-card__role" data-scene-role></p>
-
-              <div class="scene-card__location">
-                <p data-scene-location-name></p>
-                <p data-scene-address></p>
-              </div>
-
-              <form class="scene-card__editor" data-editor-form>
-                <label class="field">
-                  <span class="field__label">Quote</span>
-                  <textarea data-editor-quote rows="4"></textarea>
-                </label>
-
-                <label class="field">
-                  <span class="field__label">Interpretation</span>
-                  <textarea data-editor-interpretation rows="7"></textarea>
-                </label>
-
-                <div class="scene-card__editor-actions">
-                  <button class="button button--primary" type="submit">Save Edits</button>
-                  <button class="button button--secondary" type="button" data-editor-reset>
-                    Reset To Default
-                  </button>
-                </div>
-
-                <p class="scene-card__editor-note">
-                  Quote and interpretation are open for editing here. Changes are saved to this browser with
-                  <code>localStorage</code>.
-                </p>
-              </form>
-
-              <p class="scene-card__feedback" data-editor-feedback></p>
-            </article>
-          </div>
-        </section>
-      </main>
-
-      <footer class="app-footer">
-        <div class="app-footer__scene-meta">
-          <p class="app-footer__location" data-scene-location-line></p>
-          <p class="app-footer__notes" data-scene-notes></p>
+            <p class="scene-card__feedback" data-editor-feedback></p>
+          </article>
         </div>
 
-        <nav class="scene-nav" aria-label="Scene navigation">
-          <button class="button button--secondary" type="button" data-prev-button>
-            Back
-          </button>
-          <button class="button button--primary" type="button" data-next-button>
-            Next
-          </button>
-        </nav>
-      </footer>
+        <footer class="experience-hud experience-hud--bottom">
+          <div class="app-footer__scene-meta">
+            <p class="app-footer__location" data-scene-location-line></p>
+            <p class="app-footer__notes" data-scene-notes></p>
+          </div>
+
+          <nav class="scene-nav" aria-label="Scene navigation">
+            <button class="button button--secondary" type="button" data-prev-button>
+              Back
+            </button>
+            <button class="button button--primary" type="button" data-next-button>
+              Next
+            </button>
+          </nav>
+        </footer>
+      </div>
     </section>
   </div>
 

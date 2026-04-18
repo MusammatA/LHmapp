@@ -1,7 +1,4 @@
 (function attachUIController(globalScope) {
-  const DEFAULT_MAP_SIZE = "compact";
-  const MAP_SIZE_OPTIONS = new Set(["compact", "balanced", "expanded"]);
-
   function queryRequired(selector, root = document) {
     const element = root.querySelector(selector);
 
@@ -10,10 +7,6 @@
     }
 
     return element;
-  }
-
-  function queryAll(selector, root = document) {
-    return Array.from(root.querySelectorAll(selector));
   }
 
   function setHidden(element, isHidden) {
@@ -37,10 +30,9 @@
       controls: {
         start: queryRequired("[data-start-button]"),
         previous: queryRequired("[data-prev-button]"),
-        next: queryRequired("[data-next-button]"),
-        mapSizeButtons: queryAll("[data-map-size-button]")
+        next: queryRequired("[data-next-button]")
       },
-      header: {
+      chrome: {
         sceneCounter: queryRequired("[data-scene-counter]"),
         title: queryRequired("[data-scene-title-chrome]"),
         subtitle: queryRequired("[data-scene-phase-chrome]"),
@@ -62,11 +54,15 @@
         role: queryRequired("[data-scene-role]"),
         locationName: queryRequired("[data-scene-location-name]"),
         address: queryRequired("[data-scene-address]"),
+        quoteDisplay: queryRequired("[data-scene-quote-display]"),
+        interpretationDisplay: queryRequired("[data-scene-interpretation-display]"),
+        editorToggleButton: queryRequired("[data-editor-toggle]"),
         editorForm: queryRequired("[data-editor-form]"),
         editorQuote: queryRequired("[data-editor-quote]"),
         editorInterpretation: queryRequired("[data-editor-interpretation]"),
         editorFeedback: queryRequired("[data-editor-feedback]"),
-        editorResetButton: queryRequired("[data-editor-reset]")
+        editorResetButton: queryRequired("[data-editor-reset]"),
+        editorCloseButton: queryRequired("[data-editor-close]")
       },
       media: {
         image: queryRequired("[data-scene-image]"),
@@ -107,8 +103,15 @@
       clearTimer("cardReveal");
     }
 
+    function setEditorOpen(isOpen) {
+      dom.scene.card.classList.toggle("is-editing", isOpen);
+      setHidden(dom.scene.editorForm, !isOpen);
+      setText(dom.scene.editorToggleButton, isOpen ? "Hide Editor" : "Edit Text");
+    }
+
     function hideSceneCard() {
       dom.scene.card.classList.remove("is-visible");
+      setEditorOpen(false);
       setHidden(dom.scene.card, true);
     }
 
@@ -145,7 +148,7 @@
       setText(dom.scene.transitionTitle, scene.locationName);
       setText(
         dom.scene.transitionCopy,
-        `Pinning ${scene.title} on the modern map before the scene image arrives.`
+        `The map closes in on ${scene.title} before the literary image takes over.`
       );
       dom.scene.transition.classList.add("is-visible");
     }
@@ -215,7 +218,7 @@
       if (!scene.mediaSrc) {
         showMediaFallback(
           "This scene has no media source yet.",
-          "Add an image or video path inside js/data.js to complete the panel."
+          "Add an image or video path inside js/data.js to complete the scene layer."
         );
         return;
       }
@@ -229,11 +232,11 @@
     }
 
     function renderSceneChrome(scene, sceneNumber, totalScenes) {
-      setText(dom.header.sceneCounter, formatSceneCounter(sceneNumber, totalScenes));
-      setText(dom.header.title, scene.title);
-      setText(dom.header.subtitle, `${scene.dayLabel} · ${scene.importanceLabel}`);
-      setText(dom.header.locationLine, `${scene.locationName} — ${scene.modernAddress}`);
-      setText(dom.header.notes, scene.notes || "");
+      setText(dom.chrome.sceneCounter, formatSceneCounter(sceneNumber, totalScenes));
+      setText(dom.chrome.title, scene.title);
+      setText(dom.chrome.subtitle, `${scene.dayLabel} · ${scene.importanceLabel}`);
+      setText(dom.chrome.locationLine, `${scene.locationName} — ${scene.modernAddress}`);
+      setText(dom.chrome.notes, scene.notes || "");
     }
 
     function renderSceneBody(scene) {
@@ -247,9 +250,12 @@
       setText(dom.scene.role, scene.psychologicalRole);
       setText(dom.scene.locationName, scene.locationName);
       setText(dom.scene.address, scene.modernAddress);
+      setText(dom.scene.quoteDisplay, scene.quote);
+      setText(dom.scene.interpretationDisplay, scene.interpretation);
       dom.scene.editorQuote.value = scene.quote;
       dom.scene.editorInterpretation.value = scene.interpretation;
       setText(dom.scene.editorFeedback, "");
+      setEditorOpen(false);
     }
 
     function scheduleMediaReveal(delayMs) {
@@ -265,17 +271,6 @@
         timers.cardReveal = null;
         revealSceneCard();
       }, delayMs);
-    }
-
-    function setMapSize(size) {
-      const nextSize = MAP_SIZE_OPTIONS.has(size) ? size : DEFAULT_MAP_SIZE;
-      dom.screens.experience.dataset.mapSize = nextSize;
-
-      dom.controls.mapSizeButtons.forEach((button) => {
-        const isActive = button.dataset.mapSizeButton === nextSize;
-        button.classList.toggle("is-active", isActive);
-        button.setAttribute("aria-pressed", String(isActive));
-      });
     }
 
     function renderScene({
@@ -336,6 +331,14 @@
         handleGlobalKeydown(event, handlers);
       });
 
+      dom.scene.editorToggleButton.addEventListener("click", () => {
+        setEditorOpen(!dom.scene.card.classList.contains("is-editing"));
+      });
+
+      dom.scene.editorCloseButton.addEventListener("click", () => {
+        setEditorOpen(false);
+      });
+
       dom.scene.editorForm.addEventListener("submit", (event) => {
         event.preventDefault();
         handlers.onSceneTextSave({
@@ -343,16 +346,12 @@
           quote: dom.scene.editorQuote.value,
           interpretation: dom.scene.editorInterpretation.value
         });
+        setEditorOpen(false);
       });
 
       dom.scene.editorResetButton.addEventListener("click", () => {
         handlers.onSceneTextReset(dom.scene.card.dataset.sceneId);
-      });
-
-      dom.controls.mapSizeButtons.forEach((button) => {
-        button.addEventListener("click", () => {
-          handlers.onMapSizeChange(button.dataset.mapSizeButton);
-        });
+        setEditorOpen(false);
       });
     }
 
@@ -362,10 +361,6 @@
       dom.screens.landing.classList.add("is-exiting");
       setHidden(dom.screens.experience, false);
       dom.screens.experience.setAttribute("aria-hidden", "false");
-
-      if (!dom.screens.experience.dataset.mapSize) {
-        setMapSize(DEFAULT_MAP_SIZE);
-      }
 
       requestAnimationFrame(() => {
         dom.screens.experience.classList.add("is-visible");
@@ -393,7 +388,6 @@
       bindEvents,
       showExperience,
       renderScene,
-      setMapSize,
       flashEditorFeedback
     };
   }

@@ -5,8 +5,7 @@
 
   const DEFAULT_APP_CONFIG = Object.freeze({
     googleMapsApiKey: "",
-    googleMapsMapId: "DEMO_MAP_ID",
-    defaultMapSize: "compact"
+    googleMapsMapId: "DEMO_MAP_ID"
   });
 
   function createSceneEditStore(storageKey) {
@@ -46,7 +45,6 @@
   const state = {
     hasStarted: false,
     activeSceneIndex: 0,
-    mapSize: appConfig.defaultMapSize,
     sceneEdits: sceneEditStore.load(),
     scenes: []
   };
@@ -124,7 +122,6 @@
     state.hasStarted = true;
     rebuildSceneCollection();
     ui.showExperience();
-    ui.setMapSize(state.mapSize);
 
     renderActiveScene();
 
@@ -156,15 +153,6 @@
     renderActiveScene();
   }
 
-  function setMapSize(size) {
-    state.mapSize = size;
-    ui.setMapSize(size);
-
-    window.setTimeout(() => {
-      mapController.refreshLayout();
-    }, 160);
-  }
-
   function handleSceneTextSave({ sceneId, quote, interpretation }) {
     if (!sceneId) {
       return;
@@ -191,7 +179,6 @@
     onStart: startExperience,
     onPrevious: () => goToScene(state.activeSceneIndex - 1),
     onNext: () => goToScene(state.activeSceneIndex + 1),
-    onMapSizeChange: setMapSize,
     onSceneTextSave: handleSceneTextSave,
     onSceneTextReset: handleSceneTextReset
   });
