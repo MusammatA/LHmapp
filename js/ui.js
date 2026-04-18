@@ -38,6 +38,9 @@
       scene: {
         panel: queryRequired("[data-scene-panel]"),
         stage: queryRequired("[data-scene-stage]"),
+        intro: queryRequired("[data-scene-intro]"),
+        introImage: queryRequired("[data-scene-intro-image]"),
+        introPrompt: queryRequired("[data-scene-intro-prompt]"),
         mediaStage: queryRequired("[data-scene-media-stage]"),
         transition: queryRequired("[data-scene-transition]"),
         transitionKicker: queryRequired("[data-scene-transition-kicker]"),
@@ -84,6 +87,7 @@
       cardReveal: null,
       landingHide: null
     };
+    let introAdvanceCallback = null;
 
     function clearTimer(timerName) {
       if (!timers[timerName]) {
@@ -97,6 +101,7 @@
     function clearSceneSequence() {
       clearTimer("mediaReveal");
       clearTimer("cardReveal");
+      introAdvanceCallback = null;
     }
 
     function setEditorOpen(isOpen) {
@@ -136,9 +141,39 @@
       });
     }
 
+    function hideSceneIntro() {
+      dom.scene.intro.classList.remove("is-visible");
+      dom.scene.intro.setAttribute("aria-hidden", "true");
+      dom.scene.introImage.removeAttribute("src");
+      dom.scene.introImage.alt = "";
+      introAdvanceCallback = null;
+    }
+
+    function showSceneIntro(scene, onAdvance) {
+      dom.scene.introImage.src = scene.introImageSrc;
+      dom.scene.introImage.alt = `${scene.title} street view`;
+      setText(
+        dom.scene.introPrompt,
+        scene.introPrompt || "Click anywhere to view the analysis and the book-view image."
+      );
+      dom.scene.intro.setAttribute("aria-hidden", "false");
+      dom.scene.intro.classList.add("is-visible");
+      introAdvanceCallback = () => {
+        hideSceneIntro();
+        revealSceneMedia();
+        window.setTimeout(() => {
+          revealSceneCard();
+        }, 260);
+
+        if (typeof onAdvance === "function") {
+          onAdvance();
+        }
+      };
+    }
+
     function showSceneTransition(scene) {
-      const transitionCopy = scene.mediaTreatment === "street-view"
-        ? `The map closes in on ${scene.title}, then the street-level image takes over.`
+      const transitionCopy = scene.introImageSrc
+        ? "The map lands on the exact point, then the real street-view image takes over."
         : `The map closes in on ${scene.title} before the literary image takes over.`;
 
       setText(dom.scene.transitionKicker, `Locating ${scene.dayLabel}`);
@@ -168,6 +203,7 @@
     }
 
     function resetMediaStage() {
+      hideSceneIntro();
       resetImageMedia();
       resetVideoMedia();
       setHidden(dom.media.fallback, true);
@@ -282,6 +318,7 @@
       dom.controls.next.disabled = isLastScene;
 
       if (revealImmediately) {
+        hideSceneIntro();
         hideSceneTransition();
         revealSceneMedia(true);
         revealSceneCard(true);
@@ -289,11 +326,21 @@
       }
 
       showSceneTransition(scene);
+      hideSceneIntro();
       hideSceneMedia();
       hideSceneCard();
 
       const mediaRevealDelay = Math.max(520, mapLeadDelay);
       const cardRevealDelay = mediaRevealDelay + (scene.delayBeforeText || 0);
+
+      if (scene.introImageSrc) {
+        timers.mediaReveal = window.setTimeout(() => {
+          timers.mediaReveal = null;
+          hideSceneTransition();
+          showSceneIntro(scene);
+        }, mediaRevealDelay);
+        return;
+      }
 
       scheduleMediaReveal(mediaRevealDelay);
       scheduleCardReveal(cardRevealDelay);
@@ -311,12 +358,22 @@
       if (event.key === "ArrowLeft") {
         handlers.onPrevious();
       }
+
+      if ((event.key === "Enter" || event.key === " ") && introAdvanceCallback) {
+        event.preventDefault();
+        introAdvanceCallback();
+      }
     }
 
     function bindEvents(handlers) {
       dom.controls.start.addEventListener("click", handlers.onStart);
       dom.controls.previous.addEventListener("click", handlers.onPrevious);
       dom.controls.next.addEventListener("click", handlers.onNext);
+      dom.scene.intro.addEventListener("click", () => {
+        if (introAdvanceCallback) {
+          introAdvanceCallback();
+        }
+      });
 
       document.addEventListener("keydown", (event) => {
         handleGlobalKeydown(event, handlers);

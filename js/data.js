@@ -169,6 +169,7 @@
 
   const MEDIA = Object.freeze({
     pawnhouseStreetView: "assets/pawnhouse.jpg",
+    pawnhouseBookView: "assets/e1.png",
     tavern: "assets/images/marmeladov-tavern.png",
     bridge: "assets/images/bridge-canal-scene.png",
     murder: "assets/images/pawnbroker-murder.png",
@@ -218,8 +219,10 @@
     id: "day-1-rehearsal",
     dayLabel: "Day 1",
     title: "Rehearsing the Crime",
-    mediaSrc: MEDIA.pawnhouseStreetView,
-    mediaTreatment: "street-view",
+    mediaSrc: MEDIA.pawnhouseBookView,
+    mediaTreatment: "book-view",
+    introImageSrc: MEDIA.pawnhouseStreetView,
+    introPrompt: "Click anywhere to view the analysis and the book-view image.",
     importance: "important",
     quote: "\"He had come only to make a trial of it.\"",
     psychologicalRole: "Early calculation; testing the crime in his mind.",
