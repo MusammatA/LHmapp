@@ -181,9 +181,21 @@ code {
 
 .experience-grid {
   display: grid;
-  grid-template-columns: minmax(320px, 1.02fr) minmax(380px, 1fr);
+  grid-template-columns: minmax(280px, 0.8fr) minmax(460px, 1.2fr);
   gap: 20px;
   min-height: min(74vh, 880px);
+}
+
+.experience-screen[data-map-size="compact"] .experience-grid {
+  grid-template-columns: minmax(280px, 0.76fr) minmax(500px, 1.24fr);
+}
+
+.experience-screen[data-map-size="balanced"] .experience-grid {
+  grid-template-columns: minmax(320px, 0.94fr) minmax(420px, 1.06fr);
+}
+
+.experience-screen[data-map-size="expanded"] .experience-grid {
+  grid-template-columns: minmax(420px, 1.18fr) minmax(340px, 0.82fr);
 }
 
 .panel {
@@ -200,9 +212,16 @@ code {
 .panel__header {
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
   gap: 20px;
   padding: 20px 22px 16px;
   border-bottom: 1px solid var(--color-accent-line);
+}
+
+.panel__header-side {
+  display: grid;
+  justify-items: end;
+  gap: 12px;
 }
 
 .panel[data-scene-importance="important"] .panel__header {
@@ -371,6 +390,42 @@ code {
   background: rgba(255, 255, 255, 0.04);
 }
 
+.segmented-control {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.segmented-control__button {
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-standard),
+    border-color var(--transition-standard),
+    color var(--transition-standard),
+    transform var(--transition-standard);
+}
+
+.segmented-control__button:hover,
+.segmented-control__button:focus-visible {
+  border-color: rgba(205, 194, 173, 0.3);
+  color: var(--color-text);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.segmented-control__button.is-active {
+  border-color: rgba(205, 194, 173, 0.35);
+  background: rgba(205, 194, 173, 0.12);
+  color: #f3ecdf;
+}
+
 .scene-nav {
   display: flex;
   gap: var(--space-sm);
@@ -447,6 +502,12 @@ code {
   inset: 0;
   overflow: hidden;
   z-index: 0;
+  opacity: 0;
+  transition: opacity 720ms ease;
+}
+
+.scene-stage__media.is-visible {
+  opacity: 1;
 }
 
 .scene-stage__media::after {
@@ -464,6 +525,16 @@ code {
   height: 100%;
   object-fit: cover;
   filter: saturate(0.72) contrast(0.92) brightness(0.9);
+  opacity: 0.01;
+  transform: scale(1.08);
+  transition:
+    opacity 720ms ease,
+    transform 1800ms ease;
+}
+
+.scene-stage__media.is-visible .scene-media {
+  opacity: 1;
+  transform: scale(1);
 }
 
 .scene-media__fallback {
@@ -481,6 +552,55 @@ code {
 
 .scene-media__fallback-kicker {
   margin: 0;
+}
+
+.scene-stage__transition {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  align-content: end;
+  gap: 12px;
+  padding: 24px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(14px);
+  transition:
+    opacity 560ms ease,
+    transform 560ms ease;
+  background:
+    radial-gradient(circle at 20% 22%, rgba(205, 194, 173, 0.14), transparent 22%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.14), rgba(0, 0, 0, 0.82));
+}
+
+.scene-stage__transition.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.scene-stage__transition-kicker,
+.scene-stage__transition-copy {
+  margin: 0;
+}
+
+.scene-stage__transition-kicker {
+  color: var(--color-text-muted);
+  font-size: 0.74rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.scene-stage__transition-title {
+  margin: 0;
+  font-family: var(--font-title);
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 0.98;
+}
+
+.scene-stage__transition-copy {
+  max-width: 34ch;
+  color: var(--color-text-copy);
+  line-height: 1.6;
 }
 
 /* Scene card */
@@ -689,8 +809,16 @@ code {
     justify-items: start;
   }
 
+  .panel__header-side {
+    justify-items: start;
+  }
+
   .panel__meta {
     text-align: left;
+  }
+
+  .segmented-control {
+    justify-content: flex-start;
   }
 
   .map-canvas {
@@ -716,6 +844,10 @@ code {
     left: var(--space-sm);
     right: var(--space-sm);
     bottom: var(--space-sm);
+    padding: var(--space-md);
+  }
+
+  .scene-stage__transition {
     padding: var(--space-md);
   }
 

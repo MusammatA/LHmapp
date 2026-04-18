@@ -52,9 +52,37 @@
               <p class="panel__eyebrow">Map</p>
               <h3 class="panel__title">Modern-Day St. Petersburg</h3>
             </div>
-            <p class="panel__meta" data-map-status>
-              Add your Google Maps API key to activate the live map.
-            </p>
+            <div class="panel__header-side">
+              <p class="panel__meta" data-map-status>
+                Add your Google Maps API key to activate the live map.
+              </p>
+              <div class="segmented-control" role="group" aria-label="Map panel size">
+                <button
+                  class="segmented-control__button"
+                  type="button"
+                  data-map-size-button="compact"
+                  aria-pressed="true"
+                >
+                  Small Map
+                </button>
+                <button
+                  class="segmented-control__button"
+                  type="button"
+                  data-map-size-button="balanced"
+                  aria-pressed="false"
+                >
+                  Balanced
+                </button>
+                <button
+                  class="segmented-control__button"
+                  type="button"
+                  data-map-size-button="expanded"
+                  aria-pressed="false"
+                >
+                  Large Map
+                </button>
+              </div>
+            </div>
           </div>
 
           <div class="map-stage">
@@ -80,7 +108,7 @@
           </div>
 
           <div class="scene-stage" data-scene-stage>
-            <div class="scene-stage__media">
+            <div class="scene-stage__media" data-scene-media-stage>
               <img class="scene-media scene-media--image" data-scene-image alt="" hidden>
               <video
                 class="scene-media scene-media--video"
@@ -97,6 +125,16 @@
                   The scene can still be navigated, but this panel is waiting for its media source.
                 </p>
               </div>
+            </div>
+
+            <div class="scene-stage__transition" data-scene-transition aria-live="polite">
+              <p class="scene-stage__transition-kicker" data-scene-transition-kicker>Locating the scene</p>
+              <h4 class="scene-stage__transition-title" data-scene-transition-title>
+                Modern-day St. Petersburg
+              </h4>
+              <p class="scene-stage__transition-copy" data-scene-transition-copy>
+                First the route lands on the map, then the scene image arrives.
+              </p>
             </div>
 
             <article class="scene-card" data-scene-card hidden aria-live="polite">

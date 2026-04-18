@@ -1,4 +1,7 @@
 (function attachUIController(globalScope) {
+  const DEFAULT_MAP_SIZE = "compact";
+  const MAP_SIZE_OPTIONS = new Set(["compact", "balanced", "expanded"]);
+
   function queryRequired(selector, root = document) {
     const element = root.querySelector(selector);
 
@@ -7,6 +10,10 @@
     }
 
     return element;
+  }
+
+  function queryAll(selector, root = document) {
+    return Array.from(root.querySelectorAll(selector));
   }
 
   function setHidden(element, isHidden) {
@@ -30,7 +37,8 @@
       controls: {
         start: queryRequired("[data-start-button]"),
         previous: queryRequired("[data-prev-button]"),
-        next: queryRequired("[data-next-button]")
+        next: queryRequired("[data-next-button]"),
+        mapSizeButtons: queryAll("[data-map-size-button]")
       },
       header: {
         sceneCounter: queryRequired("[data-scene-counter]"),
@@ -42,6 +50,11 @@
       scene: {
         panel: queryRequired("[data-scene-panel]"),
         stage: queryRequired("[data-scene-stage]"),
+        mediaStage: queryRequired("[data-scene-media-stage]"),
+        transition: queryRequired("[data-scene-transition]"),
+        transitionKicker: queryRequired("[data-scene-transition-kicker]"),
+        transitionTitle: queryRequired("[data-scene-transition-title]"),
+        transitionCopy: queryRequired("[data-scene-transition-copy]"),
         card: queryRequired("[data-scene-card]"),
         phase: queryRequired("[data-scene-phase]"),
         importance: queryRequired("[data-scene-importance]"),
@@ -74,205 +87,292 @@
 
   function createUIController() {
     const dom = collectDom();
-    let sceneRevealTimer = null;
-
-  function clearSceneRevealTimer() {
-    if (!sceneRevealTimer) {
-      return;
-    }
-
-    window.clearTimeout(sceneRevealTimer);
-    sceneRevealTimer = null;
-  }
-
-  function hideSceneCard() {
-    dom.scene.card.classList.remove("is-visible");
-    setHidden(dom.scene.card, true);
-  }
-
-  function revealSceneCard() {
-    setHidden(dom.scene.card, false);
-    requestAnimationFrame(() => {
-      dom.scene.card.classList.add("is-visible");
-    });
-  }
-
-  function resetImageMedia() {
-    dom.media.image.onload = null;
-    dom.media.image.onerror = null;
-    dom.media.image.removeAttribute("src");
-    dom.media.image.alt = "";
-    setHidden(dom.media.image, true);
-  }
-
-  function resetVideoMedia() {
-    dom.media.video.pause();
-    dom.media.video.onerror = null;
-    dom.media.video.removeAttribute("src");
-    dom.media.video.load();
-    setHidden(dom.media.video, true);
-  }
-
-  function resetMediaStage() {
-    resetImageMedia();
-    resetVideoMedia();
-    setHidden(dom.media.fallback, true);
-  }
-
-  function showMediaFallback(title, copy) {
-    setText(dom.media.fallbackTitle, title);
-    setText(dom.media.fallbackCopy, copy);
-    setHidden(dom.media.fallback, false);
-  }
-
-  function showSceneImage(scene) {
-    dom.media.image.alt = scene.title;
-    dom.media.image.src = scene.mediaSrc;
-    dom.media.image.onerror = () => {
-      setHidden(dom.media.image, true);
-      showMediaFallback(
-        "The image file could not be loaded.",
-        "Check the media path in js/data.js and make sure the file exists in assets/images/."
-      );
+    const timers = {
+      mediaReveal: null,
+      cardReveal: null
     };
 
-    setHidden(dom.media.image, false);
-  }
+    function clearTimer(timerName) {
+      if (!timers[timerName]) {
+        return;
+      }
 
-  function showSceneVideo(scene) {
-    dom.media.video.src = scene.mediaSrc;
-    dom.media.video.onerror = () => {
-      setHidden(dom.media.video, true);
-      showMediaFallback(
-        "The video file could not be loaded.",
-        "Check the media path in js/data.js and make sure the file exists in assets/videos/."
-      );
-    };
-
-    setHidden(dom.media.video, false);
-  }
-
-  function renderMedia(scene) {
-    resetMediaStage();
-
-    if (!scene.mediaSrc) {
-      showMediaFallback(
-        "This scene has no media source yet.",
-        "Add an image or video path inside js/data.js to complete the panel."
-      );
-      return;
+      window.clearTimeout(timers[timerName]);
+      timers[timerName] = null;
     }
 
-    if (scene.mediaType === "video") {
-      showSceneVideo(scene);
-      return;
+    function clearSceneSequence() {
+      clearTimer("mediaReveal");
+      clearTimer("cardReveal");
     }
 
-    showSceneImage(scene);
-  }
-
-  function renderSceneChrome(scene, sceneNumber, totalScenes) {
-    setText(dom.header.sceneCounter, formatSceneCounter(sceneNumber, totalScenes));
-    setText(dom.header.title, scene.title);
-    setText(dom.header.subtitle, `${scene.dayLabel} · ${scene.importanceLabel}`);
-    setText(dom.header.locationLine, `${scene.locationName} — ${scene.modernAddress}`);
-    setText(dom.header.notes, scene.notes || "");
-  }
-
-  function renderSceneBody(scene) {
-    dom.scene.card.dataset.sceneId = scene.id;
-    dom.scene.panel.dataset.sceneImportance = scene.importance;
-    dom.scene.stage.dataset.sceneImportance = scene.importance;
-    dom.scene.card.dataset.sceneImportance = scene.importance;
-    setText(dom.scene.phase, scene.dayLabel);
-    setText(dom.scene.importance, scene.importanceLabel);
-    setText(dom.scene.title, scene.title);
-    setText(dom.scene.role, scene.psychologicalRole);
-    setText(dom.scene.locationName, scene.locationName);
-    setText(dom.scene.address, scene.modernAddress);
-    dom.scene.editorQuote.value = scene.quote;
-    dom.scene.editorInterpretation.value = scene.interpretation;
-    setText(dom.scene.editorFeedback, "");
-  }
-
-  function scheduleSceneReveal(delayMs) {
-    sceneRevealTimer = window.setTimeout(() => {
-      sceneRevealTimer = null;
-      revealSceneCard();
-    }, delayMs);
-  }
-
-  function renderScene({
-    scene,
-    sceneNumber,
-    totalScenes,
-    isFirstScene,
-    isLastScene
-  }) {
-    clearSceneRevealTimer();
-    hideSceneCard();
-    renderMedia(scene);
-    renderSceneChrome(scene, sceneNumber, totalScenes);
-    renderSceneBody(scene);
-
-    dom.controls.previous.disabled = isFirstScene;
-    dom.controls.next.disabled = isLastScene;
-
-    // The text deliberately arrives after the media so the scene can land visually first.
-    scheduleSceneReveal(scene.delayBeforeText || 0);
-  }
-
-  function handleGlobalKeydown(event, handlers) {
-    if (!document.body.classList.contains("is-experience-active")) {
-      return;
+    function hideSceneCard() {
+      dom.scene.card.classList.remove("is-visible");
+      setHidden(dom.scene.card, true);
     }
 
-    if (event.key === "ArrowRight") {
-      handlers.onNext();
-    }
+    function revealSceneCard(immediately = false) {
+      setHidden(dom.scene.card, false);
 
-    if (event.key === "ArrowLeft") {
-      handlers.onPrevious();
-    }
-  }
+      if (immediately) {
+        dom.scene.card.classList.add("is-visible");
+        return;
+      }
 
-  function bindEvents(handlers) {
-    dom.controls.start.addEventListener("click", handlers.onStart);
-    dom.controls.previous.addEventListener("click", handlers.onPrevious);
-    dom.controls.next.addEventListener("click", handlers.onNext);
-
-    document.addEventListener("keydown", (event) => {
-      handleGlobalKeydown(event, handlers);
-    });
-
-    dom.scene.editorForm.addEventListener("submit", (event) => {
-      event.preventDefault();
-      handlers.onSceneTextSave({
-        sceneId: dom.scene.card.dataset.sceneId,
-        quote: dom.scene.editorQuote.value,
-        interpretation: dom.scene.editorInterpretation.value
+      requestAnimationFrame(() => {
+        dom.scene.card.classList.add("is-visible");
       });
-    });
+    }
 
-    dom.scene.editorResetButton.addEventListener("click", () => {
-      handlers.onSceneTextReset(dom.scene.card.dataset.sceneId);
-    });
-  }
+    function hideSceneMedia() {
+      dom.scene.mediaStage.classList.remove("is-visible");
+    }
 
-  function showExperience() {
-    document.body.classList.add("is-experience-active");
-    setHidden(dom.screens.landing, true);
-    setHidden(dom.screens.experience, false);
-    dom.screens.experience.setAttribute("aria-hidden", "false");
+    function revealSceneMedia(immediately = false) {
+      if (immediately) {
+        dom.scene.mediaStage.classList.add("is-visible");
+        return;
+      }
 
-    requestAnimationFrame(() => {
-      dom.screens.experience.classList.add("is-visible");
-    });
-  }
+      requestAnimationFrame(() => {
+        dom.scene.mediaStage.classList.add("is-visible");
+      });
+    }
 
-  function flashEditorFeedback(message) {
-    setText(dom.scene.editorFeedback, message);
-  }
+    function showSceneTransition(scene) {
+      setText(dom.scene.transitionKicker, `Locating ${scene.dayLabel}`);
+      setText(dom.scene.transitionTitle, scene.locationName);
+      setText(
+        dom.scene.transitionCopy,
+        `Pinning ${scene.title} on the modern map before the scene image arrives.`
+      );
+      dom.scene.transition.classList.add("is-visible");
+    }
+
+    function hideSceneTransition() {
+      dom.scene.transition.classList.remove("is-visible");
+    }
+
+    function resetImageMedia() {
+      dom.media.image.onload = null;
+      dom.media.image.onerror = null;
+      dom.media.image.removeAttribute("src");
+      dom.media.image.alt = "";
+      setHidden(dom.media.image, true);
+    }
+
+    function resetVideoMedia() {
+      dom.media.video.pause();
+      dom.media.video.onerror = null;
+      dom.media.video.removeAttribute("src");
+      dom.media.video.load();
+      setHidden(dom.media.video, true);
+    }
+
+    function resetMediaStage() {
+      resetImageMedia();
+      resetVideoMedia();
+      setHidden(dom.media.fallback, true);
+    }
+
+    function showMediaFallback(title, copy) {
+      setText(dom.media.fallbackTitle, title);
+      setText(dom.media.fallbackCopy, copy);
+      setHidden(dom.media.fallback, false);
+    }
+
+    function showSceneImage(scene) {
+      dom.media.image.alt = scene.title;
+      dom.media.image.src = scene.mediaSrc;
+      dom.media.image.onerror = () => {
+        setHidden(dom.media.image, true);
+        showMediaFallback(
+          "The image file could not be loaded.",
+          "Check the media path in js/data.js and make sure the file exists in assets/images/."
+        );
+      };
+
+      setHidden(dom.media.image, false);
+    }
+
+    function showSceneVideo(scene) {
+      dom.media.video.src = scene.mediaSrc;
+      dom.media.video.onerror = () => {
+        setHidden(dom.media.video, true);
+        showMediaFallback(
+          "The video file could not be loaded.",
+          "Check the media path in js/data.js and make sure the file exists in assets/videos/."
+        );
+      };
+
+      setHidden(dom.media.video, false);
+    }
+
+    function renderMedia(scene) {
+      resetMediaStage();
+
+      if (!scene.mediaSrc) {
+        showMediaFallback(
+          "This scene has no media source yet.",
+          "Add an image or video path inside js/data.js to complete the panel."
+        );
+        return;
+      }
+
+      if (scene.mediaType === "video") {
+        showSceneVideo(scene);
+        return;
+      }
+
+      showSceneImage(scene);
+    }
+
+    function renderSceneChrome(scene, sceneNumber, totalScenes) {
+      setText(dom.header.sceneCounter, formatSceneCounter(sceneNumber, totalScenes));
+      setText(dom.header.title, scene.title);
+      setText(dom.header.subtitle, `${scene.dayLabel} · ${scene.importanceLabel}`);
+      setText(dom.header.locationLine, `${scene.locationName} — ${scene.modernAddress}`);
+      setText(dom.header.notes, scene.notes || "");
+    }
+
+    function renderSceneBody(scene) {
+      dom.scene.card.dataset.sceneId = scene.id;
+      dom.scene.panel.dataset.sceneImportance = scene.importance;
+      dom.scene.stage.dataset.sceneImportance = scene.importance;
+      dom.scene.card.dataset.sceneImportance = scene.importance;
+      setText(dom.scene.phase, scene.dayLabel);
+      setText(dom.scene.importance, scene.importanceLabel);
+      setText(dom.scene.title, scene.title);
+      setText(dom.scene.role, scene.psychologicalRole);
+      setText(dom.scene.locationName, scene.locationName);
+      setText(dom.scene.address, scene.modernAddress);
+      dom.scene.editorQuote.value = scene.quote;
+      dom.scene.editorInterpretation.value = scene.interpretation;
+      setText(dom.scene.editorFeedback, "");
+    }
+
+    function scheduleMediaReveal(delayMs) {
+      timers.mediaReveal = window.setTimeout(() => {
+        timers.mediaReveal = null;
+        hideSceneTransition();
+        revealSceneMedia();
+      }, delayMs);
+    }
+
+    function scheduleCardReveal(delayMs) {
+      timers.cardReveal = window.setTimeout(() => {
+        timers.cardReveal = null;
+        revealSceneCard();
+      }, delayMs);
+    }
+
+    function setMapSize(size) {
+      const nextSize = MAP_SIZE_OPTIONS.has(size) ? size : DEFAULT_MAP_SIZE;
+      dom.screens.experience.dataset.mapSize = nextSize;
+
+      dom.controls.mapSizeButtons.forEach((button) => {
+        const isActive = button.dataset.mapSizeButton === nextSize;
+        button.classList.toggle("is-active", isActive);
+        button.setAttribute("aria-pressed", String(isActive));
+      });
+    }
+
+    function renderScene({
+      scene,
+      sceneNumber,
+      totalScenes,
+      isFirstScene,
+      isLastScene,
+      mapLeadDelay = 0,
+      revealImmediately = false
+    }) {
+      clearSceneSequence();
+      renderMedia(scene);
+      renderSceneChrome(scene, sceneNumber, totalScenes);
+      renderSceneBody(scene);
+
+      dom.controls.previous.disabled = isFirstScene;
+      dom.controls.next.disabled = isLastScene;
+
+      if (revealImmediately) {
+        hideSceneTransition();
+        revealSceneMedia(true);
+        revealSceneCard(true);
+        return;
+      }
+
+      showSceneTransition(scene);
+      hideSceneMedia();
+      hideSceneCard();
+
+      const mediaRevealDelay = Math.max(700, mapLeadDelay);
+      const cardRevealDelay = mediaRevealDelay + (scene.delayBeforeText || 0);
+
+      scheduleMediaReveal(mediaRevealDelay);
+      scheduleCardReveal(cardRevealDelay);
+    }
+
+    function handleGlobalKeydown(event, handlers) {
+      if (!document.body.classList.contains("is-experience-active")) {
+        return;
+      }
+
+      if (event.key === "ArrowRight") {
+        handlers.onNext();
+      }
+
+      if (event.key === "ArrowLeft") {
+        handlers.onPrevious();
+      }
+    }
+
+    function bindEvents(handlers) {
+      dom.controls.start.addEventListener("click", handlers.onStart);
+      dom.controls.previous.addEventListener("click", handlers.onPrevious);
+      dom.controls.next.addEventListener("click", handlers.onNext);
+
+      document.addEventListener("keydown", (event) => {
+        handleGlobalKeydown(event, handlers);
+      });
+
+      dom.scene.editorForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        handlers.onSceneTextSave({
+          sceneId: dom.scene.card.dataset.sceneId,
+          quote: dom.scene.editorQuote.value,
+          interpretation: dom.scene.editorInterpretation.value
+        });
+      });
+
+      dom.scene.editorResetButton.addEventListener("click", () => {
+        handlers.onSceneTextReset(dom.scene.card.dataset.sceneId);
+      });
+
+      dom.controls.mapSizeButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          handlers.onMapSizeChange(button.dataset.mapSizeButton);
+        });
+      });
+    }
+
+    function showExperience() {
+      document.body.classList.add("is-experience-active");
+      setHidden(dom.screens.landing, true);
+      setHidden(dom.screens.experience, false);
+      dom.screens.experience.setAttribute("aria-hidden", "false");
+
+      if (!dom.screens.experience.dataset.mapSize) {
+        setMapSize(DEFAULT_MAP_SIZE);
+      }
+
+      requestAnimationFrame(() => {
+        dom.screens.experience.classList.add("is-visible");
+      });
+    }
+
+    function flashEditorFeedback(message) {
+      setText(dom.scene.editorFeedback, message);
+    }
 
     return {
       mapElements: {
@@ -285,6 +385,7 @@
       bindEvents,
       showExperience,
       renderScene,
+      setMapSize,
       flashEditorFeedback
     };
   }

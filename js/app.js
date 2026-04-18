@@ -5,7 +5,8 @@
 
   const DEFAULT_APP_CONFIG = Object.freeze({
     googleMapsApiKey: "",
-    googleMapsMapId: "DEMO_MAP_ID"
+    googleMapsMapId: "DEMO_MAP_ID",
+    defaultMapSize: "compact"
   });
 
   function createSceneEditStore(storageKey) {
@@ -45,6 +46,7 @@
   const state = {
     hasStarted: false,
     activeSceneIndex: 0,
+    mapSize: appConfig.defaultMapSize,
     sceneEdits: sceneEditStore.load(),
     scenes: []
   };
@@ -64,22 +66,26 @@
     return Math.max(0, Math.min(index, state.scenes.length - 1));
   }
 
-  function renderActiveScene() {
+  function renderActiveScene({ revealImmediately = false, refocusMap = true } = {}) {
     const activeScene = getActiveScene();
 
     if (!activeScene) {
       return;
     }
 
+    const transitionTiming = refocusMap
+      ? mapController.focusScene(activeScene)
+      : mapController.getSceneTransitionTiming(activeScene);
+
     ui.renderScene({
       scene: activeScene,
       sceneNumber: state.activeSceneIndex + 1,
       totalScenes: state.scenes.length,
       isFirstScene: state.activeSceneIndex === 0,
-      isLastScene: state.activeSceneIndex === state.scenes.length - 1
+      isLastScene: state.activeSceneIndex === state.scenes.length - 1,
+      mapLeadDelay: revealImmediately ? 0 : transitionTiming.mediaRevealDelay,
+      revealImmediately
     });
-
-    mapController.focusScene(activeScene);
   }
 
   function persistSceneEdits() {
@@ -94,7 +100,10 @@
 
   function refreshSceneState() {
     rebuildSceneCollection();
-    renderActiveScene();
+    renderActiveScene({
+      revealImmediately: true,
+      refocusMap: false
+    });
   }
 
   function syncSceneEdits(successMessage) {
@@ -114,17 +123,15 @@
     state.hasStarted = true;
     rebuildSceneCollection();
     ui.showExperience();
-    renderActiveScene();
+    ui.setMapSize(state.mapSize);
 
-    const isMapReady = await mapController.initialize({
+    await mapController.initialize({
       apiKey: appConfig.googleMapsApiKey,
       mapId: appConfig.googleMapsMapId,
       scenes: state.scenes
     });
 
-    if (isMapReady) {
-      mapController.focusScene(getActiveScene());
-    }
+    renderActiveScene();
   }
 
   function goToScene(index) {
@@ -139,6 +146,15 @@
 
     state.activeSceneIndex = nextIndex;
     renderActiveScene();
+  }
+
+  function setMapSize(size) {
+    state.mapSize = size;
+    ui.setMapSize(size);
+
+    window.setTimeout(() => {
+      mapController.refreshLayout();
+    }, 160);
   }
 
   function handleSceneTextSave({ sceneId, quote, interpretation }) {
@@ -167,6 +183,7 @@
     onStart: startExperience,
     onPrevious: () => goToScene(state.activeSceneIndex - 1),
     onNext: () => goToScene(state.activeSceneIndex + 1),
+    onMapSizeChange: setMapSize,
     onSceneTextSave: handleSceneTextSave,
     onSceneTextReset: handleSceneTextReset
   });
