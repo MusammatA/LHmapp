@@ -490,6 +490,10 @@ code {
   pointer-events: auto;
 }
 
+.scene-intro.is-analysis {
+  background: rgba(6, 8, 10, 0.92);
+}
+
 .scene-intro__image {
   position: absolute;
   inset: 0;
@@ -513,6 +517,10 @@ code {
     radial-gradient(circle at center, transparent 28%, rgba(0, 0, 0, 0.24) 100%);
 }
 
+.scene-intro.is-analysis::after {
+  background: none;
+}
+
 .scene-intro__prompt {
   position: relative;
   z-index: 1;
@@ -528,6 +536,14 @@ code {
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.34);
   font-size: 1rem;
   letter-spacing: 0.04em;
+}
+
+.scene-intro.is-analysis .scene-intro__image {
+  inset: 132px auto 32px 32px;
+  width: min(58vw, 760px);
+  height: calc(100vh - 164px);
+  object-fit: contain;
+  transform: none;
 }
 
 .scene-stage__media {
@@ -1194,6 +1210,12 @@ code {
     height: auto;
   }
 
+  .scene-intro.is-analysis .scene-intro__image {
+    inset: 168px auto 24px 24px;
+    width: min(56vw, 620px);
+    height: calc(100vh - 192px);
+  }
+
   .scene-card {
     width: calc(100% - 48px);
     max-width: 540px;
@@ -1237,6 +1259,12 @@ code {
     left: 16px;
     right: 16px;
     bottom: auto;
+    height: 272px;
+  }
+
+  .scene-intro.is-analysis .scene-intro__image {
+    inset: 124px 16px auto 16px;
+    width: auto;
     height: 272px;
   }
 

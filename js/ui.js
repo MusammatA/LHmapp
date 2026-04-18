@@ -143,10 +143,51 @@
 
     function hideSceneIntro() {
       dom.scene.intro.classList.remove("is-visible");
+      dom.scene.intro.classList.remove("is-analysis");
       dom.scene.intro.setAttribute("aria-hidden", "true");
       dom.scene.introImage.removeAttribute("src");
       dom.scene.introImage.alt = "";
+      setHidden(dom.scene.introPrompt, false);
       introAdvanceCallback = null;
+    }
+
+    function preloadImage(source) {
+      return new Promise((resolve, reject) => {
+        const image = new Image();
+        image.onload = () => resolve(source);
+        image.onerror = () => reject(new Error(`Could not load image: ${source}`));
+        image.src = source;
+      });
+    }
+
+    function showIntroAnalysisImage(scene, analysisDelay, onAdvance) {
+      preloadImage(scene.mediaSrc).then(() => {
+        dom.scene.intro.classList.add("is-analysis");
+        dom.scene.introImage.src = scene.mediaSrc;
+        dom.scene.introImage.alt = `${scene.title} literary image`;
+        setHidden(dom.scene.introPrompt, true);
+        introAdvanceCallback = null;
+
+        window.setTimeout(() => {
+          revealSceneCard();
+        }, analysisDelay);
+
+        if (typeof onAdvance === "function") {
+          onAdvance();
+        }
+      }).catch(() => {
+        hideSceneIntro();
+        renderMedia(scene);
+        revealSceneMedia();
+
+        window.setTimeout(() => {
+          revealSceneCard();
+        }, analysisDelay);
+
+        if (typeof onAdvance === "function") {
+          onAdvance();
+        }
+      });
     }
 
     function showSceneIntro(scene, onAdvance) {
@@ -154,8 +195,10 @@
         ? scene.introAnalysisDelay
         : 700;
 
+      dom.scene.intro.classList.remove("is-analysis");
       dom.scene.introImage.src = scene.introImageSrc;
       dom.scene.introImage.alt = `${scene.title} street view`;
+      setHidden(dom.scene.introPrompt, false);
       setText(
         dom.scene.introPrompt,
         scene.introPrompt || "Click anywhere to view the analysis and the book-view image."
@@ -163,6 +206,11 @@
       dom.scene.intro.setAttribute("aria-hidden", "false");
       dom.scene.intro.classList.add("is-visible");
       introAdvanceCallback = () => {
+        if (scene.mediaType === "image" && scene.mediaSrc) {
+          showIntroAnalysisImage(scene, analysisDelay, onAdvance);
+          return;
+        }
+
         hideSceneIntro();
         renderMedia(scene);
         revealSceneMedia();
