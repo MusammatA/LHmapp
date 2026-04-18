@@ -373,16 +373,10 @@
       "The overheard news at the Haymarket feels to him like fate clearing a path. He takes that opening as sanction, crosses back to the pawnbroker's house, and the theory dies by becoming real. What follows is not transcendence but gore, panic, and irreversible bodily fact."
   }, [
     sequenceImage(
-      MEDIA.haymarketStreetView,
-      "location",
+      MEDIA.lizavetaOpportunityBookView,
+      "analysis",
       "Click anywhere to continue.",
-      "Haymarket square"
-    ),
-    sequenceImage(
-      MEDIA.pawnhouseStreetView,
-      "location",
-      "Click anywhere to continue.",
-      "Pawnbroker's house"
+      "Learning Lizaveta will be away"
     ),
     sequenceVideo(MEDIA.murderVideo, "analysis", "")
   ]),
