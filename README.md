@@ -1,6 +1,6 @@
 # The Geography of Guilt
 
-A vanilla HTML, CSS, and JavaScript literary mapping project built around *Crime and Punishment*. The experience is structured as a guided cinematic sequence through modern-day St. Petersburg, using a Google Map plus scene-based media and interpretation.
+A vanilla HTML, CSS, and JavaScript literary mapping project built around *Crime and Punishment*. The experience is structured as a guided cinematic sequence through modern-day St. Petersburg, using Leaflet with OpenStreetMap plus scene-based media and interpretation.
 
 ## Project Structure
 
@@ -21,7 +21,7 @@ The scripts load with plain deferred `<script>` tags instead of ES modules so th
   Scene content, coordinates, media paths, quotes, interpretations, and per-scene timing.
 
 - `js/map.js`
-  Google Maps loading, map creation, route line drawing, marker setup, and scene-to-scene pan/zoom behavior.
+  Leaflet map creation, OpenStreetMap tile loading, route line drawing, marker setup, and scene-to-scene pan/zoom behavior.
 
 - `js/ui.js`
   DOM rendering, media switching, delayed text reveal, and the scene text editing interface.
@@ -29,20 +29,16 @@ The scripts load with plain deferred `<script>` tags instead of ES modules so th
 - `js/app.js`
   Application state, scene navigation, and `localStorage` persistence for editable scene text.
 
-## Add Your Google Maps API Key
+## Map Setup
 
-Open `index.html` and find:
+This project uses:
 
-```html
-window.GEOGRAPHY_OF_GUILT_CONFIG = Object.freeze({
-  googleMapsApiKey: "YOUR_GOOGLE_MAPS_API_KEY",
-  googleMapsMapId: "DEMO_MAP_ID"
-});
-```
+- Leaflet for the interactive map library
+- OpenStreetMap for map tiles
 
-Replace `YOUR_GOOGLE_MAPS_API_KEY` with your browser-restricted Google Maps JavaScript API key.
+There is no Google Maps API key or billing setup required.
 
-`DEMO_MAP_ID` is acceptable while developing. Later, you can replace it with your own custom Google Maps map ID if you want to style the map.
+Leaflet is loaded by CDN in `index.html`, and the tile layer is configured in `js/map.js`.
 
 ## Add Or Edit Scenes
 
@@ -98,7 +94,7 @@ In `js/data.js`, edit:
 - `lng`
 - `mapZoom`
 
-These values control where the Google Map pans and how tightly it zooms for that scene.
+These values control where the Leaflet map pans and how tightly it zooms for that scene.
 
 ## Replace Media
 
@@ -145,5 +141,5 @@ Important:
 
 ## Maintenance Notes
 
-- The app is intentionally dependency-free.
+- The app is intentionally lightweight. The only external runtime dependency is Leaflet, loaded from CDN.
 - If you later want more scenes, add them in `js/data.js` and drop new media into `assets/images/` or `assets/videos/`.

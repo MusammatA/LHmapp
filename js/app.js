@@ -3,11 +3,6 @@
   const { SceneMapController } = globalScope.GeographyOfGuiltMap;
   const { createUIController } = globalScope.GeographyOfGuiltUI;
 
-  const DEFAULT_APP_CONFIG = Object.freeze({
-    googleMapsApiKey: "",
-    googleMapsMapId: "DEMO_MAP_ID"
-  });
-
   function createSceneEditStore(storageKey) {
     return {
       load() {
@@ -34,11 +29,6 @@
       }
     };
   }
-
-  const appConfig = {
-    ...DEFAULT_APP_CONFIG,
-    ...(window.GEOGRAPHY_OF_GUILT_CONFIG || {})
-  };
 
   const sceneEditStore = createSceneEditStore(APP_METADATA.sceneEditsStorageKey);
 
@@ -126,8 +116,6 @@
     renderActiveScene();
 
     mapController.initialize({
-      apiKey: appConfig.googleMapsApiKey,
-      mapId: appConfig.googleMapsMapId,
       scenes: state.scenes
     }).then((isMapReady) => {
       if (!isMapReady || !state.hasStarted) {

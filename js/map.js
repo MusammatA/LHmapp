@@ -1,11 +1,9 @@
 (function attachMapController(globalScope) {
-  const GOOGLE_MAPS_PLACEHOLDER_KEY = "YOUR_GOOGLE_MAPS_API_KEY";
-  const GOOGLE_MAPS_SCRIPT_ID = "geography-of-guilt-google-maps";
-  const GOOGLE_MAPS_CALLBACK_NAME = "__geographyOfGuiltMapsReady";
-
-  const DEFAULT_MAP_CENTER = Object.freeze({ lat: 59.9311, lng: 30.3609 });
+  const DEFAULT_MAP_CENTER = Object.freeze([59.9311, 30.3609]);
   const DEFAULT_MAP_ZOOM = 13;
   const DEFAULT_SCENE_ZOOM = 16;
+  const TILE_LAYER_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+  const TILE_LAYER_ATTRIBUTION = "&copy; OpenStreetMap contributors";
 
   const SCENE_PACING = Object.freeze({
     secondary: Object.freeze({ zoomDelay: 320, infoDelay: 560, mediaRevealDelay: 1180 }),
@@ -14,66 +12,60 @@
   });
 
   const ROUTE_STYLE = Object.freeze({
-    strokeColor: "#b9ab93",
-    strokeOpacity: 0.6,
-    strokeWeight: 3
+    color: "#b9ab93",
+    opacity: 0.58,
+    weight: 3
   });
 
-  const ACTIVE_MAJOR_PIN_STYLE = Object.freeze({
-    background: "#e7decf",
-    borderColor: "#f7f0e5",
-    glyphColor: "#111111",
-    scale: 1.28
+  const ACTIVE_MAJOR_MARKER_STYLE = Object.freeze({
+    radius: 11,
+    color: "#f6eee1",
+    weight: 2,
+    fillColor: "#efe5d6",
+    fillOpacity: 0.92
   });
 
-  const ACTIVE_PIN_STYLE = Object.freeze({
-    background: "#d6c8b0",
-    borderColor: "#f0e5d5",
-    glyphColor: "#111111",
-    scale: 1.12
+  const ACTIVE_MARKER_STYLE = Object.freeze({
+    radius: 9,
+    color: "#efe5d6",
+    weight: 2,
+    fillColor: "#d6c8b0",
+    fillOpacity: 0.88
   });
 
-  const IDLE_MAJOR_PIN_STYLE = Object.freeze({
-    background: "#8d7a63",
-    borderColor: "#c9baa1",
-    glyphColor: "#111111",
-    scale: 0.98
+  const IDLE_MAJOR_MARKER_STYLE = Object.freeze({
+    radius: 8,
+    color: "#c9baa1",
+    weight: 1.5,
+    fillColor: "#8d7a63",
+    fillOpacity: 0.82
   });
 
-  const IDLE_PIN_STYLE = Object.freeze({
-    background: "#585049",
-    borderColor: "#84786d",
-    glyphColor: "#111111",
-    scale: 0.88
+  const IDLE_MARKER_STYLE = Object.freeze({
+    radius: 6,
+    color: "#84786d",
+    weight: 1.5,
+    fillColor: "#585049",
+    fillOpacity: 0.82
   });
-
-  let mapsLoaderPromise = null;
-
-  function isConfiguredApiKey(apiKey) {
-    return Boolean(apiKey) && apiKey !== GOOGLE_MAPS_PLACEHOLDER_KEY;
-  }
-
-  function toLatLngLiteral(scene) {
-    return { lat: scene.lat, lng: scene.lng };
-  }
 
   function resolveScenePacing(scene) {
     return SCENE_PACING[scene.importance] || SCENE_PACING.secondary;
   }
 
-  function resolvePinStyle(scene, isActive) {
+  function resolveMarkerStyle(scene, isActive) {
     if (isActive) {
-      return scene.isMajorTurningPoint ? ACTIVE_MAJOR_PIN_STYLE : ACTIVE_PIN_STYLE;
+      return scene.isMajorTurningPoint ? ACTIVE_MAJOR_MARKER_STYLE : ACTIVE_MARKER_STYLE;
     }
 
-    return scene.isMajorTurningPoint ? IDLE_MAJOR_PIN_STYLE : IDLE_PIN_STYLE;
+    return scene.isMajorTurningPoint ? IDLE_MAJOR_MARKER_STYLE : IDLE_MARKER_STYLE;
   }
 
-  function createMarkerPin(PinElement, scene, isActive) {
-    return new PinElement(resolvePinStyle(scene, isActive)).element;
+  function toLatLng(scene) {
+    return [scene.lat, scene.lng];
   }
 
-  function buildInfoWindowContent(scene) {
+  function buildPopupContent(scene) {
     return `
       <div class="map-popover">
         <span class="map-popover__meta">${scene.dayLabel} · ${scene.importanceLabel}</span>
@@ -84,44 +76,6 @@
     `;
   }
 
-  function loadGoogleMapsApi(apiKey) {
-    if (window.google?.maps) {
-      return Promise.resolve(window.google.maps);
-    }
-
-    if (mapsLoaderPromise) {
-      return mapsLoaderPromise;
-    }
-
-    mapsLoaderPromise = new Promise((resolve, reject) => {
-      window[GOOGLE_MAPS_CALLBACK_NAME] = () => {
-        resolve(window.google.maps);
-        delete window[GOOGLE_MAPS_CALLBACK_NAME];
-      };
-
-      const existingScript = document.getElementById(GOOGLE_MAPS_SCRIPT_ID);
-      if (existingScript) {
-        return;
-      }
-
-      const script = document.createElement("script");
-      script.id = GOOGLE_MAPS_SCRIPT_ID;
-      script.src =
-        `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(apiKey)}` +
-        `&loading=async&callback=${GOOGLE_MAPS_CALLBACK_NAME}&v=weekly&libraries=marker`;
-      script.async = true;
-      script.defer = true;
-      script.onerror = () => {
-        reject(new Error("Google Maps could not load. Check your API key, billing, and allowed referrers."));
-        delete window[GOOGLE_MAPS_CALLBACK_NAME];
-      };
-
-      document.head.append(script);
-    });
-
-    return mapsLoaderPromise;
-  }
-
   class SceneMapController {
     constructor(elements) {
       this.mapElement = elements.mapElement;
@@ -130,10 +84,9 @@
       this.placeholderCopyElement = elements.placeholderCopyElement;
       this.statusElement = elements.statusElement;
 
-      this.googleMaps = null;
       this.map = null;
-      this.infoWindow = null;
       this.routeLine = null;
+      this.tileLayer = null;
       this.markers = new Map();
       this.sceneLookup = new Map();
       this.scenes = [];
@@ -147,65 +100,62 @@
       return resolveScenePacing(scene);
     }
 
-    async initialize({ apiKey, mapId, scenes }) {
+    async initialize({ scenes }) {
       this.scenes = scenes.slice();
       this.sceneLookup = new Map(this.scenes.map((scene) => [scene.id, scene]));
 
-      if (!isConfiguredApiKey(apiKey)) {
+      if (!globalScope.L) {
         this.showPlaceholder(
-          "Google Maps needs your API key.",
-          "Add your browser-restricted Maps JavaScript API key in index.html to activate the live map panel."
+          "Leaflet could not load.",
+          "Check your internet connection or the Leaflet CDN link in index.html."
         );
-        this.setStatus("Google Maps is disabled until an API key is configured.");
+        this.setStatus("OpenStreetMap could not start because Leaflet failed to load.");
         return false;
       }
 
       try {
-        await loadGoogleMapsApi(apiKey);
-        await this.buildMap(mapId);
+        this.buildMap();
         this.hidePlaceholder();
         this.isReady = true;
-        this.setStatus("Google Maps is active. Move through the scenes to follow the route.");
+        this.setStatus("OpenStreetMap is active. Move through the scenes to follow the route.");
         return true;
       } catch (error) {
-        this.showPlaceholder("Google Maps could not load.", error.message);
+        this.showPlaceholder("OpenStreetMap could not load.", error.message);
         this.setStatus(error.message);
         return false;
       }
     }
 
-    async buildMap(mapId) {
-      const { Map, InfoWindow, Polyline } = await google.maps.importLibrary("maps");
-      const { AdvancedMarkerElement, PinElement } = await google.maps.importLibrary("marker");
+    buildMap() {
+      if (this.map) {
+        return;
+      }
 
-      this.googleMaps = { Map, InfoWindow, Polyline, AdvancedMarkerElement, PinElement };
-      this.infoWindow = new InfoWindow();
-
-      this.map = new Map(this.mapElement, {
+      this.map = globalScope.L.map(this.mapElement, {
         center: DEFAULT_MAP_CENTER,
         zoom: DEFAULT_MAP_ZOOM,
-        mapId: mapId || "DEMO_MAP_ID",
-        disableDefaultUI: true,
         zoomControl: true,
-        fullscreenControl: true,
-        streetViewControl: true,
-        gestureHandling: "greedy",
-        clickableIcons: false
+        attributionControl: true
       });
 
-      this.routeLine = new Polyline({
-        map: this.map,
-        path: this.scenes.map(toLatLngLiteral),
-        ...ROUTE_STYLE
-      });
+      this.tileLayer = globalScope.L.tileLayer(TILE_LAYER_URL, {
+        attribution: TILE_LAYER_ATTRIBUTION,
+        maxZoom: 19
+      }).addTo(this.map);
+
+      this.routeLine = globalScope.L.polyline(
+        this.scenes.map((scene) => toLatLng(scene)),
+        ROUTE_STYLE
+      ).addTo(this.map);
 
       this.scenes.forEach((scene) => {
-        const marker = new AdvancedMarkerElement({
-          map: this.map,
-          position: toLatLngLiteral(scene),
-          title: scene.title,
-          content: createMarkerPin(PinElement, scene, false)
-        });
+        const marker = globalScope.L.circleMarker(toLatLng(scene), resolveMarkerStyle(scene, false))
+          .bindPopup(buildPopupContent(scene), {
+            autoPan: false,
+            closeButton: false,
+            offset: globalScope.L.point(0, -8)
+          })
+          .addTo(this.map);
 
         this.markers.set(scene.id, marker);
       });
@@ -227,10 +177,10 @@
 
       this.clearPendingFocus();
       this.updateMarkerStates(scene.id);
-      this.map.panTo(toLatLngLiteral(scene));
+      this.map.panTo(toLatLng(scene), { animate: true, duration: 1.2 });
 
       this.pendingZoomTimer = window.setTimeout(() => {
-        this.map.setZoom(scene.mapZoom || DEFAULT_SCENE_ZOOM);
+        this.map.setZoom(scene.mapZoom || DEFAULT_SCENE_ZOOM, { animate: true });
       }, pacing.zoomDelay);
 
       this.pendingInfoTimer = window.setTimeout(() => {
@@ -239,11 +189,7 @@
           return;
         }
 
-        this.infoWindow.setContent(buildInfoWindowContent(scene));
-        this.infoWindow.open({
-          anchor: marker,
-          map: this.map
-        });
+        marker.openPopup();
       }, pacing.infoDelay);
 
       return pacing;
@@ -255,30 +201,28 @@
     }
 
     updateMarkerStates(activeSceneId) {
-      if (!this.googleMaps) {
-        return;
-      }
-
-      const { PinElement } = this.googleMaps;
-
       this.markers.forEach((marker, sceneId) => {
         const scene = this.sceneLookup.get(sceneId);
-        marker.content = createMarkerPin(PinElement, scene, sceneId === activeSceneId);
+        marker.setStyle(resolveMarkerStyle(scene, sceneId === activeSceneId));
+
+        if (sceneId !== activeSceneId) {
+          marker.closePopup();
+        }
       });
     }
 
     refreshLayout() {
-      if (!this.isReady || !this.map || !window.google?.maps?.event) {
+      if (!this.isReady || !this.map) {
         return;
       }
 
       const activeScene = this.sceneLookup.get(this.activeSceneId);
 
-      window.google.maps.event.trigger(this.map, "resize");
+      this.map.invalidateSize(false);
 
       if (activeScene) {
         window.setTimeout(() => {
-          this.map.panTo(toLatLngLiteral(activeScene));
+          this.map.panTo(toLatLng(activeScene), { animate: false });
         }, 120);
       }
     }

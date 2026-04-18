@@ -947,6 +947,34 @@ code {
   min-height: 0;
 }
 
+.leaflet-container {
+  background: #0a0d11;
+  font-family: var(--font-body);
+}
+
+.leaflet-control-zoom a,
+.leaflet-control-attribution {
+  background: rgba(10, 12, 15, 0.82);
+  color: var(--color-text);
+  border-color: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+}
+
+.leaflet-control-zoom a:hover,
+.leaflet-control-attribution a {
+  color: var(--color-accent);
+}
+
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: rgba(13, 14, 17, 0.94);
+  color: var(--color-text);
+}
+
+.leaflet-popup-content {
+  margin: 12px 14px;
+}
+
 .map-placeholder {
   left: 24px;
   right: 24px;
