@@ -69,9 +69,19 @@
 
         <div class="scene-stage" data-scene-stage>
           <div class="scene-intro" data-scene-intro>
-            <img class="scene-intro__image" data-scene-intro-image alt="">
+            <img class="scene-intro__media scene-intro__image" data-scene-intro-image alt="" hidden>
+            <video
+              class="scene-intro__media scene-intro__video"
+              data-scene-intro-video
+              playsinline
+              preload="metadata"
+              muted
+              loop
+              controls
+              hidden
+            ></video>
             <button class="scene-intro__prompt" type="button" data-scene-intro-prompt>
-              Click anywhere to view the analysis and the book-view image.
+              Click anywhere to continue into the scene and view the analysis.
             </button>
           </div>
 

@@ -45,6 +45,14 @@
       17,
       "Modern-day stand-in for the tavern sequence near the Haymarket social geography of the novel."
     ),
+    haymarketSquare: createAnchor(
+      "Sennaya / Haymarket square anchor",
+      "Sennaya Square, St Petersburg, Russia, 190031",
+      59.9262,
+      30.3174,
+      17,
+      "Modern-day square anchor for the overheard Lizaveta conversation and the pressure of chance."
+    ),
     marmeladovHome: createAnchor(
       "Marmeladov family district anchor",
       "Sennaya Square district, St Petersburg, Russia, 190068",
@@ -172,6 +180,19 @@
     pawnhouseBookView: "assets/e1.png",
     tavernStreetView: "tavern.jpg",
     tavernBookView: "assets/e2.png",
+    marmeladovHomeStreetView: "marmeladovH.webp",
+    moneyOnSillBookView: "assets/e3.png",
+    raskolnikovRoomStreetView: "assets/rosh.png",
+    mothersLetterBookView: "assets/e4.png",
+    razumihinStreetView: "RazumihinH.jpg",
+    razumihinThresholdBookView: "assets/e5.png",
+    bridgeStreetView: "bridge.jpeg",
+    intentBookView: "assets/e6.png",
+    petrovskyIslandStreetView: "horseScene.webp",
+    horseDreamBookView: "assets/e7.png",
+    haymarketStreetView: "heymarket.jpg",
+    lizavetaOpportunityBookView: "assets/e8.png",
+    murderVideo: "e9.mp4",
     tavern: "assets/images/marmeladov-tavern.png",
     bridge: "assets/images/bridge-canal-scene.png",
     murder: "assets/images/pawnbroker-murder.png",
@@ -181,6 +202,19 @@
     staircase: "assets/images/ascending-staircase.jpg",
     torment: "assets/images/torment-and-tragedy.png"
   });
+
+  const INTRO_PROMPT = "Click anywhere to continue into the scene and view the analysis.";
+
+  function withIntro(scene, introImageSrc, overrides = {}) {
+    return {
+      ...scene,
+      mediaTreatment: scene.mediaTreatment || "book-view",
+      introImageSrc,
+      introPrompt: scene.introPrompt || INTRO_PROMPT,
+      introAnalysisDelay: scene.introAnalysisDelay ?? (scene.importance === "major" ? 1500 : 1100),
+      ...overrides
+    };
+  }
 
   function resolveEditableText(defaultValue, editedValue) {
     return typeof editedValue === "string" && editedValue.trim()
@@ -216,134 +250,115 @@
   });
 
   const RAW_SCENES = [
-  {
+  withIntro({
     anchor: "pawnbrokerApartment",
     id: "day-1-rehearsal",
     dayLabel: "Day 1",
     title: "Rehearsing the Crime",
     mediaSrc: MEDIA.pawnhouseBookView,
-    mediaTreatment: "book-view",
-    introImageSrc: MEDIA.pawnhouseStreetView,
-    introPrompt: "Click anywhere to view the analysis and the book-view image.",
-    introAnalysisDelay: 1100,
     importance: "important",
     quote: "\"He had come only to make a trial of it.\"",
     psychologicalRole: "Early calculation; testing the crime in his mind.",
     interpretation:
       "Before blood, there is rehearsal. Raskolnikov uses the apartment as a chamber of mental preparation, training himself to cross the threshold in thought before he crosses it in deed."
-  },
-  {
+  }, MEDIA.pawnhouseStreetView),
+  withIntro({
     anchor: "tavern",
     id: "day-1-marmeladov",
     dayLabel: "Day 1",
     title: "Meeting Marmeladov",
     mediaSrc: MEDIA.tavernBookView,
-    mediaTreatment: "book-view",
-    introImageSrc: MEDIA.tavernStreetView,
-    introPrompt: "Click anywhere to view the analysis and the book-view image.",
-    introAnalysisDelay: 1100,
     importance: "important",
     quote: "\"He suddenly wanted to hear a human voice.\"",
     psychologicalRole: "Compassion interrupts detachment.",
     interpretation:
       "Marmeladov's confession breaks into the cool isolation Raskolnikov is trying to preserve. Misery enters the project of detachment and proves that other people's suffering can still move him."
-  },
-  {
+  }, MEDIA.tavernStreetView),
+  withIntro({
     anchor: "marmeladovHome",
     id: "day-1-money-on-the-sill",
     dayLabel: "Day 1",
     title: "Leaving Money for the Family",
-    mediaSrc: MEDIA.tavern,
+    mediaSrc: MEDIA.moneyOnSillBookView,
     importance: "major",
     quote: "\"He put the money on the windowsill and slipped out.\"",
     psychologicalRole: "Reveals that he is still capable of pity and human feeling.",
     interpretation:
       "This is the first major crack in his theory. The self that wants to stand above ordinary morality still gives, still pities, still responds to human suffering with instinctive tenderness, and that surviving compassion will later make the crime psychologically impossible to inhabit."
-  },
-  {
+  }, MEDIA.marmeladovHomeStreetView),
+  withIntro({
     anchor: "raskolnikovRoom",
     id: "day-2-letter",
     dayLabel: "Day 2",
     title: "His Mother's Letter",
-    mediaSrc: MEDIA.torment,
+    mediaSrc: MEDIA.mothersLetterBookView,
     importance: "important",
     quote: "\"The letter weighed on him like a sentence.\"",
     psychologicalRole: "Humiliation, rage, and family pressure.",
     interpretation:
       "The letter fuses private shame with social injury. Dounia's engagement and the family's sacrifice turn his abstract resentments into something more personal, more humiliating, and more combustible."
-  },
-  {
+  }, MEDIA.raskolnikovRoomStreetView),
+  withIntro({
     anchor: "razumihinThreshold",
     id: "day-2-razumihin-threshold",
     dayLabel: "Day 2",
     title: "Outside Razumihin's Rooms",
-    mediaSrc: MEDIA.staircase,
+    mediaSrc: MEDIA.razumihinThresholdBookView,
     importance: "secondary",
     quote: "\"He stood there, but did not go in.\"",
     psychologicalRole: "Paralysis, isolation, inward spiraling.",
     interpretation:
       "He drifts toward help and then refuses it. The hesitation outside Razumihin's door shows how isolation has become a habit as much as a condition."
-  },
-  {
+  }, MEDIA.razumihinStreetView),
+  withIntro({
     anchor: "bridge",
     id: "day-2-intent-hardens",
     dayLabel: "Day 2",
     title: "Intent Hardening into Plan",
-    mediaSrc: MEDIA.bridge,
+    mediaSrc: MEDIA.intentBookView,
     importance: "important",
     quote: "\"Now it was no longer fantasy.\"",
     psychologicalRole: "Theory hardening into intent.",
     interpretation:
       "What had been speculative begins to gather force. His ideas about power and exception start solidifying into actual intention, and the city becomes a field in which thought is preparing to become action."
-  },
-  {
+  }, MEDIA.bridgeStreetView),
+  withIntro({
     anchor: "petrovskyIsland",
-    id: "day-2-horse-dream",
+    id: "day-2-horse-dream-refusal",
     dayLabel: "Day 2",
-    title: "The Dream of the Beaten Horse",
-    mediaSrc: MEDIA.torment,
+    title: "The Horse Dream and the Refusal",
+    mediaSrc: MEDIA.horseDreamBookView,
     importance: "major",
-    quote: "\"He was crying in his sleep.\"",
-    psychologicalRole: "Subconscious moral horror; the child-self rejects violence.",
+    quote: "\"He was crying in his sleep... No, I could never do it.\"",
+    psychologicalRole: "Subconscious moral horror breaks into a brief refusal of violence.",
     interpretation:
-      "The dream is a direct rebuke to the murder before the murder happens. Beneath argument, ambition, and injury, the deeper self still experiences cruelty as unbearable, and that moral recoil exposes how false the theory of sanctioned violence really is."
-  },
-  {
-    anchor: "petrovskyIsland",
-    id: "day-2-refusal",
-    dayLabel: "Day 2",
-    title: "He Decides Not to Kill",
-    mediaSrc: MEDIA.bridge,
-    importance: "important",
-    quote: "\"No, I could never do it.\"",
-    psychologicalRole: "Brief moral clarity; refusal of violence.",
-    interpretation:
-      "For a moment the dream clears the air. The planned murder appears not grand or necessary, but impossible, and he glimpses the moral reality he has been trying to suppress."
-  },
-  {
-    anchor: "pawnbrokerApartment",
+      "The dream and the waking refusal belong together. The child-self recoils from cruelty, and for one clear instant he obeys that recoil. This is the novel's sharpest early proof that his conscience rejects the act before his theory can force it back into motion."
+  }, MEDIA.petrovskyIslandStreetView),
+  withIntro({
+    anchor: "haymarketSquare",
     id: "day-3-lizaveta-opportunity",
     dayLabel: "Day 3",
     title: "Learning Lizaveta Will Be Away",
-    mediaSrc: MEDIA.bridge,
+    mediaSrc: MEDIA.lizavetaOpportunityBookView,
     importance: "important",
     quote: "\"It was as if everything had been arranged for him.\"",
     psychologicalRole: "Surrender to compulsion; a sense of inevitability.",
     interpretation:
-      "Chance re-enters as temptation. Instead of strengthening his refusal, the opening feels to him like fate itself, and he yields to the logic that the crime is now somehow being demanded of him."
-  },
-  {
+      "The overheard chance feels to him less like contingency than command. Instead of treating it as a warning, he receives it as permission, and his refusal dissolves into passivity before what he calls fate."
+  }, MEDIA.haymarketStreetView),
+  withIntro({
     anchor: "pawnbrokerApartment",
     id: "day-3-pawnbroker-murder",
     dayLabel: "Day 3",
     title: "Killing the Pawnbroker",
-    mediaSrc: MEDIA.murder,
+    mediaType: "video",
+    mediaSrc: MEDIA.murderVideo,
     importance: "major",
     quote: "\"He brought the axe down.\"",
     psychologicalRole: "Collapse of theory into violent action.",
     interpretation:
       "This is where the theory dies by becoming real. What was dressed up as a test of greatness collapses into gore, terror, and irreversible bodily fact; the murder does not prove transcendence, it destroys the framework that justified it."
-  },
+  }, MEDIA.pawnhouseStreetView),
   {
     anchor: "pawnbrokerApartment",
     id: "day-3-lizaveta-enters",

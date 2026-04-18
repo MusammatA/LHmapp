@@ -40,6 +40,7 @@
         stage: queryRequired("[data-scene-stage]"),
         intro: queryRequired("[data-scene-intro]"),
         introImage: queryRequired("[data-scene-intro-image]"),
+        introVideo: queryRequired("[data-scene-intro-video]"),
         introPrompt: queryRequired("[data-scene-intro-prompt]"),
         mediaStage: queryRequired("[data-scene-media-stage]"),
         transition: queryRequired("[data-scene-transition]"),
@@ -141,12 +142,26 @@
       });
     }
 
+    function resetIntroImage() {
+      dom.scene.introImage.removeAttribute("src");
+      dom.scene.introImage.alt = "";
+      setHidden(dom.scene.introImage, true);
+    }
+
+    function resetIntroVideo() {
+      dom.scene.introVideo.pause();
+      dom.scene.introVideo.onerror = null;
+      dom.scene.introVideo.removeAttribute("src");
+      dom.scene.introVideo.load();
+      setHidden(dom.scene.introVideo, true);
+    }
+
     function hideSceneIntro() {
       dom.scene.intro.classList.remove("is-visible");
       dom.scene.intro.classList.remove("is-analysis");
       dom.scene.intro.setAttribute("aria-hidden", "true");
-      dom.scene.introImage.removeAttribute("src");
-      dom.scene.introImage.alt = "";
+      resetIntroImage();
+      resetIntroVideo();
       setHidden(dom.scene.introPrompt, false);
       introAdvanceCallback = null;
     }
@@ -160,33 +175,65 @@
       });
     }
 
+    function preloadVideo(source) {
+      return new Promise((resolve, reject) => {
+        const video = document.createElement("video");
+        video.preload = "metadata";
+        video.muted = true;
+        video.playsInline = true;
+        video.onloadeddata = () => resolve(source);
+        video.onerror = () => reject(new Error(`Could not load video: ${source}`));
+        video.src = source;
+        video.load();
+      });
+    }
+
+    function scheduleIntroAnalysisReveal(analysisDelay, onAdvance) {
+      window.setTimeout(() => {
+        revealSceneCard();
+      }, analysisDelay);
+
+      if (typeof onAdvance === "function") {
+        onAdvance();
+      }
+    }
+
     function showIntroAnalysisImage(scene, analysisDelay, onAdvance) {
       preloadImage(scene.mediaSrc).then(() => {
         dom.scene.intro.classList.add("is-analysis");
+        resetIntroVideo();
+        setHidden(dom.scene.introImage, false);
         dom.scene.introImage.src = scene.mediaSrc;
         dom.scene.introImage.alt = `${scene.title} literary image`;
         setHidden(dom.scene.introPrompt, true);
         introAdvanceCallback = null;
-
-        window.setTimeout(() => {
-          revealSceneCard();
-        }, analysisDelay);
-
-        if (typeof onAdvance === "function") {
-          onAdvance();
-        }
+        scheduleIntroAnalysisReveal(analysisDelay, onAdvance);
       }).catch(() => {
         hideSceneIntro();
         renderMedia(scene);
         revealSceneMedia();
+        scheduleIntroAnalysisReveal(analysisDelay, onAdvance);
+      });
+    }
 
-        window.setTimeout(() => {
-          revealSceneCard();
-        }, analysisDelay);
-
-        if (typeof onAdvance === "function") {
-          onAdvance();
-        }
+    function showIntroAnalysisVideo(scene, analysisDelay, onAdvance) {
+      preloadVideo(scene.mediaSrc).then(() => {
+        dom.scene.intro.classList.add("is-analysis");
+        resetIntroImage();
+        setHidden(dom.scene.introVideo, false);
+        dom.scene.introVideo.src = scene.mediaSrc;
+        dom.scene.introVideo.currentTime = 0;
+        dom.scene.introVideo.muted = true;
+        dom.scene.introVideo.loop = true;
+        dom.scene.introVideo.play().catch(() => {});
+        setHidden(dom.scene.introPrompt, true);
+        introAdvanceCallback = null;
+        scheduleIntroAnalysisReveal(analysisDelay, onAdvance);
+      }).catch(() => {
+        hideSceneIntro();
+        renderMedia(scene);
+        revealSceneMedia();
+        scheduleIntroAnalysisReveal(analysisDelay, onAdvance);
       });
     }
 
@@ -196,12 +243,14 @@
         : 700;
 
       dom.scene.intro.classList.remove("is-analysis");
+      resetIntroVideo();
+      setHidden(dom.scene.introImage, false);
       dom.scene.introImage.src = scene.introImageSrc;
       dom.scene.introImage.alt = `${scene.title} street view`;
       setHidden(dom.scene.introPrompt, false);
       setText(
         dom.scene.introPrompt,
-        scene.introPrompt || "Click anywhere to view the analysis and the book-view image."
+        scene.introPrompt || "Click anywhere to continue into the scene and view the analysis."
       );
       dom.scene.intro.setAttribute("aria-hidden", "false");
       dom.scene.intro.classList.add("is-visible");
@@ -211,16 +260,15 @@
           return;
         }
 
+        if (scene.mediaType === "video" && scene.mediaSrc) {
+          showIntroAnalysisVideo(scene, analysisDelay, onAdvance);
+          return;
+        }
+
         hideSceneIntro();
         renderMedia(scene);
         revealSceneMedia();
-        window.setTimeout(() => {
-          revealSceneCard();
-        }, analysisDelay);
-
-        if (typeof onAdvance === "function") {
-          onAdvance();
-        }
+        scheduleIntroAnalysisReveal(analysisDelay, onAdvance);
       };
     }
 
@@ -275,7 +323,7 @@
         setHidden(dom.media.image, true);
         showMediaFallback(
           "The image file could not be loaded.",
-          "Check the media path in js/data.js and make sure the file exists in assets/images/."
+          "Check the media path in js/data.js and make sure the file exists in this project."
         );
       };
 
@@ -288,7 +336,7 @@
         setHidden(dom.media.video, true);
         showMediaFallback(
           "The video file could not be loaded.",
-          "Check the media path in js/data.js and make sure the file exists in assets/videos/."
+          "Check the media path in js/data.js and make sure the file exists in this project."
         );
       };
 
