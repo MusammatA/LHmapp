@@ -112,12 +112,9 @@
     function hideSceneCard() {
       dom.scene.card.classList.remove("is-visible");
       setEditorOpen(false);
-      setHidden(dom.scene.card, true);
     }
 
     function revealSceneCard(immediately = false) {
-      setHidden(dom.scene.card, false);
-
       if (immediately) {
         dom.scene.card.classList.add("is-visible");
         return;
