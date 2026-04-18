@@ -216,7 +216,6 @@
       return new Promise((resolve, reject) => {
         const video = document.createElement("video");
         video.preload = "metadata";
-        video.muted = true;
         video.playsInline = true;
         video.onloadeddata = () => resolve(source);
         video.onerror = () => reject(new Error(`Could not load video: ${source}`));
@@ -245,9 +244,16 @@
         setHidden(dom.scene.introVideo, false);
         dom.scene.introVideo.src = step.src;
         dom.scene.introVideo.currentTime = 0;
-        dom.scene.introVideo.muted = true;
-        dom.scene.introVideo.loop = true;
-        dom.scene.introVideo.play().catch(() => {});
+        dom.scene.introVideo.muted = Boolean(step.muted);
+        dom.scene.introVideo.defaultMuted = Boolean(step.muted);
+        dom.scene.introVideo.loop = step.loop !== undefined ? Boolean(step.loop) : true;
+        dom.scene.introVideo.controls = step.controls !== undefined ? Boolean(step.controls) : true;
+        dom.scene.introVideo.play().catch(() => {
+          if (step.playFallbackPrompt) {
+            setText(dom.scene.introPrompt, step.playFallbackPrompt);
+            setHidden(dom.scene.introPrompt, false);
+          }
+        });
       } else {
         resetIntroVideo();
         setHidden(dom.scene.introImage, false);

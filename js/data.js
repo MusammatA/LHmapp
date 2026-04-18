@@ -220,8 +220,8 @@
     return { type: "image", src, mode, prompt, alt };
   }
 
-  function sequenceVideo(src, mode, prompt) {
-    return { type: "video", src, mode, prompt };
+  function sequenceVideo(src, mode, prompt, options = {}) {
+    return { type: "video", src, mode, prompt, ...options };
   }
 
   function withIntroSequence(scene, introSequence, overrides = {}) {
@@ -378,7 +378,12 @@
       "Click anywhere to continue.",
       "Learning Lizaveta will be away"
     ),
-    sequenceVideo(MEDIA.murderVideo, "analysis", "")
+    sequenceVideo(MEDIA.murderVideo, "analysis", "", {
+      muted: false,
+      loop: false,
+      controls: true,
+      playFallbackPrompt: "Press play to hear the murder scene audio."
+    })
   ]),
   {
     anchor: "pawnbrokerApartment",
