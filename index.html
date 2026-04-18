@@ -21,7 +21,12 @@
           A guided descent through the modern streets of St. Petersburg, where Raskolnikov&rsquo;s physical route becomes a map
           of fear, rationalization, collapse, and the first pressure of confession.
         </p>
-        <button class="button button--primary landing-screen__button" type="button" data-start-button>
+        <button
+          class="button button--primary landing-screen__button"
+          type="button"
+          data-start-button
+          onclick="window.__geographyOfGuiltStart(event)"
+        >
           Start
         </button>
         <p class="landing-screen__note">
@@ -216,6 +221,40 @@
       googleMapsApiKey: "YOUR_GOOGLE_MAPS_API_KEY",
       googleMapsMapId: "DEMO_MAP_ID"
     });
+
+    window.__geographyOfGuiltPendingStart = false;
+
+    window.__geographyOfGuiltShowExperienceFallback = function () {
+      const landing = document.querySelector("[data-landing-screen]");
+      const experience = document.querySelector("[data-experience-screen]");
+
+      if (!landing || !experience) {
+        return;
+      }
+
+      document.body.classList.add("is-experience-active");
+      landing.classList.add("is-exiting");
+      experience.hidden = false;
+      experience.setAttribute("aria-hidden", "false");
+
+      requestAnimationFrame(() => {
+        experience.classList.add("is-visible");
+      });
+
+      window.setTimeout(() => {
+        landing.hidden = true;
+      }, 420);
+    };
+
+    window.__geographyOfGuiltStart = function (event) {
+      event?.preventDefault?.();
+      window.__geographyOfGuiltPendingStart = true;
+      window.__geographyOfGuiltShowExperienceFallback();
+
+      if (window.GeographyOfGuiltApp?.startExperience) {
+        window.GeographyOfGuiltApp.startExperience();
+      }
+    };
   </script>
   <!-- Ordered deferred scripts keep the project file-based and compatible with direct local opening. -->
   <script defer src="js/data.js"></script>

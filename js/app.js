@@ -120,6 +120,7 @@
       return;
     }
 
+    globalScope.__geographyOfGuiltPendingStart = false;
     state.hasStarted = true;
     rebuildSceneCollection();
     ui.showExperience();
@@ -194,4 +195,12 @@
     onSceneTextSave: handleSceneTextSave,
     onSceneTextReset: handleSceneTextReset
   });
+
+  globalScope.GeographyOfGuiltApp = Object.freeze({
+    startExperience
+  });
+
+  if (globalScope.__geographyOfGuiltPendingStart) {
+    startExperience();
+  }
 })(window);

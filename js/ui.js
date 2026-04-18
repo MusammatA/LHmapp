@@ -89,7 +89,8 @@
     const dom = collectDom();
     const timers = {
       mediaReveal: null,
-      cardReveal: null
+      cardReveal: null,
+      landingHide: null
     };
 
     function clearTimer(timerName) {
@@ -357,7 +358,7 @@
 
     function showExperience() {
       document.body.classList.add("is-experience-active");
-      setHidden(dom.screens.landing, true);
+      dom.screens.landing.classList.add("is-exiting");
       setHidden(dom.screens.experience, false);
       dom.screens.experience.setAttribute("aria-hidden", "false");
 
@@ -368,6 +369,12 @@
       requestAnimationFrame(() => {
         dom.screens.experience.classList.add("is-visible");
       });
+
+      clearTimer("landingHide");
+      timers.landingHide = window.setTimeout(() => {
+        timers.landingHide = null;
+        setHidden(dom.screens.landing, true);
+      }, 420);
     }
 
     function flashEditorFeedback(message) {
