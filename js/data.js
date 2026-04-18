@@ -168,6 +168,7 @@
   });
 
   const MEDIA = Object.freeze({
+    pawnhouseStreetView: "assets/images/pawnhouse-street-view.png",
     tavern: "assets/images/marmeladov-tavern.png",
     bridge: "assets/images/bridge-canal-scene.png",
     murder: "assets/images/pawnbroker-murder.png",
@@ -217,7 +218,8 @@
     id: "day-1-rehearsal",
     dayLabel: "Day 1",
     title: "Rehearsing the Crime",
-    mediaSrc: MEDIA.murder,
+    mediaSrc: MEDIA.pawnhouseStreetView,
+    mediaTreatment: "street-view",
     importance: "important",
     quote: "\"He had come only to make a trial of it.\"",
     psychologicalRole: "Early calculation; testing the crime in his mind.",

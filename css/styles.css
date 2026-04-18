@@ -512,6 +512,18 @@ code {
   transform: scale(1);
 }
 
+.scene-stage__media[data-media-treatment="street-view"] .scene-media {
+  object-position: center 42%;
+  transform: scale(1.28);
+  transition:
+    opacity 760ms ease,
+    transform 2600ms cubic-bezier(0.18, 0.82, 0.2, 1);
+}
+
+.scene-stage__media[data-media-treatment="street-view"].is-visible .scene-media {
+  transform: scale(1.03);
+}
+
 .scene-media__fallback {
   position: absolute;
   inset: var(--space-md);

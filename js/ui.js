@@ -137,12 +137,13 @@
     }
 
     function showSceneTransition(scene) {
+      const transitionCopy = scene.mediaTreatment === "street-view"
+        ? `The map closes in on ${scene.title}, then the street-level image takes over.`
+        : `The map closes in on ${scene.title} before the literary image takes over.`;
+
       setText(dom.scene.transitionKicker, `Locating ${scene.dayLabel}`);
       setText(dom.scene.transitionTitle, scene.locationName);
-      setText(
-        dom.scene.transitionCopy,
-        `The map closes in on ${scene.title} before the literary image takes over.`
-      );
+      setText(dom.scene.transitionCopy, transitionCopy);
       dom.scene.transition.classList.add("is-visible");
     }
 
@@ -207,6 +208,7 @@
 
     function renderMedia(scene) {
       resetMediaStage();
+      dom.scene.mediaStage.dataset.mediaTreatment = scene.mediaTreatment || "standard";
 
       if (!scene.mediaSrc) {
         showMediaFallback(
