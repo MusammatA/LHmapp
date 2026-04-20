@@ -58,20 +58,23 @@
 
         <div class="story-panel__content">
           <div class="story-panel__media" data-story-media-frame>
-            <img
-              class="story-panel__media-asset"
-              data-story-media-image
-              alt=""
-              hidden
-            >
-            <video
-              class="story-panel__media-asset"
-              data-story-media-video
-              controls
-              playsinline
-              preload="metadata"
-              hidden
-            ></video>
+            <div class="story-panel__media-stage">
+              <img
+                class="story-panel__media-asset"
+                data-story-media-image
+                alt=""
+                hidden
+              >
+              <video
+                class="story-panel__media-asset"
+                data-story-media-video
+                controls
+                playsinline
+                preload="metadata"
+                hidden
+              ></video>
+            </div>
+            <div class="story-panel__media-gallery" data-story-media-gallery hidden></div>
             <div class="story-panel__media-fallback" data-story-media-fallback hidden>
               <p class="story-panel__media-fallback-label">Media unavailable</p>
               <p class="story-panel__media-fallback-copy">
