@@ -775,6 +775,81 @@
     fromAnchor(scene.anchor, scene, index + 1)
   );
 
+  const MAP_LOCATIONS = Object.freeze([
+    Object.freeze({
+      label: "Raskolnikov's Tenement",
+      modernAddress: "17 Grazhdanskaya Ulitsa",
+      lat: 59.92764,
+      lng: 30.31103
+    }),
+    Object.freeze({
+      label: "Moneylender's Residence",
+      modernAddress: "15 Srednyaya Pod'yacheskaya Ulitsa",
+      lat: 59.9246885,
+      lng: 30.3057083
+    }),
+    Object.freeze({
+      label: "Tavern Where Raskolnikov Meets Marmeladov",
+      modernAddress: "19 Prospekt Rimskogo-Korsakova",
+      lat: 59.9242,
+      lng: 30.3032
+    }),
+    Object.freeze({
+      label: "Marmeladov's Tenement / Kolya's House",
+      modernAddress: "27 Bol'shaya Pod'yacheskaya Ulitsa",
+      lat: 59.92338,
+      lng: 30.30502
+    }),
+    Object.freeze({
+      label: "K. Boulevard",
+      modernAddress: "4 Konnogvardeyskiy Bul'var",
+      lat: 59.932602,
+      lng: 30.297513
+    }),
+    Object.freeze({
+      label: "Zhdanovskaya Embankment",
+      modernAddress: "Zhdanovskaya Naberezhnaya",
+      lat: 59.9583503,
+      lng: 30.2691772
+    }),
+    Object.freeze({
+      label: "Sennaya Square / Haymarket",
+      modernAddress: "Sennaya Square",
+      lat: 59.9262,
+      lng: 30.3174
+    }),
+    Object.freeze({
+      label: "Police Station",
+      modernAddress: "35 Bol'shaya Pod'yacheskaya Ulitsa",
+      lat: 59.9211164,
+      lng: 30.3050881
+    }),
+    Object.freeze({
+      label: "V-Prospekt Loot Burial",
+      modernAddress: "5 Voznesensky Ave",
+      lat: 59.9338,
+      lng: 30.3047
+    }),
+    Object.freeze({
+      label: "Nikolaevsky Bridge",
+      modernAddress: "Voznesenskiy Most, Voznesensky Ave, 23",
+      lat: 59.9264715,
+      lng: 30.3081607
+    }),
+    Object.freeze({
+      label: "Bridge After the Fight with Razumikhin",
+      modernAddress: "34 Voznesensky Ave",
+      lat: 59.9256,
+      lng: 30.3074
+    }),
+    Object.freeze({
+      label: "Sonya Marmeladov's Apartment",
+      modernAddress: "73 Griboyedov Channel Embankment",
+      lat: 59.9274508,
+      lng: 30.3033333
+    })
+  ]);
+
   function mergeSceneContent(scene, sceneEdit = {}) {
     return {
       ...scene,
@@ -785,6 +860,7 @@
 
   globalScope.GeographyOfGuiltData = Object.freeze({
     APP_METADATA,
+    MAP_LOCATIONS,
     SCENES,
     mergeSceneContent
   });
