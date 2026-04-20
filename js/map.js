@@ -27,10 +27,12 @@
       this.tileLayer = null;
       this.markers = [];
       this.locations = [];
+      this.interactionEnabled = true;
     }
 
-    async initialize({ locations }) {
+    async initialize({ locations, interactive = true }) {
       this.locations = locations.slice();
+      this.interactionEnabled = interactive;
 
       if (!globalScope.L) {
         this.showPlaceholder(
@@ -67,6 +69,8 @@
         maxZoom: 19
       }).addTo(this.map);
 
+      this.setInteractivity(this.interactionEnabled);
+
       const bounds = [];
 
       this.locations.forEach((location, index) => {
@@ -92,6 +96,32 @@
           maxZoom: 12
         });
       }
+    }
+
+    setInteractivity(isEnabled) {
+      this.interactionEnabled = Boolean(isEnabled);
+
+      if (!this.map) {
+        return;
+      }
+
+      const method = this.interactionEnabled ? "enable" : "disable";
+
+      [
+        this.map.dragging,
+        this.map.touchZoom,
+        this.map.doubleClickZoom,
+        this.map.scrollWheelZoom,
+        this.map.boxZoom,
+        this.map.keyboard,
+        this.map.tap
+      ].forEach((handler) => {
+        if (handler && typeof handler[method] === "function") {
+          handler[method]();
+        }
+      });
+
+      this.mapElement.classList.toggle("map-canvas--locked", !this.interactionEnabled);
     }
 
     getTooltipOffset(index) {

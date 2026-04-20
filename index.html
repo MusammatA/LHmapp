@@ -17,8 +17,20 @@
   >
 </head>
 <body>
-  <main class="map-page" aria-label="Map of Raskolnikov's locations">
+  <main class="map-page is-intro-active" aria-label="Map of Raskolnikov's locations">
     <div class="map-canvas" id="map" aria-label="Map of Raskolnikov's locations"></div>
+
+    <button
+      class="intro-screen"
+      type="button"
+      data-intro-screen
+      aria-label="Begin exploring the map"
+    >
+      <span class="intro-screen__content">
+        <span class="intro-screen__title">Welcome to the Journey of Guilt</span>
+        <span class="intro-screen__prompt">Click to begin</span>
+      </span>
+    </button>
 
     <div class="map-placeholder" data-map-placeholder hidden>
       <h1 data-map-placeholder-title>OpenStreetMap is loading.</h1>
