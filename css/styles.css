@@ -14,6 +14,8 @@
   --color-button-bg-hover: rgba(21, 25, 32, 0.94);
   --color-button-text: #efe8dc;
   --color-button-ghost: rgba(255, 255, 255, 0.08);
+  --color-start-solid: #050505;
+  --color-start-border: rgba(196, 176, 136, 0.38);
   --shadow-label: 0 14px 32px rgba(0, 0, 0, 0.28);
   --shadow-panel: 0 36px 90px rgba(0, 0, 0, 0.46);
   --font-body: "Avenir Next", "Gill Sans", "Segoe UI", sans-serif;
@@ -152,12 +154,14 @@ body {
   right: 24px;
   z-index: 1250;
   min-width: 104px;
-  padding: 11px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  padding: 12px 18px;
+  border: 1px solid var(--color-start-border);
   border-radius: 999px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), var(--color-button-bg));
+  background: linear-gradient(180deg, rgba(22, 22, 22, 0.92), var(--color-start-solid));
   color: var(--color-button-text);
-  box-shadow: 0 20px 42px rgba(0, 0, 0, 0.28);
+  box-shadow:
+    0 20px 42px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
   cursor: pointer;
   transition:
     opacity 260ms ease,
@@ -175,8 +179,8 @@ body {
 }
 
 .story-launch:hover {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), var(--color-button-bg-hover));
-  border-color: rgba(255, 255, 255, 0.24);
+  background: linear-gradient(180deg, rgba(28, 28, 28, 0.96), rgba(4, 4, 4, 0.98));
+  border-color: rgba(214, 194, 154, 0.48);
 }
 
 .story-launch:focus-visible {
@@ -191,9 +195,10 @@ body {
 
 .story-launch__label {
   display: inline-block;
-  font-size: 0.78rem;
+  font-family: var(--font-display);
+  font-size: 0.92rem;
   font-weight: 700;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
@@ -290,6 +295,15 @@ body {
 .story-panel__body {
   display: grid;
   gap: 16px;
+}
+
+.story-panel__day {
+  margin: 0;
+  color: #d7c7a1;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
 }
 
 .story-panel__title {

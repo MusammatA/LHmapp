@@ -25,6 +25,7 @@
       storyPanelElement: document.querySelector("[data-story-panel]"),
       storyCountElement: document.querySelector("[data-story-count]"),
       storyPhaseElement: document.querySelector("[data-story-phase]"),
+      storyDayElement: document.querySelector("[data-story-day]"),
       storyLocationElement: document.querySelector("[data-story-location]"),
       storyAddressElement: document.querySelector("[data-story-address]"),
       storyDescriptionElement: document.querySelector("[data-story-description]"),
@@ -45,6 +46,14 @@
 
     function getCurrentEvent() {
       return STORY_EVENTS[state.currentIndex];
+    }
+
+    function isFirstSlideOfDay(index) {
+      if (index === 0) {
+        return true;
+      }
+
+      return STORY_EVENTS[index - 1].day !== STORY_EVENTS[index].day;
     }
 
     function updateLaunchLabel() {
@@ -69,6 +78,15 @@
 
       elements.storyCountElement.textContent = `${state.currentIndex + 1} / ${STORY_EVENTS.length}`;
       elements.storyPhaseElement.textContent = event.phase;
+
+      if (isFirstSlideOfDay(state.currentIndex)) {
+        elements.storyDayElement.hidden = false;
+        elements.storyDayElement.textContent = event.day === 3 ? "Day 3 (Murder Day)" : `Day ${event.day}`;
+      } else {
+        elements.storyDayElement.hidden = true;
+        elements.storyDayElement.textContent = "";
+      }
+
       elements.storyLocationElement.textContent = event.locationName;
       elements.storyAddressElement.textContent = event.address;
       elements.storyDescriptionElement.textContent = event.description;
@@ -211,6 +229,7 @@
         elements.storyPanelElement,
         elements.storyCountElement,
         elements.storyPhaseElement,
+        elements.storyDayElement,
         elements.storyLocationElement,
         elements.storyAddressElement,
         elements.storyDescriptionElement,
