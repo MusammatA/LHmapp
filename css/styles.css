@@ -300,7 +300,7 @@ body {
 }
 
 .story-panel {
-  width: min(760px, calc(100vw - 48px));
+  width: min(1140px, calc(100vw - 48px));
   padding: clamp(28px, 4vw, 42px);
   border: 1px solid var(--color-panel-border);
   border-radius: 26px;
@@ -347,6 +347,74 @@ body {
 .story-panel__body {
   display: grid;
   gap: 16px;
+}
+
+.story-panel__content {
+  display: grid;
+  grid-template-columns: minmax(0, 1.06fr) minmax(320px, 0.94fr);
+  gap: clamp(22px, 3vw, 36px);
+  align-items: start;
+}
+
+.story-panel__media {
+  position: relative;
+  min-height: 280px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 22%),
+    rgba(6, 8, 11, 0.88);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+}
+
+.story-panel__media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+  pointer-events: none;
+}
+
+.story-panel__media-asset {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  background: #07090d;
+  object-fit: cover;
+}
+
+.story-panel__media video.story-panel__media-asset {
+  object-fit: contain;
+}
+
+.story-panel__media-fallback {
+  display: grid;
+  gap: 10px;
+  align-content: center;
+  min-height: 280px;
+  padding: 28px;
+  color: var(--color-muted);
+  text-align: left;
+}
+
+.story-panel__media-fallback-label,
+.story-panel__media-fallback-copy {
+  margin: 0;
+}
+
+.story-panel__media-fallback-label {
+  color: var(--color-accent);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.story-panel__media-fallback-copy {
+  font-size: 0.96rem;
+  line-height: 1.7;
 }
 
 .story-panel__day-range {
@@ -547,6 +615,15 @@ body {
     width: min(100%, calc(100vw - 32px));
     padding: 24px 20px;
     border-radius: 22px;
+  }
+
+  .story-panel__content {
+    grid-template-columns: 1fr;
+  }
+
+  .story-panel__media,
+  .story-panel__media-fallback {
+    min-height: 220px;
   }
 
   .story-panel__meta,

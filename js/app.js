@@ -7,11 +7,78 @@
   const STORY_REVEAL_DELAY_MS = 120;
   const SLIDE_TRANSITION_MS = 340;
   const STORY_TIMELINE_DAYS = 14;
+  const SUPPORTED_MEDIA_EXTENSIONS = Object.freeze([
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".webp",
+    ".mp4",
+    ".mov",
+    ".webm"
+  ]);
+  const VIDEO_MEDIA_EXTENSIONS = new Set([".mp4", ".mov", ".webm"]);
+  const SLIDE_MEDIA_MANIFEST = Object.freeze({
+    slide1: Object.freeze(["Slide 1/rosh.png", "Slide 1/e6.png"]),
+    slide2: Object.freeze(["Slide 2/tavern.jpg", "Slide 2/e2.png"]),
+    slide3: Object.freeze(["Slide 3/marmeladovH.webp", "Slide 3/e3.png"]),
+    slide4: Object.freeze([
+      "Slide 4/FD41-De-woonkamer-van-Raskolnikov.jpg",
+      "Slide 4/rosh copy.png",
+      "Slide 4/c04fa1bf-d5d4-483d-9800-cfe4eb52fd5a.png"
+    ]),
+    slide5: Object.freeze([
+      "Slide 5/building-st-petersburg-stock-exchange-260nw-734073691.webp",
+      "Slide 5/194a76ff-3947-4def-bc64-9ca6b1822cd9.png"
+    ]),
+    slide6: Object.freeze([
+      "Slide 6/614._St._Petersburg._Konnogvardeisky_Boulevard,_17.jpg",
+      "Slide 6/105ba91a-272f-4eff-9616-9b5c9aa091d5.png"
+    ]),
+    slide7: Object.freeze([
+      "Slide 7/anglijskaya-naberezhnaya-6-915x604.jpg",
+      "Slide 7/horseScene.webp",
+      "Slide 7/ace92fab-e747-43d0-ad85-3443e7887c6c.png",
+      "Slide 7/1b4f6ce7-382f-4711-b956-834f71b8fa82.png"
+    ]),
+    slide8: Object.freeze(["Slide 8/heymarket.jpg", "Slide 8/15111941-cbd5-4d10-bc0e-367023979ba4.png"]),
+    slide9: Object.freeze(["Slide 9/e9.mp4", "Slide 9/pawnhous.jpeg"]),
+    slide10: Object.freeze(["Slide 10/download.jpeg", "Slide 10/a9ed19c1-0980-4c4b-ace3-19137ac44ba6.png"]),
+    slide11: Object.freeze(["Slide 11/71tYOaO29mL._AC_UF894,1000_QL80_.jpg", "Slide 11/9c058041-ea2e-45f7-b23f-1c24e8aed2a5.png"]),
+    slide12: Object.freeze(["Slide 12/305140_doc1.jpg", "Slide 12/e3ac2615-adca-432c-875b-763516a79d8a.png"]),
+    slide13: Object.freeze(["Slide 13/bridge.jpeg", "Slide 13/7786dad1-c3b0-4014-9850-375e6dc545f8.png"]),
+    slide14: Object.freeze(["Slide 14/96_big.jpg", "Slide 14/36df63a7-94e9-4ad9-b112-223053bb0106.png"])
+  });
 
   function wait(duration) {
     return new Promise((resolve) => {
       globalScope.setTimeout(resolve, duration);
     });
+  }
+
+  function unique(values) {
+    return Array.from(new Set(values));
+  }
+
+  function inferMediaType(path) {
+    const normalizedPath = path.toLowerCase();
+    const extension = SUPPORTED_MEDIA_EXTENSIONS.find((suffix) => normalizedPath.endsWith(suffix));
+
+    if (!extension) {
+      return "unknown";
+    }
+
+    return VIDEO_MEDIA_EXTENSIONS.has(extension) ? "video" : "image";
+  }
+
+  function buildMediaCandidates(event) {
+    const slideNumber = Number(event.mediaBaseName.replace("slide", ""));
+    const folderCandidates = SUPPORTED_MEDIA_EXTENSIONS.map(
+      (extension) => `Slide ${slideNumber}/${event.mediaBaseName}${extension}`
+    );
+    const directCandidates = SUPPORTED_MEDIA_EXTENSIONS.map((extension) => `${event.mediaBaseName}${extension}`);
+    const manifestCandidates = SLIDE_MEDIA_MANIFEST[event.mediaBaseName] || [];
+
+    return unique([...manifestCandidates, ...folderCandidates, ...directCandidates]);
   }
 
   function createElements() {
@@ -27,6 +94,10 @@
       storyCountElement: document.querySelector("[data-story-count]"),
       storyPhaseElement: document.querySelector("[data-story-phase]"),
       storyDayRangeElement: document.querySelector("[data-story-day-range]"),
+      storyMediaFrameElement: document.querySelector("[data-story-media-frame]"),
+      storyMediaImageElement: document.querySelector("[data-story-media-image]"),
+      storyMediaVideoElement: document.querySelector("[data-story-media-video]"),
+      storyMediaFallbackElement: document.querySelector("[data-story-media-fallback]"),
       storyLocationElement: document.querySelector("[data-story-location]"),
       storyAddressElement: document.querySelector("[data-story-address]"),
       storyDescriptionElement: document.querySelector("[data-story-description]"),
@@ -44,7 +115,8 @@
     const state = {
       currentIndex: 0,
       isBusy: false,
-      hasCompletedSequence: false
+      hasCompletedSequence: false,
+      mediaRequestToken: 0
     };
 
     function getCurrentEvent() {
@@ -79,6 +151,109 @@
       elements.storyNextButton.textContent = isLastSlide ? "Finish" : "Next";
     }
 
+    function resetMediaElements() {
+      elements.storyMediaImageElement.onload = null;
+      elements.storyMediaImageElement.onerror = null;
+      elements.storyMediaImageElement.hidden = true;
+      elements.storyMediaImageElement.removeAttribute("src");
+      elements.storyMediaImageElement.alt = "";
+
+      elements.storyMediaVideoElement.onloadeddata = null;
+      elements.storyMediaVideoElement.onerror = null;
+      elements.storyMediaVideoElement.pause();
+      elements.storyMediaVideoElement.hidden = true;
+      elements.storyMediaVideoElement.removeAttribute("src");
+      elements.storyMediaVideoElement.load();
+
+      elements.storyMediaFallbackElement.hidden = true;
+      elements.storyMediaFrameElement.dataset.mediaState = "loading";
+    }
+
+    function showMediaFallback() {
+      resetMediaElements();
+      elements.storyMediaFallbackElement.hidden = false;
+      elements.storyMediaFrameElement.dataset.mediaState = "fallback";
+    }
+
+    function loadMediaCandidate(candidates, event, token, index = 0) {
+      if (token !== state.mediaRequestToken) {
+        return;
+      }
+
+      if (index >= candidates.length) {
+        showMediaFallback();
+        return;
+      }
+
+      const candidatePath = candidates[index];
+      const mediaType = inferMediaType(candidatePath);
+
+      if (mediaType === "video") {
+        elements.storyMediaVideoElement.onloadeddata = () => {
+          if (token !== state.mediaRequestToken) {
+            return;
+          }
+
+          elements.storyMediaVideoElement.onloadeddata = null;
+          elements.storyMediaVideoElement.onerror = null;
+          elements.storyMediaVideoElement.hidden = false;
+          elements.storyMediaFrameElement.dataset.mediaState = "video";
+        };
+
+        elements.storyMediaVideoElement.onerror = () => {
+          elements.storyMediaVideoElement.onloadeddata = null;
+          elements.storyMediaVideoElement.onerror = null;
+          loadMediaCandidate(candidates, event, token, index + 1);
+        };
+
+        resetMediaElements();
+        elements.storyMediaVideoElement.muted = false;
+        elements.storyMediaVideoElement.volume = 1;
+        elements.storyMediaVideoElement.src = encodeURI(candidatePath);
+        elements.storyMediaVideoElement.load();
+        return;
+      }
+
+      if (mediaType === "image") {
+        elements.storyMediaImageElement.onload = () => {
+          if (token !== state.mediaRequestToken) {
+            return;
+          }
+
+          elements.storyMediaImageElement.onload = null;
+          elements.storyMediaImageElement.onerror = null;
+          elements.storyMediaImageElement.hidden = false;
+          elements.storyMediaFrameElement.dataset.mediaState = "image";
+        };
+
+        elements.storyMediaImageElement.onerror = () => {
+          elements.storyMediaImageElement.onload = null;
+          elements.storyMediaImageElement.onerror = null;
+          loadMediaCandidate(candidates, event, token, index + 1);
+        };
+
+        resetMediaElements();
+        elements.storyMediaImageElement.alt = `${event.locationName} media`;
+        elements.storyMediaImageElement.src = encodeURI(candidatePath);
+        return;
+      }
+
+      loadMediaCandidate(candidates, event, token, index + 1);
+    }
+
+    function renderMedia(event) {
+      state.mediaRequestToken += 1;
+      const token = state.mediaRequestToken;
+      const candidates = buildMediaCandidates(event);
+
+      if (!candidates.length) {
+        showMediaFallback();
+        return;
+      }
+
+      loadMediaCandidate(candidates, event, token);
+    }
+
     function renderSlide() {
       const event = getCurrentEvent();
 
@@ -89,6 +264,7 @@
       elements.storyAddressElement.textContent = event.address;
       elements.storyDescriptionElement.textContent = event.description;
       updateTimeline(event);
+      renderMedia(event);
 
       updateNavigationState();
     }
@@ -145,6 +321,8 @@
     }
 
     function hideStoryMode() {
+      state.mediaRequestToken += 1;
+      resetMediaElements();
       elements.storyModeElement.classList.remove("is-visible");
       elements.storyModeElement.hidden = true;
     }
@@ -229,6 +407,10 @@
         elements.storyCountElement,
         elements.storyPhaseElement,
         elements.storyDayRangeElement,
+        elements.storyMediaFrameElement,
+        elements.storyMediaImageElement,
+        elements.storyMediaVideoElement,
+        elements.storyMediaFallbackElement,
         elements.storyLocationElement,
         elements.storyAddressElement,
         elements.storyDescriptionElement,

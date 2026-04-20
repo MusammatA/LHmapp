@@ -782,6 +782,7 @@
   const STORY_EVENTS = Object.freeze([
     createStoryEvent({
       id: "tenement-origin",
+      mediaBaseName: "slide1",
       locationName: "Raskolnikov's Tenement",
       mapLabel: "Raskolnikov's Tenement",
       address: "17 Grazhdanskaya Ulitsa, St. Petersburg, Russia",
@@ -796,6 +797,7 @@
     }),
     createStoryEvent({
       id: "marmeladov-tavern",
+      mediaBaseName: "slide2",
       locationName: "Tavern where Raskolnikov meets Marmeladov",
       mapLabel: "Tavern where Raskolnikov meets Marmeladov",
       address: "19 Prospekt Rimskogo-Korsakova, St. Petersburg, Russia",
@@ -810,6 +812,7 @@
     }),
     createStoryEvent({
       id: "marmeladov-tenement",
+      mediaBaseName: "slide3",
       locationName: "Marmeladov's Tenement",
       mapLabel: "Marmeladov's Tenement",
       address: "Bol'shaya Pod'yacheskaya Ulitsa, 27, Sankt-Peterburg, Russia, 190068",
@@ -824,6 +827,7 @@
     }),
     createStoryEvent({
       id: "tenement-return",
+      mediaBaseName: "slide4",
       locationName: "Raskolnikov's Tenement (Return)",
       mapLabel: "Raskolnikov's Tenement",
       address: "17 Grazhdanskaya Ulitsa, St. Petersburg, Russia",
@@ -838,6 +842,7 @@
     }),
     createStoryEvent({
       id: "palace-embankment",
+      mediaBaseName: "slide5",
       locationName: "Palace Embankment / Neva River",
       mapLabel: "Palace Embankment / Neva River",
       address: "Rostral'nyy Obelisk Troitskogo Mosta, Palace Embankment, 4, St Petersburg, Russia, 191186",
@@ -852,6 +857,7 @@
     }),
     createStoryEvent({
       id: "k-boulevard",
+      mediaBaseName: "slide6",
       locationName: "K. Boulevard",
       mapLabel: "K. Boulevard",
       address: "4 Konnogvardeyskiy Bul'var, St. Petersburg, Russia",
@@ -866,6 +872,7 @@
     }),
     createStoryEvent({
       id: "river-embankment",
+      mediaBaseName: "slide7",
       locationName: "River Embankment",
       mapLabel: "River Embankment",
       address: "Zhdanovskaya Naberezhnaya, St. Petersburg, Russia",
@@ -880,6 +887,7 @@
     }),
     createStoryEvent({
       id: "sennaya-square",
+      mediaBaseName: "slide8",
       locationName: "Sennaya Square",
       mapLabel: "Sennaya Square",
       address: "Sennaya Square, St. Petersburg, Russia",
@@ -894,6 +902,7 @@
     }),
     createStoryEvent({
       id: "moneylenders-residence",
+      mediaBaseName: "slide9",
       locationName: "Moneylender's Residence",
       mapLabel: "Moneylender's Residence",
       address: "15 Srednyaya Pod'yacheskaya Ulitsa, St. Petersburg, Russia",
@@ -908,6 +917,7 @@
     }),
     createStoryEvent({
       id: "police-station",
+      mediaBaseName: "slide10",
       locationName: "Police Station",
       mapLabel: "Police Station",
       address: "35 Bol'shaya Pod'yacheskaya Ulitsa, St. Petersburg, Russia",
@@ -922,6 +932,7 @@
     }),
     createStoryEvent({
       id: "voznesensky-loot",
+      mediaBaseName: "slide11",
       locationName: "Voznesensky Avenue",
       mapLabel: "Voznesensky Avenue",
       address: "5 Voznesensky Ave, St. Petersburg, Russia",
@@ -936,6 +947,7 @@
     }),
     createStoryEvent({
       id: "nikolaevsky-bridge",
+      mediaBaseName: "slide12",
       locationName: "Nikolaevsky Bridge",
       mapLabel: "Nikolaevsky Bridge",
       address: "Voznesenskiy Most, Voznesensky Ave, 23, St Petersburg, Russia, 190000",
@@ -950,6 +962,7 @@
     }),
     createStoryEvent({
       id: "bridge-after-razumikhin",
+      mediaBaseName: "slide13",
       locationName: "Bridge after conflict with Razumikhin",
       mapLabel: "Bridge after conflict with Razumikhin",
       address: "34 Voznesensky Ave, St. Petersburg, Russia",
@@ -964,6 +977,7 @@
     }),
     createStoryEvent({
       id: "sonya-apartment",
+      mediaBaseName: "slide14",
       locationName: "Sonya Marmeladov's Apartment",
       mapLabel: "Sonya Marmeladov's Apartment",
       address: "73 Griboyedov Channel Embankment, St. Petersburg, Russia",
