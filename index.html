@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta
     name="description"
-    content="A cinematic literary mapping project following Raskolnikov's psychological journey through modern-day St. Petersburg."
+    content="A map of Raskolnikov's locations in Crime and Punishment."
   >
   <title>The Geography of Guilt</title>
   <link rel="stylesheet" href="css/styles.css">
@@ -17,224 +17,31 @@
   >
 </head>
 <body>
-  <div class="site-shell">
-    <section class="landing-screen" data-landing-screen>
-      <div class="landing-screen__scrim"></div>
-      <div class="landing-screen__content">
-        <p class="eyebrow">Crime and Punishment Literary Mapping Project</p>
-        <h1 class="landing-screen__title">The Geography of Guilt</h1>
-        <p class="landing-screen__subtitle">
-          A guided descent through the modern streets of St. Petersburg, where Raskolnikov&rsquo;s physical route becomes a map
-          of fear, rationalization, collapse, and the first pressure of confession.
-        </p>
-        <button
-          class="button button--primary landing-screen__button"
-          type="button"
-          data-start-button
-          onclick="window.__geographyOfGuiltStart(event)"
-        >
-          Start
-        </button>
-        <p class="landing-screen__note">
-          Move scene by scene. Watch the city close in. Let the text arrive only after the image has had time to work.
-        </p>
-      </div>
-    </section>
+  <main class="map-page" aria-label="Map of Raskolnikov's locations">
+    <div class="map-canvas" id="map" aria-label="Map of Raskolnikov's locations"></div>
 
-    <section class="experience-screen" data-experience-screen hidden aria-hidden="true">
-      <div class="experience-viewport" data-scene-panel>
-        <div class="map-canvas" id="map" aria-label="Literary map of scene locations"></div>
-
-        <div class="map-placeholder" data-map-placeholder hidden>
-          <h4 data-map-placeholder-title>OpenStreetMap is loading.</h4>
-          <p data-map-placeholder-copy>
-            This project uses Leaflet with OpenStreetMap tiles, so no Google API key is required.
-          </p>
-        </div>
-
-        <div class="experience-scrim" aria-hidden="true"></div>
-
-        <header class="experience-hud">
-          <div class="experience-hud__copy">
-            <p class="eyebrow">The Geography of Guilt</p>
-            <p class="scene-counter" data-scene-counter>Scene 01 / 42</p>
-          </div>
-
-          <div class="experience-hud__meta">
-            <p class="experience-status" data-map-status>
-              Loading the free open-source map.
-            </p>
-          </div>
-        </header>
-
-        <div class="scene-stage" data-scene-stage>
-          <div class="scene-intro" data-scene-intro>
-            <img class="scene-intro__media scene-intro__image" data-scene-intro-image alt="" hidden>
-            <video
-              class="scene-intro__media scene-intro__video"
-              data-scene-intro-video
-              playsinline
-              preload="metadata"
-              controls
-              hidden
-            ></video>
-            <button class="scene-intro__prompt" type="button" data-scene-intro-prompt>
-              Click anywhere to continue into the scene and view the analysis.
-            </button>
-          </div>
-
-          <div class="scene-stage__media" data-scene-media-stage>
-            <img class="scene-media scene-media--image" data-scene-image alt="" hidden>
-            <video
-              class="scene-media scene-media--video"
-              data-scene-video
-              playsinline
-              preload="metadata"
-              controls
-              hidden
-            ></video>
-            <div class="scene-media__fallback" data-media-fallback hidden>
-              <p class="scene-media__fallback-kicker">Media unavailable</p>
-              <h4 data-media-fallback-title>Attach scene artwork or a video file.</h4>
-              <p data-media-fallback-copy>
-                The scene can still be navigated, but this layer is waiting for its media source.
-              </p>
-            </div>
-          </div>
-
-          <div class="scene-stage__transition" data-scene-transition aria-live="polite">
-            <p class="scene-stage__transition-kicker" data-scene-transition-kicker>Locating the scene</p>
-            <h4 class="scene-stage__transition-title" data-scene-transition-title>
-              Modern-day St. Petersburg
-            </h4>
-            <p class="scene-stage__transition-copy" data-scene-transition-copy>
-              First the route lands on the map, then the scene image arrives.
-            </p>
-          </div>
-
-          <article class="scene-card" data-scene-card aria-live="polite">
-            <p class="scene-card__eyebrow" data-scene-phase>Day 1</p>
-            <div class="scene-card__meta-row">
-              <span class="scene-chip scene-chip--importance" data-scene-importance>
-                Important Psychological Pressure
-              </span>
-            </div>
-            <h3 class="scene-card__title" data-scene-title></h3>
-            <p class="scene-card__role" data-scene-role></p>
-
-            <div class="scene-card__location">
-              <p data-scene-location-name></p>
-              <p data-scene-address></p>
-            </div>
-
-            <blockquote class="scene-card__quote">
-              <p data-scene-quote-display></p>
-            </blockquote>
-            <p class="scene-card__interpretation" data-scene-interpretation-display></p>
-
-            <div class="scene-card__actions">
-              <button class="button button--secondary button--small" type="button" data-editor-toggle>
-                Edit Text
-              </button>
-            </div>
-
-            <form class="scene-card__editor" data-editor-form hidden>
-              <label class="field">
-                <span class="field__label">Quote</span>
-                <textarea data-editor-quote rows="4"></textarea>
-              </label>
-
-              <label class="field">
-                <span class="field__label">Interpretation</span>
-                <textarea data-editor-interpretation rows="6"></textarea>
-              </label>
-
-              <div class="scene-card__editor-actions">
-                <button class="button button--primary button--small" type="submit">Save Edits</button>
-                <button class="button button--secondary button--small" type="button" data-editor-reset>
-                  Reset
-                </button>
-                <button class="button button--secondary button--small" type="button" data-editor-close>
-                  Close
-                </button>
-              </div>
-
-              <p class="scene-card__editor-note">
-                Anyone can edit the quote and interpretation here. Changes save to this browser with
-                <code>localStorage</code>.
-              </p>
-            </form>
-
-            <p class="scene-card__feedback" data-editor-feedback></p>
-
-            <div class="scene-card__footer">
-              <nav class="scene-nav scene-nav--card" aria-label="Scene navigation">
-                <button class="button button--secondary" type="button" data-prev-button>
-                  Back
-                </button>
-                <button class="button button--primary" type="button" data-next-button>
-                  Next
-                </button>
-              </nav>
-            </div>
-          </article>
-        </div>
-      </div>
-    </section>
-  </div>
+    <div class="map-placeholder" data-map-placeholder hidden>
+      <h1 data-map-placeholder-title>OpenStreetMap is loading.</h1>
+      <p data-map-placeholder-copy>
+        This map needs internet access so Leaflet can load the basemap tiles.
+      </p>
+    </div>
+  </main>
 
   <noscript>
     <div class="noscript-warning">
-      This project requires JavaScript for the cinematic scene flow and the Leaflet/OpenStreetMap map.
+      This map requires JavaScript.
     </div>
   </noscript>
 
-  <script>
-    window.__geographyOfGuiltPendingStart = false;
-
-    window.__geographyOfGuiltShowExperienceFallback = function () {
-      const landing = document.querySelector("[data-landing-screen]");
-      const experience = document.querySelector("[data-experience-screen]");
-
-      if (!landing || !experience) {
-        return;
-      }
-
-      window.scrollTo(0, 0);
-      document.body.classList.add("is-experience-active");
-      landing.classList.add("is-exiting");
-      experience.hidden = false;
-      experience.setAttribute("aria-hidden", "false");
-
-      requestAnimationFrame(() => {
-        experience.classList.add("is-visible");
-      });
-
-      window.setTimeout(() => {
-        landing.hidden = true;
-      }, 420);
-    };
-
-    window.__geographyOfGuiltStart = function (event) {
-      event?.preventDefault?.();
-      window.__geographyOfGuiltPendingStart = true;
-      window.__geographyOfGuiltShowExperienceFallback();
-
-      if (window.GeographyOfGuiltApp?.startExperience) {
-        window.GeographyOfGuiltApp.startExperience();
-      }
-    };
-  </script>
   <script
     defer
     src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
     crossorigin=""
   ></script>
-  <!-- Ordered deferred scripts keep the project file-based and compatible with direct local opening. -->
   <script defer src="js/data.js"></script>
   <script defer src="js/map.js"></script>
-  <script defer src="js/ui.js"></script>
   <script defer src="js/app.js"></script>
 </body>
 </html>

@@ -1,185 +1,126 @@
 (function initializeApplication(globalScope) {
-  const { APP_METADATA, SCENES, mergeSceneContent } = globalScope.GeographyOfGuiltData;
+  const { SCENES } = globalScope.GeographyOfGuiltData;
   const { SceneMapController } = globalScope.GeographyOfGuiltMap;
-  const { createUIController } = globalScope.GeographyOfGuiltUI;
 
-  function createSceneEditStore(storageKey) {
+  function createMapElements() {
     return {
-      load() {
-        try {
-          const storedValue = window.localStorage.getItem(storageKey);
-
-          if (!storedValue) {
-            return {};
-          }
-
-          const parsedValue = JSON.parse(storedValue);
-          return parsedValue && typeof parsedValue === "object" ? parsedValue : {};
-        } catch (error) {
-          return {};
-        }
-      },
-      save(edits) {
-        try {
-          window.localStorage.setItem(storageKey, JSON.stringify(edits));
-          return true;
-        } catch (error) {
-          return false;
-        }
-      }
+      mapElement: document.getElementById("map"),
+      placeholderElement: document.querySelector("[data-map-placeholder]"),
+      placeholderTitleElement: document.querySelector("[data-map-placeholder-title]"),
+      placeholderCopyElement: document.querySelector("[data-map-placeholder-copy]")
     };
   }
 
-  const sceneEditStore = createSceneEditStore(APP_METADATA.sceneEditsStorageKey);
+  function normalizeLocationLabel(locationName) {
+    const normalized = locationName.toLowerCase();
 
-  const state = {
-    hasStarted: false,
-    activeSceneIndex: 0,
-    sceneEdits: sceneEditStore.load(),
-    scenes: []
-  };
-
-  const ui = createUIController();
-  const mapController = new SceneMapController(ui.mapElements);
-
-  function rebuildSceneCollection() {
-    state.scenes = SCENES.map((scene) => mergeSceneContent(scene, state.sceneEdits[scene.id]));
-  }
-
-  function getActiveScene() {
-    return state.scenes[state.activeSceneIndex];
-  }
-
-  function clampSceneIndex(index) {
-    return Math.max(0, Math.min(index, state.scenes.length - 1));
-  }
-
-  function renderActiveScene({ revealImmediately = false, refocusMap = true } = {}) {
-    const activeScene = getActiveScene();
-
-    if (!activeScene) {
-      return;
+    if (normalized.includes("pawnbroker")) {
+      return "Pawnbroker's House";
     }
 
-    const transitionTiming = refocusMap
-      ? mapController.focusScene(activeScene)
-      : mapController.getSceneTransitionTiming(activeScene);
-
-    ui.renderScene({
-      scene: activeScene,
-      sceneNumber: state.activeSceneIndex + 1,
-      totalScenes: state.scenes.length,
-      isFirstScene: state.activeSceneIndex === 0,
-      isLastScene: state.activeSceneIndex === state.scenes.length - 1,
-      mapLeadDelay: revealImmediately ? 0 : transitionTiming.mediaRevealDelay,
-      revealImmediately
-    });
-  }
-
-  function persistSceneEdits() {
-    const didSave = sceneEditStore.save(state.sceneEdits);
-
-    if (!didSave) {
-      ui.flashEditorFeedback("This browser blocked local saving for scene edits.");
+    if (normalized.includes("haymarket tavern")) {
+      return "Haymarket Tavern";
     }
 
-    return didSave;
-  }
-
-  function refreshSceneState() {
-    rebuildSceneCollection();
-    renderActiveScene({
-      revealImmediately: true,
-      refocusMap: false
-    });
-  }
-
-  function syncSceneEdits(successMessage) {
-    const didSave = persistSceneEdits();
-    refreshSceneState();
-
-    if (didSave) {
-      ui.flashEditorFeedback(successMessage);
-    }
-  }
-
-  function startExperience() {
-    if (state.hasStarted) {
-      return;
+    if (normalized.includes("haymarket square") || normalized.includes("sennaya")) {
+      return "Haymarket Square";
     }
 
-    globalScope.__geographyOfGuiltPendingStart = false;
-    state.hasStarted = true;
-    rebuildSceneCollection();
-    ui.showExperience();
+    if (normalized.includes("marmeladov family")) {
+      return "Marmeladov Home";
+    }
 
-    mapController.initialize({
-      scenes: state.scenes
-    }).then((isMapReady) => {
-      if (!state.hasStarted) {
+    if (normalized.includes("raskolnikov")) {
+      return "Raskolnikov's Room";
+    }
+
+    if (normalized.includes("razumihin")) {
+      return "Razumihin's Place";
+    }
+
+    if (normalized.includes("voznesenskiy")) {
+      return "Voznesenskiy Most";
+    }
+
+    if (normalized.includes("petrovsky")) {
+      return "Petrovsky Island";
+    }
+
+    if (normalized.includes("police station")) {
+      return "Police Station";
+    }
+
+    if (normalized.includes("loot hiding")) {
+      return "Loot Rock";
+    }
+
+    if (normalized.includes("crystal palace")) {
+      return "Crystal Palace";
+    }
+
+    if (normalized.includes("pulcheria and dounia")) {
+      return "Family Lodging";
+    }
+
+    if (normalized.includes("porfiry")) {
+      return "Porfiry's Office";
+    }
+
+    if (normalized.includes("luzhin")) {
+      return "Luzhin's Rooms";
+    }
+
+    if (normalized.includes("sonya")) {
+      return "Sonya's Room";
+    }
+
+    if (normalized.includes("svidrigailov")) {
+      return "Svidrigailov's Tavern";
+    }
+
+    if (normalized.includes("crossroads")) {
+      return "Street Crossroads";
+    }
+
+    if (normalized.includes("omsk") || normalized.includes("siberian")) {
+      return "Siberia";
+    }
+
+    return locationName
+      .replace(/\s+district anchor$/i, "")
+      .replace(/\s+district stand-in$/i, "")
+      .replace(/\s+anchor$/i, "")
+      .trim();
+  }
+
+  function buildMapLocations(scenes) {
+    const locationMap = new Map();
+
+    scenes.forEach((scene) => {
+      const key = `${scene.lat}:${scene.lng}:${scene.locationName}`;
+
+      if (locationMap.has(key)) {
         return;
       }
 
-      if (isMapReady) {
-        mapController.refreshLayout();
-      }
-
-      renderActiveScene({
-        revealImmediately: false,
-        refocusMap: isMapReady
+      locationMap.set(key, {
+        lat: scene.lat,
+        lng: scene.lng,
+        label: normalizeLocationLabel(scene.locationName)
       });
+    });
+
+    return Array.from(locationMap.values());
+  }
+
+  function bootMap() {
+    const mapElements = createMapElements();
+    const mapController = new SceneMapController(mapElements);
+
+    mapController.initialize({
+      locations: buildMapLocations(SCENES)
     });
   }
 
-  function goToScene(index) {
-    if (!state.hasStarted) {
-      return;
-    }
-
-    const nextIndex = clampSceneIndex(index);
-    if (nextIndex === state.activeSceneIndex) {
-      return;
-    }
-
-    state.activeSceneIndex = nextIndex;
-    renderActiveScene();
-  }
-
-  function handleSceneTextSave({ sceneId, quote, interpretation }) {
-    if (!sceneId) {
-      return;
-    }
-
-    state.sceneEdits[sceneId] = {
-      quote: quote.trim(),
-      interpretation: interpretation.trim()
-    };
-
-    syncSceneEdits("Scene text saved locally.");
-  }
-
-  function handleSceneTextReset(sceneId) {
-    if (!sceneId) {
-      return;
-    }
-
-    delete state.sceneEdits[sceneId];
-    syncSceneEdits("Scene text reset to the default dataset.");
-  }
-
-  ui.bindEvents({
-    onStart: startExperience,
-    onPrevious: () => goToScene(state.activeSceneIndex - 1),
-    onNext: () => goToScene(state.activeSceneIndex + 1),
-    onSceneTextSave: handleSceneTextSave,
-    onSceneTextReset: handleSceneTextReset
-  });
-
-  globalScope.GeographyOfGuiltApp = Object.freeze({
-    startExperience
-  });
-
-  if (globalScope.__geographyOfGuiltPendingStart) {
-    startExperience();
-  }
+  bootMap();
 })(window);
