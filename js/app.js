@@ -121,6 +121,7 @@
       storyPhaseElement: document.querySelector("[data-story-phase]"),
       storyDayRangeElement: document.querySelector("[data-story-day-range]"),
       storyMediaFrameElement: document.querySelector("[data-story-media-frame]"),
+      storyMediaStageElement: document.querySelector(".story-panel__media-stage"),
       storyMediaImageElement: document.querySelector("[data-story-media-image]"),
       storyMediaVideoElement: document.querySelector("[data-story-media-video]"),
       storyMediaGalleryElement: document.querySelector("[data-story-media-gallery]"),
@@ -178,6 +179,17 @@
       elements.storyBackButton.disabled = state.isBusy || isFirstSlide;
       elements.storyNextButton.disabled = state.isBusy;
       elements.storyNextButton.textContent = isLastSlide ? "Finish" : "Next";
+    }
+
+    function setStagePresentation(type, source = "") {
+      elements.storyMediaStageElement.dataset.stageMedia = type;
+
+      if (type === "image" && source) {
+        elements.storyMediaStageElement.style.setProperty("--story-stage-image", `url("${source}")`);
+        return;
+      }
+
+      elements.storyMediaStageElement.style.removeProperty("--story-stage-image");
     }
 
     function updateMediaGallerySelection() {
@@ -250,6 +262,7 @@
 
       elements.storyMediaFallbackElement.hidden = true;
       elements.storyMediaFrameElement.dataset.mediaState = "loading";
+      setStagePresentation("none");
     }
 
     function showMediaFallback() {
@@ -282,6 +295,7 @@
           elements.storyMediaVideoElement.onerror = null;
           elements.storyMediaVideoElement.hidden = false;
           elements.storyMediaFrameElement.dataset.mediaState = "video";
+          setStagePresentation("video");
         };
 
         elements.storyMediaVideoElement.onerror = () => {
@@ -318,6 +332,7 @@
           elements.storyMediaImageElement.onerror = null;
           elements.storyMediaImageElement.hidden = false;
           elements.storyMediaFrameElement.dataset.mediaState = "image";
+          setStagePresentation("image", item.src);
         };
 
         elements.storyMediaImageElement.onerror = () => {
@@ -515,6 +530,7 @@
         elements.storyPhaseElement,
         elements.storyDayRangeElement,
         elements.storyMediaFrameElement,
+        elements.storyMediaStageElement,
         elements.storyMediaImageElement,
         elements.storyMediaVideoElement,
         elements.storyMediaGalleryElement,
