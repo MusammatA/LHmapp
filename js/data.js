@@ -775,80 +775,188 @@
     fromAnchor(scene.anchor, scene, index + 1)
   );
 
-  const MAP_LOCATIONS = Object.freeze([
-    Object.freeze({
-      label: "Raskolnikov's Tenement",
-      modernAddress: "17 Grazhdanskaya Ulitsa",
+  function createStoryEvent(event) {
+    return Object.freeze(event);
+  }
+
+  const STORY_EVENTS = Object.freeze([
+    createStoryEvent({
+      id: "tenement-origin",
+      locationName: "Raskolnikov's Tenement",
+      mapLabel: "Raskolnikov's Tenement",
+      address: "17 Grazhdanskaya Ulitsa, St. Petersburg, Russia",
       lat: 59.92764,
-      lng: 30.31103
+      lng: 30.31103,
+      phase: "Before the Murder",
+      description:
+        "Raskolnikov isolates himself in his cramped room, where he develops and justifies his theory of extraordinary men. This space represents the origin of his plan and his growing detachment from society."
     }),
-    Object.freeze({
-      label: "Moneylender's Residence",
-      modernAddress: "15 Srednyaya Pod'yacheskaya Ulitsa",
-      lat: 59.9246885,
-      lng: 30.3057083
-    }),
-    Object.freeze({
-      label: "Tavern Where Raskolnikov Meets Marmeladov",
-      modernAddress: "19 Prospekt Rimskogo-Korsakova",
+    createStoryEvent({
+      id: "marmeladov-tavern",
+      locationName: "Tavern where Raskolnikov meets Marmeladov",
+      mapLabel: "Tavern where Raskolnikov meets Marmeladov",
+      address: "19 Prospekt Rimskogo-Korsakova, St. Petersburg, Russia",
       lat: 59.9242,
-      lng: 30.3032
+      lng: 30.3032,
+      phase: "Before the Murder",
+      description:
+        "Raskolnikov meets Marmeladov, who shares the story of his family's suffering. This encounter evokes sympathy and reveals a tension between Raskolnikov's cold theory and his underlying compassion."
     }),
-    Object.freeze({
-      label: "Marmeladov's Tenement / Kolya's House",
-      modernAddress: "27 Bol'shaya Pod'yacheskaya Ulitsa",
+    createStoryEvent({
+      id: "marmeladov-tenement",
+      locationName: "Marmeladov's Tenement",
+      mapLabel: "Marmeladov's Tenement",
+      address: "Bol'shaya Pod'yacheskaya Ulitsa, 27, Sankt-Peterburg, Russia, 190068",
       lat: 59.92338,
-      lng: 30.30502
+      lng: 30.30502,
+      phase: "Before the Murder",
+      description:
+        "After accompanying Marmeladov home, Raskolnikov witnesses the family's poverty and impulsively leaves money for them. He later questions this action, highlighting his internal conflict."
     }),
-    Object.freeze({
-      label: "K. Boulevard",
-      modernAddress: "4 Konnogvardeyskiy Bul'var",
+    createStoryEvent({
+      id: "tenement-return",
+      locationName: "Raskolnikov's Tenement (Return)",
+      mapLabel: "Raskolnikov's Tenement",
+      address: "17 Grazhdanskaya Ulitsa, St. Petersburg, Russia",
+      lat: 59.92764,
+      lng: 30.31103,
+      phase: "Before the Murder",
+      description:
+        "Returning to his room, he oscillates between doubt and conviction. His plan becomes more concrete, though his mental state grows increasingly unstable."
+    }),
+    createStoryEvent({
+      id: "palace-embankment",
+      locationName: "Palace Embankment / Neva River",
+      mapLabel: "Palace Embankment / Neva River",
+      address: "Rostral'nyy Obelisk Troitskogo Mosta, Palace Embankment, 4, St Petersburg, Russia, 191186",
+      lat: 59.945721,
+      lng: 30.327088,
+      phase: "Before the Murder",
+      description:
+        "Raskolnikov wanders in a detached, dreamlike state and pauses to look out over the river. This moment reflects his deepening alienation from reality."
+    }),
+    createStoryEvent({
+      id: "k-boulevard",
+      locationName: "K. Boulevard",
+      mapLabel: "K. Boulevard",
+      address: "4 Konnogvardeyskiy Bul'var, St. Petersburg, Russia",
       lat: 59.932602,
-      lng: 30.297513
+      lng: 30.297513,
+      phase: "Before the Murder",
+      description:
+        "While walking in a distracted state, thoughts of his sister Dunya interrupt his mental isolation. This moment briefly reconnects him to family and moral responsibility, though he resists it."
     }),
-    Object.freeze({
-      label: "Zhdanovskaya Embankment",
-      modernAddress: "Zhdanovskaya Naberezhnaya",
+    createStoryEvent({
+      id: "river-embankment",
+      locationName: "River Embankment",
+      mapLabel: "River Embankment",
+      address: "Zhdanovskaya Naberezhnaya, St. Petersburg, Russia",
       lat: 59.9583503,
-      lng: 30.2691772
+      lng: 30.2691772,
+      phase: "Before the Murder",
+      description:
+        "Overcome with exhaustion, Raskolnikov falls asleep outdoors. This marks a moment of physical and emotional collapse just before the crime."
     }),
-    Object.freeze({
-      label: "Sennaya Square / Haymarket",
-      modernAddress: "Sennaya Square",
+    createStoryEvent({
+      id: "sennaya-square",
+      locationName: "Sennaya Square",
+      mapLabel: "Sennaya Square",
+      address: "Sennaya Square, St. Petersburg, Russia",
       lat: 59.9262,
-      lng: 30.3174
+      lng: 30.3174,
+      phase: "Before the Murder",
+      description:
+        "The crowded and impoverished market environment reinforces Raskolnikov's perception of social disorder, which he uses to justify his planned actions."
     }),
-    Object.freeze({
-      label: "Police Station",
-      modernAddress: "35 Bol'shaya Pod'yacheskaya Ulitsa",
+    createStoryEvent({
+      id: "moneylenders-residence",
+      locationName: "Moneylender's Residence",
+      mapLabel: "Moneylender's Residence",
+      address: "15 Srednyaya Pod'yacheskaya Ulitsa, St. Petersburg, Russia",
+      lat: 59.9246885,
+      lng: 30.3057083,
+      phase: "The Murder",
+      description:
+        "Raskolnikov kills the pawnbroker and, unexpectedly, her sister. The act is chaotic and driven by panic, undermining his belief that the crime could be carried out rationally."
+    }),
+    createStoryEvent({
+      id: "police-station",
+      locationName: "Police Station",
+      mapLabel: "Police Station",
+      address: "35 Bol'shaya Pod'yacheskaya Ulitsa, St. Petersburg, Russia",
       lat: 59.9211164,
-      lng: 30.3050881
+      lng: 30.3050881,
+      phase: "After the Murder",
+      description:
+        "Summoned for an unrelated matter, Raskolnikov becomes paranoid and nearly confesses. His psychological instability intensifies under the pressure of suspicion."
     }),
-    Object.freeze({
-      label: "V-Prospekt Loot Burial",
-      modernAddress: "5 Voznesensky Ave",
+    createStoryEvent({
+      id: "voznesensky-loot",
+      locationName: "Voznesensky Avenue",
+      mapLabel: "Voznesensky Avenue",
+      address: "5 Voznesensky Ave, St. Petersburg, Russia",
       lat: 59.9338,
-      lng: 30.3047
+      lng: 30.3047,
+      phase: "After the Murder",
+      description:
+        "He hides the stolen items instead of using them, demonstrating that the crime was not motivated by practical gain but by internal and ideological forces."
     }),
-    Object.freeze({
-      label: "Nikolaevsky Bridge",
-      modernAddress: "Voznesenskiy Most, Voznesensky Ave, 23",
+    createStoryEvent({
+      id: "nikolaevsky-bridge",
+      locationName: "Nikolaevsky Bridge",
+      mapLabel: "Nikolaevsky Bridge",
+      address: "Voznesenskiy Most, Voznesensky Ave, 23, St Petersburg, Russia, 190000",
       lat: 59.9264715,
-      lng: 30.3081607
+      lng: 30.3081607,
+      phase: "After the Murder",
+      description:
+        "Raskolnikov throws money into the river, symbolically rejecting the material outcome of the crime and attempting to distance himself from his guilt."
     }),
-    Object.freeze({
-      label: "Bridge After the Fight with Razumikhin",
-      modernAddress: "34 Voznesensky Ave",
+    createStoryEvent({
+      id: "bridge-after-razumikhin",
+      locationName: "Bridge after conflict with Razumikhin",
+      mapLabel: "Bridge after conflict with Razumikhin",
+      address: "34 Voznesensky Ave, St. Petersburg, Russia",
       lat: 59.9256,
-      lng: 30.3074
+      lng: 30.3074,
+      phase: "After the Murder",
+      description:
+        "Following a strained interaction with Razumikhin, Raskolnikov pauses in exhaustion. This moment emphasizes his growing isolation and emotional detachment."
     }),
-    Object.freeze({
-      label: "Sonya Marmeladov's Apartment",
-      modernAddress: "73 Griboyedov Channel Embankment",
+    createStoryEvent({
+      id: "sonya-apartment",
+      locationName: "Sonya Marmeladov's Apartment",
+      mapLabel: "Sonya Marmeladov's Apartment",
+      address: "73 Griboyedov Channel Embankment, St. Petersburg, Russia",
       lat: 59.9274508,
-      lng: 30.3033333
+      lng: 30.3033333,
+      phase: "After the Murder",
+      description:
+        "Raskolnikov confesses the crime to Sonya. Her compassion and moral clarity mark the beginning of his movement toward redemption."
     })
   ]);
+
+  const MAP_LOCATIONS = Object.freeze(
+    Array.from(
+      STORY_EVENTS.reduce((locationMap, event) => {
+        const key = `${event.mapLabel}::${event.address}`;
+
+        if (!locationMap.has(key)) {
+          locationMap.set(
+            key,
+            Object.freeze({
+              label: event.mapLabel,
+              modernAddress: event.address,
+              lat: event.lat,
+              lng: event.lng
+            })
+          );
+        }
+
+        return locationMap;
+      }, new Map()).values()
+    )
+  );
 
   function mergeSceneContent(scene, sceneEdit = {}) {
     return {
@@ -862,6 +970,7 @@
     APP_METADATA,
     MAP_LOCATIONS,
     SCENES,
+    STORY_EVENTS,
     mergeSceneContent
   });
 })(window);

@@ -17,20 +17,42 @@
   >
 </head>
 <body>
-  <main class="map-page is-intro-active" aria-label="Map of Raskolnikov's locations">
+  <main class="map-page" aria-label="Map of Raskolnikov's locations">
     <div class="map-canvas" id="map" aria-label="Map of Raskolnikov's locations"></div>
 
-    <button
-      class="intro-screen"
-      type="button"
-      data-intro-screen
-      aria-label="Begin exploring the map"
-    >
-      <span class="intro-screen__content">
-        <span class="intro-screen__title">Welcome to the Journey of Guilt</span>
-        <span class="intro-screen__prompt">Click to begin</span>
-      </span>
+    <button class="story-launch" type="button" data-story-launch>
+      <span class="story-launch__label" data-story-launch-label>Start</span>
     </button>
+
+    <div class="story-veil" data-story-veil hidden></div>
+
+    <section class="story-mode" data-story-mode hidden aria-live="polite">
+      <article class="story-panel" data-story-panel>
+        <div class="story-panel__meta">
+          <p class="story-panel__count" data-story-count>1 / 14</p>
+          <p class="story-panel__phase" data-story-phase>Before the Murder</p>
+        </div>
+
+        <div class="story-panel__body">
+          <h1 class="story-panel__title" data-story-location>Raskolnikov's Tenement</h1>
+          <p class="story-panel__address" data-story-address>
+            17 Grazhdanskaya Ulitsa, St. Petersburg, Russia
+          </p>
+          <p class="story-panel__description" data-story-description>
+            Raskolnikov isolates himself in his cramped room, where he develops and justifies his theory of extraordinary men.
+          </p>
+        </div>
+
+        <div class="story-panel__controls">
+          <button class="story-button story-button--ghost" type="button" data-story-back>
+            Back
+          </button>
+          <button class="story-button" type="button" data-story-next>
+            Next
+          </button>
+        </div>
+      </article>
+    </section>
 
     <div class="map-placeholder" data-map-placeholder hidden>
       <h1 data-map-placeholder-title>OpenStreetMap is loading.</h1>
