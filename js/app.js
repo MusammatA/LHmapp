@@ -3,6 +3,7 @@
   const { SceneMapController } = globalScope.GeographyOfGuiltMap;
 
   const BLACKOUT_MS = 700;
+  const INTRO_TRANSITION_MS = 1200;
   const STORY_REVEAL_DELAY_MS = 120;
   const SLIDE_TRANSITION_MS = 340;
 
@@ -16,6 +17,7 @@
     return {
       pageElement: document.querySelector(".map-page"),
       mapElement: document.getElementById("map"),
+      introElement: document.querySelector("[data-intro-screen]"),
       launchButton: document.querySelector("[data-story-launch]"),
       launchLabelElement: document.querySelector("[data-story-launch-label]"),
       storyVeilElement: document.querySelector("[data-story-veil]"),
@@ -234,10 +236,73 @@
     attachEvents();
   }
 
+  function createIntroController(elements, mapController) {
+    if (!elements.introElement || !elements.pageElement) {
+      if (elements.launchButton) {
+        elements.launchButton.disabled = false;
+      }
+
+      mapController.setInteractivity(true);
+      return;
+    }
+
+    let hasStarted = false;
+    let hasCompleted = false;
+    let fallbackTimerId = null;
+
+    if (elements.launchButton) {
+      elements.launchButton.disabled = true;
+    }
+
+    function completeIntro() {
+      if (hasCompleted) {
+        return;
+      }
+
+      hasCompleted = true;
+
+      if (fallbackTimerId) {
+        globalScope.clearTimeout(fallbackTimerId);
+      }
+
+      elements.pageElement.classList.remove("is-intro-active", "is-intro-leaving");
+      elements.introElement.hidden = true;
+
+      if (elements.launchButton) {
+        elements.launchButton.disabled = false;
+      }
+
+      mapController.setInteractivity(true);
+    }
+
+    function beginIntroDismissal() {
+      if (hasStarted) {
+        return;
+      }
+
+      hasStarted = true;
+      elements.pageElement.classList.add("is-intro-leaving");
+      fallbackTimerId = globalScope.setTimeout(completeIntro, INTRO_TRANSITION_MS + 120);
+    }
+
+    function handleTransitionEnd(event) {
+      if (
+        event.target === elements.introElement &&
+        event.propertyName === "opacity" &&
+        hasStarted
+      ) {
+        completeIntro();
+      }
+    }
+
+    elements.introElement.addEventListener("click", beginIntroDismissal);
+    elements.introElement.addEventListener("transitionend", handleTransitionEnd);
+  }
+
   function bootMap() {
     const elements = createElements();
     const mapController = new SceneMapController(elements);
-    const shouldLockMapAtStart = Boolean(elements.launchButton && STORY_EVENTS.length);
+    const shouldLockMapAtStart = Boolean(elements.introElement);
 
     mapController.initialize({
       locations: MAP_LOCATIONS,
@@ -245,6 +310,7 @@
     });
 
     createStoryController(elements, mapController);
+    createIntroController(elements, mapController);
   }
 
   bootMap();

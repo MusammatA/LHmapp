@@ -21,6 +21,7 @@
   --map-transition-ms: 900ms;
   --overlay-transition-ms: 700ms;
   --card-transition-ms: 340ms;
+  --intro-transition-ms: 1200ms;
   --transition-ease: cubic-bezier(0.22, 0.78, 0.18, 1);
 }
 
@@ -64,6 +65,79 @@ body {
   transform-origin: center;
 }
 
+.map-page.is-intro-active .map-canvas,
+.map-page.is-intro-leaving .map-canvas {
+  filter: blur(10px) saturate(0.74) brightness(0.56);
+  transform: scale(1.028);
+}
+
+.intro-screen {
+  position: absolute;
+  inset: 0;
+  z-index: 1400;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  padding: 24px;
+  border: 0;
+  background:
+    radial-gradient(circle at center, rgba(255, 255, 255, 0.04), transparent 40%),
+    linear-gradient(180deg, rgba(6, 8, 11, 0.18), rgba(6, 8, 11, 0.68));
+  color: var(--color-text);
+  cursor: pointer;
+  transition:
+    opacity var(--intro-transition-ms) var(--transition-ease),
+    visibility 0s linear var(--intro-transition-ms);
+}
+
+.intro-screen[hidden] {
+  display: none !important;
+}
+
+.intro-screen__content {
+  display: grid;
+  gap: 12px;
+  max-width: 780px;
+  text-align: center;
+  text-wrap: balance;
+  text-shadow: 0 22px 52px rgba(0, 0, 0, 0.6);
+  transition:
+    opacity 700ms var(--transition-ease),
+    transform 700ms var(--transition-ease);
+}
+
+.intro-screen__title {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 5vw, 4.6rem);
+  font-weight: 600;
+  line-height: 1.03;
+  letter-spacing: 0.01em;
+}
+
+.intro-screen__prompt {
+  color: var(--color-muted);
+  font-size: clamp(0.95rem, 1.4vw, 1.12rem);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.intro-screen:focus-visible {
+  outline: 2px solid rgba(243, 234, 217, 0.85);
+  outline-offset: -10px;
+}
+
+.map-page.is-intro-leaving .intro-screen {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.map-page.is-intro-leaving .intro-screen__content {
+  opacity: 0;
+  transform: translateY(18px);
+}
+
 .map-page.is-transitioning-to-story .map-canvas,
 .map-page.is-story-mode .map-canvas,
 .map-page.is-transitioning-to-map .map-canvas {
@@ -91,6 +165,13 @@ body {
     border-color 260ms ease,
     background 260ms ease;
   animation: story-launch-breathe 3.6s ease-in-out infinite;
+}
+
+.map-page.is-intro-active .story-launch,
+.map-page.is-intro-leaving .story-launch {
+  opacity: 0;
+  transform: translateY(-12px);
+  pointer-events: none;
 }
 
 .story-launch:hover {
@@ -372,6 +453,14 @@ body {
 }
 
 @media (max-width: 720px) {
+  .intro-screen {
+    padding: 20px;
+  }
+
+  .intro-screen__content {
+    gap: 10px;
+  }
+
   .story-launch {
     top: 16px;
     right: 16px;
