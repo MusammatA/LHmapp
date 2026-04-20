@@ -271,6 +271,8 @@
       }
 
       if (item.type === "video") {
+        resetMediaElements();
+
         elements.storyMediaVideoElement.onloadeddata = () => {
           if (token !== state.mediaRequestToken) {
             return;
@@ -297,7 +299,6 @@
           showMediaFallback();
         };
 
-        resetMediaElements();
         elements.storyMediaVideoElement.muted = false;
         elements.storyMediaVideoElement.volume = 1;
         elements.storyMediaVideoElement.src = item.src;
@@ -306,6 +307,8 @@
       }
 
       if (item.type === "image") {
+        resetMediaElements();
+
         elements.storyMediaImageElement.onload = () => {
           if (token !== state.mediaRequestToken) {
             return;
@@ -332,7 +335,6 @@
           showMediaFallback();
         };
 
-        resetMediaElements();
         elements.storyMediaImageElement.alt = `${getCurrentEvent().locationName} media`;
         elements.storyMediaImageElement.src = item.src;
         return;

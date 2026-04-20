@@ -357,6 +357,8 @@ body {
 }
 
 .story-panel__media {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
   position: relative;
   min-height: 280px;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -369,6 +371,7 @@ body {
 }
 
 .story-panel__media-stage {
+  min-height: 320px;
   background: #07090d;
 }
 
@@ -686,6 +689,10 @@ body {
 
   .story-panel__media,
   .story-panel__media-fallback {
+    min-height: 220px;
+  }
+
+  .story-panel__media-stage {
     min-height: 220px;
   }
 
