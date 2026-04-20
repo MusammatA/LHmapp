@@ -992,7 +992,37 @@
     })
   ]);
 
-  const MAP_LOCATIONS = Object.freeze(
+  function mergeSceneContent(scene, sceneEdit = {}) {
+    return {
+      ...scene,
+      quote: resolveEditableText(scene.quote, sceneEdit.quote),
+      interpretation: resolveEditableText(scene.interpretation, sceneEdit.interpretation)
+    };
+  }
+
+  function createMapLocation({
+    label,
+    modernAddress,
+    lat,
+    lng,
+    markerType = "story",
+    showTooltip = true,
+    includeInInitialBounds = true,
+    tooltipDirection = null
+  }) {
+    return Object.freeze({
+      label,
+      modernAddress,
+      lat,
+      lng,
+      markerType,
+      showTooltip,
+      includeInInitialBounds,
+      tooltipDirection
+    });
+  }
+
+  const STORY_MAP_LOCATIONS = Object.freeze(
     Array.from(
       STORY_EVENTS.reduce((locationMap, event) => {
         const key = `${event.mapLabel}::${event.address}`;
@@ -1000,7 +1030,7 @@
         if (!locationMap.has(key)) {
           locationMap.set(
             key,
-            Object.freeze({
+            createMapLocation({
               label: event.mapLabel,
               modernAddress: event.address,
               lat: event.lat,
@@ -1014,13 +1044,37 @@
     )
   );
 
-  function mergeSceneContent(scene, sceneEdit = {}) {
-    return {
-      ...scene,
-      quote: resolveEditableText(scene.quote, sceneEdit.quote),
-      interpretation: resolveEditableText(scene.interpretation, sceneEdit.interpretation)
-    };
-  }
+  const EXTRA_MAP_LOCATIONS = Object.freeze([
+    createMapLocation({
+      label: "Home",
+      modernAddress: "Mymensingh, Bangladesh",
+      lat: 24.7471,
+      lng: 90.4203,
+      markerType: "home",
+      showTooltip: false,
+      includeInInitialBounds: false
+    }),
+    createMapLocation({
+      label: "Columbia Lit Hum",
+      modernAddress: "Columbia University, New York, NY 10027, United States",
+      lat: 40.8075,
+      lng: -73.9626,
+      markerType: "institution",
+      includeInInitialBounds: false,
+      tooltipDirection: "right"
+    }),
+    createMapLocation({
+      label: "Detroit",
+      modernAddress: "Detroit, Michigan, United States",
+      lat: 42.3314,
+      lng: -83.0458,
+      markerType: "city",
+      includeInInitialBounds: false,
+      tooltipDirection: "right"
+    })
+  ]);
+
+  const MAP_LOCATIONS = Object.freeze([...STORY_MAP_LOCATIONS, ...EXTRA_MAP_LOCATIONS]);
 
   globalScope.GeographyOfGuiltData = Object.freeze({
     APP_METADATA,

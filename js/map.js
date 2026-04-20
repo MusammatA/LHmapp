@@ -10,6 +10,10 @@
     fillColor: "#d8cab1",
     fillOpacity: 0.92
   });
+  const HOME_ICON_SIZE = Object.freeze([74, 64]);
+  const HOME_ICON_ANCHOR = Object.freeze([37, 54]);
+  const PIN_ICON_SIZE = Object.freeze([36, 48]);
+  const PIN_ICON_ANCHOR = Object.freeze([18, 44]);
   const TOOLTIP_DIRECTIONS = Object.freeze(["top", "right", "left", "bottom"]);
 
   function toLatLng(location) {
@@ -74,27 +78,79 @@
       const bounds = [];
 
       this.locations.forEach((location, index) => {
-        const marker = globalScope.L.circleMarker(
-          toLatLng(location),
-          MARKER_STYLE
-        ).addTo(this.map);
+        const marker = this.createMarker(location);
 
-        marker.bindTooltip(location.label, {
-          permanent: true,
-          direction: TOOLTIP_DIRECTIONS[index % TOOLTIP_DIRECTIONS.length],
-          offset: this.getTooltipOffset(index),
-          className: "location-label"
-        });
+        if (location.showTooltip !== false && location.label) {
+          marker.bindTooltip(location.label, {
+            permanent: true,
+            direction: this.getTooltipDirection(location, index),
+            offset: this.getTooltipOffset(location, index),
+            className: "location-label"
+          });
+        }
 
         this.markers.push(marker);
-        bounds.push(toLatLng(location));
+
+        if (location.includeInInitialBounds !== false) {
+          bounds.push(toLatLng(location));
+        }
       });
 
-      if (bounds.length) {
-        this.map.fitBounds(bounds, {
+      const initialBounds = bounds.length
+        ? bounds
+        : this.locations.map(toLatLng);
+
+      if (initialBounds.length) {
+        this.map.fitBounds(initialBounds, {
           padding: [48, 48],
           maxZoom: 12
         });
+      }
+    }
+
+    createMarker(location) {
+      const marker = location.markerType === "story"
+        ? globalScope.L.circleMarker(toLatLng(location), MARKER_STYLE)
+        : globalScope.L.marker(toLatLng(location), {
+            icon: this.createMarkerIcon(location)
+          });
+
+      return marker.addTo(this.map);
+    }
+
+    createMarkerIcon(location) {
+      switch (location.markerType) {
+        case "home":
+          return globalScope.L.divIcon({
+            className: "map-marker-icon map-marker-icon--home",
+            html:
+              '<span class="map-marker map-marker--home"><span class="map-marker__heart-shape"></span><span class="map-marker__heart-text">Home</span></span>',
+            iconSize: HOME_ICON_SIZE,
+            iconAnchor: HOME_ICON_ANCHOR
+          });
+        case "institution":
+          return globalScope.L.divIcon({
+            className: "map-marker-icon map-marker-icon--institution",
+            html:
+              '<span class="map-marker map-marker--pin map-marker--institution"><span class="map-marker__pin-core"></span><span class="map-marker__pin-glyph"><span class="map-marker__institution-glyph"></span></span></span>',
+            iconSize: PIN_ICON_SIZE,
+            iconAnchor: PIN_ICON_ANCHOR
+          });
+        case "city":
+          return globalScope.L.divIcon({
+            className: "map-marker-icon map-marker-icon--city",
+            html:
+              '<span class="map-marker map-marker--pin map-marker--city"><span class="map-marker__pin-core"></span><span class="map-marker__pin-glyph"><span class="map-marker__city-dot"></span></span></span>',
+            iconSize: PIN_ICON_SIZE,
+            iconAnchor: PIN_ICON_ANCHOR
+          });
+        default:
+          return globalScope.L.divIcon({
+            className: "map-marker-icon",
+            html: "",
+            iconSize: PIN_ICON_SIZE,
+            iconAnchor: PIN_ICON_ANCHOR
+          });
       }
     }
 
@@ -124,12 +180,16 @@
       this.mapElement.classList.toggle("map-canvas--locked", !this.interactionEnabled);
     }
 
-    getTooltipOffset(index) {
-      switch (TOOLTIP_DIRECTIONS[index % TOOLTIP_DIRECTIONS.length]) {
+    getTooltipDirection(location, index) {
+      return location.tooltipDirection || TOOLTIP_DIRECTIONS[index % TOOLTIP_DIRECTIONS.length];
+    }
+
+    getTooltipOffset(location, index) {
+      switch (this.getTooltipDirection(location, index)) {
         case "right":
-          return [12, 0];
+          return [16, 0];
         case "left":
-          return [-12, 0];
+          return [-16, 0];
         case "bottom":
           return [0, 12];
         case "top":

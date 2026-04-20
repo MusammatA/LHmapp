@@ -12,6 +12,10 @@
   --color-label-border: rgba(255, 255, 255, 0.14);
   --color-marker-fill: #d8cab1;
   --color-marker-stroke: #f3ead9;
+  --color-marker-home: #8f2740;
+  --color-marker-home-highlight: #c44569;
+  --color-marker-pin: #0f141c;
+  --color-marker-pin-border: rgba(243, 234, 217, 0.78);
   --color-button-text: #efe8dc;
   --color-button-ghost: rgba(255, 255, 255, 0.08);
   --color-start-solid: #050505;
@@ -661,6 +665,152 @@ body {
 
 .leaflet-tooltip.location-label::before {
   display: none;
+}
+
+.map-marker-icon {
+  background: transparent;
+  border: 0;
+}
+
+.map-marker {
+  position: relative;
+  display: block;
+}
+
+.map-marker--home {
+  width: 74px;
+  height: 64px;
+}
+
+.map-marker__heart-shape,
+.map-marker__heart-shape::before,
+.map-marker__heart-shape::after {
+  position: absolute;
+  background: linear-gradient(180deg, var(--color-marker-home-highlight), var(--color-marker-home));
+}
+
+.map-marker__heart-shape {
+  top: 12px;
+  left: 17px;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px 10px 4px 4px;
+  box-shadow:
+    0 16px 24px rgba(0, 0, 0, 0.34),
+    0 0 0 2px rgba(244, 229, 234, 0.88);
+  transform: rotate(-45deg);
+}
+
+.map-marker__heart-shape::before,
+.map-marker__heart-shape::after {
+  content: "";
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.map-marker__heart-shape::before {
+  top: -20px;
+  left: 0;
+}
+
+.map-marker__heart-shape::after {
+  top: 0;
+  left: 20px;
+}
+
+.map-marker__heart-text {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  padding-top: 8px;
+  color: #fff7f8;
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.42);
+}
+
+.map-marker--pin {
+  width: 36px;
+  height: 48px;
+}
+
+.map-marker__pin-core {
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--color-marker-pin-border);
+  border-radius: 24px 24px 24px 0;
+  background: linear-gradient(180deg, rgba(28, 34, 43, 0.98), var(--color-marker-pin));
+  box-shadow: 0 16px 24px rgba(0, 0, 0, 0.36);
+  transform: rotate(-45deg);
+}
+
+.map-marker__pin-core::after {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(6, 8, 11, 0.96);
+  box-shadow: inset 0 0 0 1px rgba(243, 234, 217, 0.12);
+}
+
+.map-marker__pin-glyph {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+}
+
+.map-marker__institution-glyph {
+  position: relative;
+  width: 14px;
+  height: 8px;
+  margin-top: -2px;
+  border: 1.5px solid rgba(243, 234, 217, 0.94);
+  border-top: 0;
+}
+
+.map-marker__institution-glyph::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-right: 9px solid transparent;
+  border-bottom: 6px solid rgba(243, 234, 217, 0.94);
+  border-left: 9px solid transparent;
+  transform: translateX(-50%);
+}
+
+.map-marker__institution-glyph::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 1.5px;
+  height: 8px;
+  background: rgba(243, 234, 217, 0.94);
+  transform: translateX(-50%);
+  box-shadow:
+    -4px 0 0 rgba(243, 234, 217, 0.94),
+    4px 0 0 rgba(243, 234, 217, 0.94);
+}
+
+.map-marker__city-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(243, 234, 217, 0.98) 0 40%, rgba(209, 188, 139, 0.86) 50% 100%);
+  box-shadow: 0 0 0 3px rgba(209, 188, 139, 0.12);
 }
 
 @keyframes story-launch-breathe {
