@@ -385,6 +385,11 @@ body {
   object-fit: cover;
 }
 
+.story-panel__media-asset[hidden],
+.story-panel__media-fallback[hidden] {
+  display: none !important;
+}
+
 .story-panel__media video.story-panel__media-asset {
   object-fit: contain;
 }
