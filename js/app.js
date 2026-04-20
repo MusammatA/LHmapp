@@ -6,6 +6,7 @@
   const INTRO_TRANSITION_MS = 1200;
   const STORY_REVEAL_DELAY_MS = 120;
   const SLIDE_TRANSITION_MS = 340;
+  const STORY_TIMELINE_DAYS = 14;
 
   function wait(duration) {
     return new Promise((resolve) => {
@@ -25,10 +26,12 @@
       storyPanelElement: document.querySelector("[data-story-panel]"),
       storyCountElement: document.querySelector("[data-story-count]"),
       storyPhaseElement: document.querySelector("[data-story-phase]"),
-      storyDayElement: document.querySelector("[data-story-day]"),
+      storyDayRangeElement: document.querySelector("[data-story-day-range]"),
       storyLocationElement: document.querySelector("[data-story-location]"),
       storyAddressElement: document.querySelector("[data-story-address]"),
       storyDescriptionElement: document.querySelector("[data-story-description]"),
+      storyTimelineRangeElement: document.querySelector("[data-story-timeline-range]"),
+      storyTimelineMarkerElement: document.querySelector("[data-story-timeline-marker]"),
       storyBackButton: document.querySelector("[data-story-back]"),
       storyNextButton: document.querySelector("[data-story-next]"),
       placeholderElement: document.querySelector("[data-map-placeholder]"),
@@ -48,12 +51,15 @@
       return STORY_EVENTS[state.currentIndex];
     }
 
-    function isFirstSlideOfDay(index) {
-      if (index === 0) {
-        return true;
-      }
+    function updateTimeline(event) {
+      const timelineWidth = Math.max(0, event.timelineEndDay - event.timelineStartDay);
+      const rangeLeft = ((event.timelineStartDay - 1) / (STORY_TIMELINE_DAYS - 1)) * 100;
+      const rangeWidth = (timelineWidth / (STORY_TIMELINE_DAYS - 1)) * 100;
+      const markerLeft = ((event.timelineEndDay - 1) / (STORY_TIMELINE_DAYS - 1)) * 100;
 
-      return STORY_EVENTS[index - 1].day !== STORY_EVENTS[index].day;
+      elements.storyTimelineRangeElement.style.left = `${rangeLeft}%`;
+      elements.storyTimelineRangeElement.style.width = `${rangeWidth}%`;
+      elements.storyTimelineMarkerElement.style.left = `${markerLeft}%`;
     }
 
     function updateLaunchLabel() {
@@ -78,18 +84,11 @@
 
       elements.storyCountElement.textContent = `${state.currentIndex + 1} / ${STORY_EVENTS.length}`;
       elements.storyPhaseElement.textContent = event.phase;
-
-      if (isFirstSlideOfDay(state.currentIndex)) {
-        elements.storyDayElement.hidden = false;
-        elements.storyDayElement.textContent = event.day === 3 ? "Day 3 (Murder Day)" : `Day ${event.day}`;
-      } else {
-        elements.storyDayElement.hidden = true;
-        elements.storyDayElement.textContent = "";
-      }
-
+      elements.storyDayRangeElement.textContent = event.dayRange;
       elements.storyLocationElement.textContent = event.locationName;
       elements.storyAddressElement.textContent = event.address;
       elements.storyDescriptionElement.textContent = event.description;
+      updateTimeline(event);
 
       updateNavigationState();
     }
@@ -229,10 +228,12 @@
         elements.storyPanelElement,
         elements.storyCountElement,
         elements.storyPhaseElement,
-        elements.storyDayElement,
+        elements.storyDayRangeElement,
         elements.storyLocationElement,
         elements.storyAddressElement,
         elements.storyDescriptionElement,
+        elements.storyTimelineRangeElement,
+        elements.storyTimelineMarkerElement,
         elements.storyBackButton,
         elements.storyNextButton
       ].every(Boolean);

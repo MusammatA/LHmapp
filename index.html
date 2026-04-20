@@ -39,6 +39,17 @@
     <div class="story-veil" data-story-veil hidden></div>
 
     <section class="story-mode" data-story-mode hidden aria-live="polite">
+      <div class="story-timeline" aria-label="Approximate 14-day narrative timeline">
+        <div class="story-timeline__labels">
+          <span>Day 1</span>
+          <span>Day 14</span>
+        </div>
+        <div class="story-timeline__track" aria-hidden="true">
+          <div class="story-timeline__range" data-story-timeline-range></div>
+          <div class="story-timeline__marker" data-story-timeline-marker></div>
+        </div>
+      </div>
+
       <article class="story-panel" data-story-panel>
         <div class="story-panel__meta">
           <p class="story-panel__count" data-story-count>1 / 14</p>
@@ -46,7 +57,7 @@
         </div>
 
         <div class="story-panel__body">
-          <p class="story-panel__day" data-story-day hidden>Day 1</p>
+          <p class="story-panel__day-range" data-story-day-range>Day 1–2</p>
           <h1 class="story-panel__title" data-story-location>Raskolnikov's Tenement</h1>
           <p class="story-panel__address" data-story-address>
             17 Grazhdanskaya Ulitsa, St. Petersburg, Russia

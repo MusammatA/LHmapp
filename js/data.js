@@ -787,7 +787,9 @@
       address: "17 Grazhdanskaya Ulitsa, St. Petersburg, Russia",
       lat: 59.92764,
       lng: 30.31103,
-      day: 1,
+      dayRange: "Day 1–2",
+      timelineStartDay: 1,
+      timelineEndDay: 2,
       phase: "Before the Murder",
       description:
         "Raskolnikov isolates himself in his cramped room, where he develops and justifies his theory of extraordinary men. This space represents the origin of his plan and his growing detachment from society."
@@ -799,7 +801,9 @@
       address: "19 Prospekt Rimskogo-Korsakova, St. Petersburg, Russia",
       lat: 59.9242,
       lng: 30.3032,
-      day: 1,
+      dayRange: "Day 2",
+      timelineStartDay: 2,
+      timelineEndDay: 2,
       phase: "Before the Murder",
       description:
         "Raskolnikov meets Marmeladov, who shares the story of his family's suffering. This encounter evokes sympathy and reveals a tension between Raskolnikov's cold theory and his underlying compassion."
@@ -811,7 +815,9 @@
       address: "Bol'shaya Pod'yacheskaya Ulitsa, 27, Sankt-Peterburg, Russia, 190068",
       lat: 59.92338,
       lng: 30.30502,
-      day: 1,
+      dayRange: "Day 2",
+      timelineStartDay: 2,
+      timelineEndDay: 2,
       phase: "Before the Murder",
       description:
         "After accompanying Marmeladov home, Raskolnikov witnesses the family's poverty and impulsively leaves money for them. He later questions this action, highlighting his internal conflict."
@@ -823,7 +829,9 @@
       address: "17 Grazhdanskaya Ulitsa, St. Petersburg, Russia",
       lat: 59.92764,
       lng: 30.31103,
-      day: 2,
+      dayRange: "Day 2–3",
+      timelineStartDay: 2,
+      timelineEndDay: 3,
       phase: "Before the Murder",
       description:
         "Returning to his room, he oscillates between doubt and conviction. His plan becomes more concrete, though his mental state grows increasingly unstable."
@@ -835,7 +843,9 @@
       address: "Rostral'nyy Obelisk Troitskogo Mosta, Palace Embankment, 4, St Petersburg, Russia, 191186",
       lat: 59.945721,
       lng: 30.327088,
-      day: 2,
+      dayRange: "Day 3",
+      timelineStartDay: 3,
+      timelineEndDay: 3,
       phase: "Before the Murder",
       description:
         "Raskolnikov wanders in a detached, dreamlike state and pauses to look out over the river. This moment reflects his deepening alienation from reality."
@@ -847,7 +857,9 @@
       address: "4 Konnogvardeyskiy Bul'var, St. Petersburg, Russia",
       lat: 59.932602,
       lng: 30.297513,
-      day: 2,
+      dayRange: "Day 3",
+      timelineStartDay: 3,
+      timelineEndDay: 3,
       phase: "Before the Murder",
       description:
         "While walking in a distracted state, thoughts of his sister Dunya interrupt his mental isolation. This moment briefly reconnects him to family and moral responsibility, though he resists it."
@@ -859,7 +871,9 @@
       address: "Zhdanovskaya Naberezhnaya, St. Petersburg, Russia",
       lat: 59.9583503,
       lng: 30.2691772,
-      day: 2,
+      dayRange: "Day 3–4",
+      timelineStartDay: 3,
+      timelineEndDay: 4,
       phase: "Before the Murder",
       description:
         "Overcome with exhaustion, Raskolnikov falls asleep outdoors. This marks a moment of physical and emotional collapse just before the crime."
@@ -871,7 +885,9 @@
       address: "Sennaya Square, St. Petersburg, Russia",
       lat: 59.9262,
       lng: 30.3174,
-      day: 2,
+      dayRange: "Day 4",
+      timelineStartDay: 4,
+      timelineEndDay: 4,
       phase: "Before the Murder",
       description:
         "The crowded and impoverished market environment reinforces Raskolnikov's perception of social disorder, which he uses to justify his planned actions."
@@ -883,7 +899,9 @@
       address: "15 Srednyaya Pod'yacheskaya Ulitsa, St. Petersburg, Russia",
       lat: 59.9246885,
       lng: 30.3057083,
-      day: 3,
+      dayRange: "Day 4 (The Crime)",
+      timelineStartDay: 4,
+      timelineEndDay: 4,
       phase: "The Murder",
       description:
         "Raskolnikov kills the pawnbroker and, unexpectedly, her sister. The act is chaotic and driven by panic, undermining his belief that the crime could be carried out rationally."
@@ -895,7 +913,9 @@
       address: "35 Bol'shaya Pod'yacheskaya Ulitsa, St. Petersburg, Russia",
       lat: 59.9211164,
       lng: 30.3050881,
-      day: 3,
+      dayRange: "Day 5–6",
+      timelineStartDay: 5,
+      timelineEndDay: 6,
       phase: "After the Murder",
       description:
         "Summoned for an unrelated matter, Raskolnikov becomes paranoid and nearly confesses. His psychological instability intensifies under the pressure of suspicion."
@@ -907,7 +927,9 @@
       address: "5 Voznesensky Ave, St. Petersburg, Russia",
       lat: 59.9338,
       lng: 30.3047,
-      day: 3,
+      dayRange: "Day 5–6",
+      timelineStartDay: 5,
+      timelineEndDay: 6,
       phase: "After the Murder",
       description:
         "He hides the stolen items instead of using them, demonstrating that the crime was not motivated by practical gain but by internal and ideological forces."
@@ -919,7 +941,9 @@
       address: "Voznesenskiy Most, Voznesensky Ave, 23, St Petersburg, Russia, 190000",
       lat: 59.9264715,
       lng: 30.3081607,
-      day: 4,
+      dayRange: "Day 7–9",
+      timelineStartDay: 7,
+      timelineEndDay: 9,
       phase: "After the Murder",
       description:
         "Raskolnikov throws money into the river, symbolically rejecting the material outcome of the crime and attempting to distance himself from his guilt."
@@ -931,7 +955,9 @@
       address: "34 Voznesensky Ave, St. Petersburg, Russia",
       lat: 59.9256,
       lng: 30.3074,
-      day: 4,
+      dayRange: "Day 8–10",
+      timelineStartDay: 8,
+      timelineEndDay: 10,
       phase: "After the Murder",
       description:
         "Following a strained interaction with Razumikhin, Raskolnikov pauses in exhaustion. This moment emphasizes his growing isolation and emotional detachment."
@@ -943,7 +969,9 @@
       address: "73 Griboyedov Channel Embankment, St. Petersburg, Russia",
       lat: 59.9274508,
       lng: 30.3033333,
-      day: 5,
+      dayRange: "Day 14 (Confession)",
+      timelineStartDay: 14,
+      timelineEndDay: 14,
       phase: "After the Murder",
       description:
         "Raskolnikov confesses the crime to Sonya. Her compassion and moral clarity mark the beginning of his movement toward redemption."
