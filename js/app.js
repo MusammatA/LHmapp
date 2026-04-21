@@ -181,6 +181,14 @@
       mediaRequestToken: 0
     };
 
+    function normalizeStoryIndex(index) {
+      if (!Number.isInteger(index)) {
+        return 0;
+      }
+
+      return Math.min(Math.max(index, 0), STORY_EVENTS.length - 1);
+    }
+
     function getCurrentEvent() {
       return STORY_EVENTS[state.currentIndex];
     }
@@ -493,13 +501,13 @@
       delete elements.pageElement.dataset.storyMood;
     }
 
-    async function enterStoryMode() {
+    async function enterStoryMode(startIndex = 0) {
       if (!STORY_EVENTS.length || state.isBusy) {
         return;
       }
 
       state.isBusy = true;
-      state.currentIndex = 0;
+      state.currentIndex = normalizeStoryIndex(startIndex);
       renderSlide();
 
       elements.launchButton.disabled = true;
@@ -518,6 +526,10 @@
 
       state.isBusy = false;
       updateNavigationState();
+    }
+
+    function openStoryAtSlide(index) {
+      return enterStoryMode(index);
     }
 
     async function returnToMap() {
@@ -598,12 +610,18 @@
       elements.storyModeElement.hidden = true;
       elements.storyVeilElement.hidden = true;
 
-      elements.launchButton.addEventListener("click", enterStoryMode);
+      elements.launchButton.addEventListener("click", () => {
+        openStoryAtSlide(0);
+      });
       elements.storyNextButton.addEventListener("click", handleNext);
       elements.storyBackButton.addEventListener("click", handleBack);
     }
 
     attachEvents();
+
+    return Object.freeze({
+      openAtSlide: openStoryAtSlide
+    });
   }
 
   function createIntroController(elements, mapController) {
@@ -679,7 +697,14 @@
       interactive: !shouldLockMapAtStart
     });
 
-    createStoryController(elements, mapController);
+    const storyController = createStoryController(elements, mapController);
+    mapController.setLocationSelectHandler((location) => {
+      if (!Number.isInteger(location.slideIndex)) {
+        return;
+      }
+
+      storyController.openAtSlide(location.slideIndex - 1);
+    });
     createIntroController(elements, mapController);
   }
 

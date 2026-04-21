@@ -1005,6 +1005,7 @@
     modernAddress,
     lat,
     lng,
+    slideIndex = null,
     markerType = "story",
     showTooltip = true,
     includeInInitialBounds = true,
@@ -1015,6 +1016,7 @@
       modernAddress,
       lat,
       lng,
+      slideIndex,
       markerType,
       showTooltip,
       includeInInitialBounds,
@@ -1024,7 +1026,7 @@
 
   const STORY_MAP_LOCATIONS = Object.freeze(
     Array.from(
-      STORY_EVENTS.reduce((locationMap, event) => {
+      STORY_EVENTS.reduce((locationMap, event, eventIndex) => {
         const key = `${event.mapLabel}::${event.address}`;
 
         if (!locationMap.has(key)) {
@@ -1034,7 +1036,8 @@
               label: event.mapLabel,
               modernAddress: event.address,
               lat: event.lat,
-              lng: event.lng
+              lng: event.lng,
+              slideIndex: eventIndex + 1
             })
           );
         }

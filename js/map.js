@@ -32,6 +32,7 @@
       this.markers = [];
       this.locations = [];
       this.interactionEnabled = true;
+      this.locationSelectHandler = null;
     }
 
     async initialize({ locations, interactive = true }) {
@@ -115,6 +116,16 @@
             icon: this.createMarkerIcon(location)
           });
 
+      if (Number.isInteger(location.slideIndex)) {
+        marker.on("click", () => {
+          if (!this.interactionEnabled || typeof this.locationSelectHandler !== "function") {
+            return;
+          }
+
+          this.locationSelectHandler(location);
+        });
+      }
+
       return marker.addTo(this.map);
     }
 
@@ -178,6 +189,10 @@
       });
 
       this.mapElement.classList.toggle("map-canvas--locked", !this.interactionEnabled);
+    }
+
+    setLocationSelectHandler(handler) {
+      this.locationSelectHandler = typeof handler === "function" ? handler : null;
     }
 
     getTooltipDirection(location, index) {
