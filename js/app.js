@@ -57,6 +57,29 @@
     return Array.from(new Set(values));
   }
 
+  function slugifyLabel(value) {
+    return String(value || "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
+  }
+
+  function resolveStoryMood(event) {
+    if (event.id === "sonya-apartment") {
+      return "redemption";
+    }
+
+    if (event.phase === "The Murder") {
+      return "rupture";
+    }
+
+    if (event.phase === "After the Murder") {
+      return "aftermath";
+    }
+
+    return "foreboding";
+  }
+
   function inferMediaType(path) {
     const normalizedPath = path.toLowerCase();
     const extension = SUPPORTED_MEDIA_EXTENSIONS.find((suffix) => normalizedPath.endsWith(suffix));
@@ -171,6 +194,16 @@
       elements.storyTimelineRangeElement.style.left = `${rangeLeft}%`;
       elements.storyTimelineRangeElement.style.width = `${rangeWidth}%`;
       elements.storyTimelineMarkerElement.style.left = `${markerLeft}%`;
+    }
+
+    function applyStoryMood(event) {
+      const mood = resolveStoryMood(event);
+      const phase = slugifyLabel(event.phase);
+
+      elements.storyModeElement.dataset.mood = mood;
+      elements.storyPanelElement.dataset.mood = mood;
+      elements.storyPanelElement.dataset.phase = phase;
+      elements.pageElement.dataset.storyMood = mood;
     }
 
     function updateLaunchLabel() {
@@ -388,6 +421,7 @@
     function renderSlide() {
       const event = getCurrentEvent();
 
+      applyStoryMood(event);
       elements.storyCountElement.textContent = `${state.currentIndex + 1} / ${STORY_EVENTS.length}`;
       elements.storyPhaseElement.textContent = event.phase;
       elements.storyDayRangeElement.textContent = event.dayRange;
@@ -456,6 +490,7 @@
       resetMediaElements();
       elements.storyModeElement.classList.remove("is-visible");
       elements.storyModeElement.hidden = true;
+      delete elements.pageElement.dataset.storyMood;
     }
 
     async function enterStoryMode() {
