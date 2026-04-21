@@ -17,35 +17,6 @@
     ".webm"
   ]);
   const VIDEO_MEDIA_EXTENSIONS = new Set([".mp4", ".mov", ".webm"]);
-  const SLIDE_MEDIA_MANIFEST = Object.freeze({
-    slide1: Object.freeze(["Slide 1/rosh.png", "Slide 1/e6.png"]),
-    slide2: Object.freeze(["Slide 2/tavern.jpg", "Slide 2/e2.png"]),
-    slide3: Object.freeze(["Slide 3/marmeladovH.webp", "Slide 3/e3.png"]),
-    slide4: Object.freeze([
-      "Slide 4/FD41-De-woonkamer-van-Raskolnikov.jpg",
-      "Slide 4/rosh copy.png",
-      "Slide 4/c04fa1bf-d5d4-483d-9800-cfe4eb52fd5a.png"
-    ]),
-    slide5: Object.freeze([
-      "Slide 5/building-st-petersburg-stock-exchange-260nw-734073691.webp",
-      "Slide 5/194a76ff-3947-4def-bc64-9ca6b1822cd9.png"
-    ]),
-    slide6: Object.freeze([
-      "Slide 6/614._St._Petersburg._Konnogvardeisky_Boulevard,_17.jpg",
-      "Slide 6/105ba91a-272f-4eff-9616-9b5c9aa091d5.png"
-    ]),
-    slide7: Object.freeze([
-      "Slide 7/anglijskaya-naberezhnaya-6-915x604.jpg",
-      "Slide 7/1b4f6ce7-382f-4711-b956-834f71b8fa82.png"
-    ]),
-    slide8: Object.freeze(["Slide 8/heymarket.jpg", "Slide 8/15111941-cbd5-4d10-bc0e-367023979ba4.png"]),
-    slide9: Object.freeze(["Slide 9/pawnhous.jpeg", "Slide 9/e9.mp4"]),
-    slide10: Object.freeze(["Slide 10/download.jpeg", "Slide 10/a9ed19c1-0980-4c4b-ace3-19137ac44ba6.png"]),
-    slide11: Object.freeze(["Slide 11/71tYOaO29mL._AC_UF894,1000_QL80_.jpg", "Slide 11/9c058041-ea2e-45f7-b23f-1c24e8aed2a5.png"]),
-    slide12: Object.freeze(["Slide 12/305140_doc1.jpg", "Slide 12/e3ac2615-adca-432c-875b-763516a79d8a.png"]),
-    slide13: Object.freeze(["Slide 13/bridge.jpeg", "Slide 13/7786dad1-c3b0-4014-9850-375e6dc545f8.png"]),
-    slide14: Object.freeze(["Slide 14/96_big.jpg", "Slide 14/36df63a7-94e9-4ad9-b112-223053bb0106.png"])
-  });
 
   function wait(duration) {
     return new Promise((resolve) => {
@@ -92,16 +63,15 @@
   }
 
   function buildMediaCandidates(event) {
-    const slideNumber = Number(event.mediaBaseName.replace("slide", ""));
+    if (Array.isArray(event.mediaFiles) && event.mediaFiles.length) {
+      return event.mediaFiles.slice();
+    }
+
+    const slideNumber = Number(String(event.mediaBaseName || "").replace("slide", ""));
     const folderCandidates = SUPPORTED_MEDIA_EXTENSIONS.map(
       (extension) => `Slide ${slideNumber}/${event.mediaBaseName}${extension}`
     );
     const directCandidates = SUPPORTED_MEDIA_EXTENSIONS.map((extension) => `${event.mediaBaseName}${extension}`);
-    const manifestCandidates = SLIDE_MEDIA_MANIFEST[event.mediaBaseName] || [];
-
-    if (manifestCandidates.length) {
-      return manifestCandidates.slice();
-    }
 
     return unique([...folderCandidates, ...directCandidates]);
   }
@@ -151,6 +121,7 @@
       storyPanelElement: document.querySelector("[data-story-panel]"),
       storyCountElement: document.querySelector("[data-story-count]"),
       storyPhaseElement: document.querySelector("[data-story-phase]"),
+      storyContentElement: document.querySelector("[data-story-content]"),
       storyDayRangeElement: document.querySelector("[data-story-day-range]"),
       storyMediaFrameElement: document.querySelector("[data-story-media-frame]"),
       storyMediaStageElement: document.querySelector(".story-panel__media-stage"),
@@ -161,6 +132,11 @@
       storyLocationElement: document.querySelector("[data-story-location]"),
       storyAddressElement: document.querySelector("[data-story-address]"),
       storyDescriptionElement: document.querySelector("[data-story-description]"),
+      storyDetailsElement: document.querySelector("[data-story-details]"),
+      storyQuoteElement: document.querySelector("[data-story-quote]"),
+      storyQuoteSourceElement: document.querySelector("[data-story-quote-source]"),
+      storyAnalysisElement: document.querySelector("[data-story-analysis]"),
+      storySourceLinkElement: document.querySelector("[data-story-source-link]"),
       storyTimelineRangeElement: document.querySelector("[data-story-timeline-range]"),
       storyTimelineMarkerElement: document.querySelector("[data-story-timeline-marker]"),
       storyBackButton: document.querySelector("[data-story-back]"),
@@ -426,6 +402,37 @@
       renderActiveMedia();
     }
 
+    function renderStoryNotes(event) {
+      const hasQuote = Boolean(event.quote);
+      const hasAnalysis = Boolean(event.analysis);
+      const hasSourceUrl = Boolean(event.sourceUrl);
+      const hasExpandableContent = hasQuote || hasAnalysis || hasSourceUrl;
+
+      if (!elements.storyDetailsElement) {
+        return;
+      }
+
+      elements.storyDetailsElement.open = false;
+      elements.storyDetailsElement.hidden = !hasExpandableContent;
+
+      if (!hasExpandableContent) {
+        return;
+      }
+
+      elements.storyQuoteElement.textContent = event.quote || "";
+      elements.storyQuoteSourceElement.textContent = event.quoteSource || "";
+      elements.storyQuoteSourceElement.hidden = !event.quoteSource;
+      elements.storyAnalysisElement.textContent = event.analysis || "";
+
+      if (hasSourceUrl) {
+        elements.storySourceLinkElement.href = event.sourceUrl;
+        elements.storySourceLinkElement.hidden = false;
+      } else {
+        elements.storySourceLinkElement.hidden = true;
+        elements.storySourceLinkElement.removeAttribute("href");
+      }
+    }
+
     function renderSlide() {
       const event = getCurrentEvent();
 
@@ -436,8 +443,12 @@
       elements.storyLocationElement.textContent = event.locationName;
       elements.storyAddressElement.textContent = event.address;
       elements.storyDescriptionElement.textContent = event.description;
+      renderStoryNotes(event);
       updateTimeline(event);
       renderMedia(event);
+      if (elements.storyContentElement) {
+        elements.storyContentElement.scrollTop = 0;
+      }
 
       updateNavigationState();
     }
@@ -584,6 +595,7 @@
         elements.storyPanelElement,
         elements.storyCountElement,
         elements.storyPhaseElement,
+        elements.storyContentElement,
         elements.storyDayRangeElement,
         elements.storyMediaFrameElement,
         elements.storyMediaStageElement,
@@ -594,6 +606,11 @@
         elements.storyLocationElement,
         elements.storyAddressElement,
         elements.storyDescriptionElement,
+        elements.storyDetailsElement,
+        elements.storyQuoteElement,
+        elements.storyQuoteSourceElement,
+        elements.storyAnalysisElement,
+        elements.storySourceLinkElement,
         elements.storyTimelineRangeElement,
         elements.storyTimelineMarkerElement,
         elements.storyBackButton,
