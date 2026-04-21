@@ -1006,6 +1006,7 @@
     lat,
     lng,
     slideIndex = null,
+    slideIndices = [],
     markerType = "story",
     showTooltip = true,
     includeInInitialBounds = true,
@@ -1017,6 +1018,7 @@
       lat,
       lng,
       slideIndex,
+      slideIndices: Object.freeze(slideIndices.slice()),
       markerType,
       showTooltip,
       includeInInitialBounds,
@@ -1028,6 +1030,7 @@
     Array.from(
       STORY_EVENTS.reduce((locationMap, event, eventIndex) => {
         const key = `${event.mapLabel}::${event.address}`;
+        const slideNumber = eventIndex + 1;
 
         if (!locationMap.has(key)) {
           locationMap.set(
@@ -1037,9 +1040,23 @@
               modernAddress: event.address,
               lat: event.lat,
               lng: event.lng,
-              slideIndex: eventIndex + 1
+              slideIndex: slideNumber,
+              slideIndices: [slideNumber]
             })
           );
+        } else {
+          const existingLocation = locationMap.get(key);
+
+          if (!existingLocation.slideIndices.includes(slideNumber)) {
+            locationMap.set(
+              key,
+              createMapLocation({
+                ...existingLocation,
+                slideIndex: existingLocation.slideIndex,
+                slideIndices: [...existingLocation.slideIndices, slideNumber]
+              })
+            );
+          }
         }
 
         return locationMap;

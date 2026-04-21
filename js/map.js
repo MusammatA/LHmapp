@@ -22,6 +22,32 @@
     return [location.lat, location.lng];
   }
 
+  function createTooltipContent(location) {
+    const wrapper = document.createElement("span");
+    wrapper.className = "location-label__content";
+
+    if (Array.isArray(location.slideIndices) && location.slideIndices.length) {
+      const indices = document.createElement("span");
+      indices.className = "location-label__indices";
+
+      location.slideIndices.forEach((slideNumber) => {
+        const badge = document.createElement("span");
+        badge.className = "location-label__index";
+        badge.textContent = slideNumber;
+        indices.append(badge);
+      });
+
+      wrapper.append(indices);
+    }
+
+    const text = document.createElement("span");
+    text.className = "location-label__text";
+    text.textContent = location.label;
+    wrapper.append(text);
+
+    return wrapper;
+  }
+
   class SceneMapController {
     constructor(elements) {
       this.mapElement = elements.mapElement;
@@ -89,7 +115,7 @@
           : "location-label";
 
         if (location.showTooltip !== false && location.label) {
-          marker.bindTooltip(location.label, {
+          marker.bindTooltip(createTooltipContent(location), {
             permanent: true,
             interactive: isStoryLocation,
             direction: this.getTooltipDirection(location, index),

@@ -1035,6 +1035,40 @@ body {
   pointer-events: none;
 }
 
+.location-label__content {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.location-label__indices {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.location-label__index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.3rem;
+  height: 1.3rem;
+  padding: 0 0.28rem;
+  border: 1px solid rgba(164, 140, 107, 0.2);
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 100%),
+    rgba(48, 35, 28, 0.92);
+  color: var(--color-accent-warm);
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.location-label__text {
+  display: inline-block;
+}
+
 .leaflet-tooltip.location-label--interactive {
   pointer-events: auto;
   cursor: pointer;
