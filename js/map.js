@@ -14,6 +14,8 @@
   const HOME_ICON_ANCHOR = Object.freeze([37, 54]);
   const PIN_ICON_SIZE = Object.freeze([36, 48]);
   const PIN_ICON_ANCHOR = Object.freeze([18, 44]);
+  const STORY_MARKER_FOCUS_ZOOM = 15;
+  const STORY_MARKER_OPEN_DELAY_MS = 420;
   const TOOLTIP_DIRECTIONS = Object.freeze(["top", "right", "left", "bottom"]);
 
   function toLatLng(location) {
@@ -33,6 +35,7 @@
       this.locations = [];
       this.interactionEnabled = true;
       this.locationSelectHandler = null;
+      this.locationSelectTimer = null;
     }
 
     async initialize({ locations, interactive = true }) {
@@ -80,13 +83,32 @@
 
       this.locations.forEach((location, index) => {
         const marker = this.createMarker(location);
+        const isStoryLocation = Number.isInteger(location.slideIndex);
+        const markerLabelClass = isStoryLocation
+          ? "location-label location-label--interactive"
+          : "location-label";
 
         if (location.showTooltip !== false && location.label) {
           marker.bindTooltip(location.label, {
             permanent: true,
+            interactive: isStoryLocation,
             direction: this.getTooltipDirection(location, index),
             offset: this.getTooltipOffset(location, index),
-            className: "location-label"
+            className: markerLabelClass
+          });
+
+          const tooltip = marker.getTooltip();
+
+          if (tooltip && isStoryLocation) {
+            tooltip.on("click", () => {
+              this.handleLocationSelection(location);
+            });
+          }
+        }
+
+        if (isStoryLocation) {
+          marker.on("click", () => {
+            this.handleLocationSelection(location);
           });
         }
 
@@ -115,16 +137,6 @@
         : globalScope.L.marker(toLatLng(location), {
             icon: this.createMarkerIcon(location)
           });
-
-      if (Number.isInteger(location.slideIndex)) {
-        marker.on("click", () => {
-          if (!this.interactionEnabled || typeof this.locationSelectHandler !== "function") {
-            return;
-          }
-
-          this.locationSelectHandler(location);
-        });
-      }
 
       return marker.addTo(this.map);
     }
@@ -193,6 +205,35 @@
 
     setLocationSelectHandler(handler) {
       this.locationSelectHandler = typeof handler === "function" ? handler : null;
+    }
+
+    handleLocationSelection(location) {
+      if (!this.interactionEnabled || typeof this.locationSelectHandler !== "function") {
+        return;
+      }
+
+      this.focusLocation(location);
+
+      if (this.locationSelectTimer) {
+        globalScope.clearTimeout(this.locationSelectTimer);
+      }
+
+      this.locationSelectTimer = globalScope.setTimeout(() => {
+        this.locationSelectTimer = null;
+        this.locationSelectHandler(location);
+      }, STORY_MARKER_OPEN_DELAY_MS);
+    }
+
+    focusLocation(location) {
+      if (!this.map) {
+        return;
+      }
+
+      this.map.flyTo(toLatLng(location), STORY_MARKER_FOCUS_ZOOM, {
+        animate: true,
+        duration: 0.9,
+        easeLinearity: 0.25
+      });
     }
 
     getTooltipDirection(location, index) {
