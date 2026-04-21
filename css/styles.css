@@ -249,6 +249,7 @@ body {
     radial-gradient(circle at top, rgba(255, 255, 255, 0.04), transparent 32%),
     linear-gradient(180deg, rgba(7, 9, 12, 0.94), var(--color-panel-strong));
   opacity: 0;
+  overflow: auto;
   transition: opacity var(--overlay-transition-ms) var(--transition-ease);
 }
 
@@ -305,14 +306,19 @@ body {
 
 .story-panel {
   width: min(1140px, calc(100vw - 48px));
+  max-height: calc(100vh - 88px);
   padding: clamp(28px, 4vw, 42px);
   border: 1px solid var(--color-panel-border);
   border-radius: 26px;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 0;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 26%),
     var(--color-panel);
   box-shadow: var(--shadow-panel);
   backdrop-filter: blur(18px);
+  overflow: hidden;
   transition:
     opacity var(--card-transition-ms) var(--transition-ease),
     transform var(--card-transition-ms) var(--transition-ease);
@@ -351,6 +357,8 @@ body {
 .story-panel__body {
   display: grid;
   gap: 16px;
+  min-height: 0;
+  align-content: start;
 }
 
 .story-panel__content {
@@ -358,13 +366,17 @@ body {
   grid-template-columns: minmax(0, 1.06fr) minmax(320px, 0.94fr);
   gap: clamp(22px, 3vw, 36px);
   align-items: start;
+  min-height: 0;
+  overflow: auto;
+  padding-right: 6px;
 }
 
 .story-panel__media {
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto;
   position: relative;
-  min-height: 280px;
+  min-height: 0;
+  max-height: min(54vh, 560px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 22px;
   background:
@@ -377,7 +389,8 @@ body {
 .story-panel__media-stage {
   position: relative;
   display: grid;
-  min-height: 320px;
+  min-height: 0;
+  height: clamp(280px, 42vh, 500px);
   background: #07090d;
   overflow: hidden;
 }
@@ -412,7 +425,7 @@ body {
   display: block;
   width: 100%;
   height: 100%;
-  min-height: 320px;
+  min-height: 0;
   background: #07090d;
   object-fit: contain;
   object-position: center;
@@ -853,6 +866,7 @@ body {
 
   .story-panel {
     width: min(100%, calc(100vw - 32px));
+    max-height: calc(100vh - 32px);
     padding: 24px 20px;
     border-radius: 22px;
   }
@@ -863,15 +877,17 @@ body {
 
   .story-panel__media,
   .story-panel__media-fallback {
-    min-height: 220px;
+    min-height: 0;
+    max-height: none;
   }
 
   .story-panel__media-stage {
-    min-height: 220px;
+    min-height: 0;
+    height: clamp(220px, 34vh, 320px);
   }
 
   .story-panel__media-asset {
-    min-height: 220px;
+    min-height: 0;
   }
 
   .story-panel__meta,
@@ -882,6 +898,11 @@ body {
 
   .story-panel__meta {
     margin-bottom: 22px;
+  }
+
+  .story-panel__content {
+    overflow: auto;
+    padding-right: 0;
   }
 
   .story-panel__phase {

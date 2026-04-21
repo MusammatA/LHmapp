@@ -36,12 +36,10 @@
     ]),
     slide7: Object.freeze([
       "Slide 7/anglijskaya-naberezhnaya-6-915x604.jpg",
-      "Slide 7/horseScene.webp",
-      "Slide 7/ace92fab-e747-43d0-ad85-3443e7887c6c.png",
       "Slide 7/1b4f6ce7-382f-4711-b956-834f71b8fa82.png"
     ]),
     slide8: Object.freeze(["Slide 8/heymarket.jpg", "Slide 8/15111941-cbd5-4d10-bc0e-367023979ba4.png"]),
-    slide9: Object.freeze(["Slide 9/e9.mp4", "Slide 9/pawnhous.jpeg"]),
+    slide9: Object.freeze(["Slide 9/pawnhous.jpeg", "Slide 9/e9.mp4"]),
     slide10: Object.freeze(["Slide 10/download.jpeg", "Slide 10/a9ed19c1-0980-4c4b-ace3-19137ac44ba6.png"]),
     slide11: Object.freeze(["Slide 11/71tYOaO29mL._AC_UF894,1000_QL80_.jpg", "Slide 11/9c058041-ea2e-45f7-b23f-1c24e8aed2a5.png"]),
     slide12: Object.freeze(["Slide 12/305140_doc1.jpg", "Slide 12/e3ac2615-adca-432c-875b-763516a79d8a.png"]),
@@ -86,6 +84,9 @@
   }
 
   function buildMediaItems(event) {
+    let imageCount = 0;
+    let videoCount = 0;
+
     return buildMediaCandidates(event)
       .map((path, index) => {
         const type = inferMediaType(path);
@@ -94,7 +95,15 @@
           return null;
         }
 
-        const label = type === "video" ? "Video" : `Still ${index + 1}`;
+        let label = "";
+
+        if (type === "video") {
+          videoCount += 1;
+          label = videoCount === 1 ? "Video" : `Video ${videoCount}`;
+        } else {
+          imageCount += 1;
+          label = imageCount === 1 ? "Location" : imageCount === 2 ? "Character" : `Scene ${imageCount - 1}`;
+        }
 
         return {
           id: `${event.id}-${index}`,
