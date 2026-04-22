@@ -201,25 +201,25 @@ body {
 .map-page.is-transitioning-to-story .map-canvas,
 .map-page.is-story-mode .map-canvas,
 .map-page.is-transitioning-to-map .map-canvas {
-  filter: blur(7px) sepia(0.16) saturate(0.42) brightness(0.24);
-  opacity: 0.2;
+  filter: blur(2.6px) sepia(0.12) saturate(0.68) brightness(0.62);
+  opacity: 0.52;
   transform: scale(1.03);
 }
 
 .map-page[data-story-mood="foreboding"].is-story-mode .map-canvas {
-  filter: blur(7px) sepia(0.18) saturate(0.52) brightness(0.3);
+  filter: blur(2.8px) sepia(0.18) saturate(0.78) brightness(0.68);
 }
 
 .map-page[data-story-mood="rupture"].is-story-mode .map-canvas {
-  filter: blur(8px) sepia(0.28) saturate(0.46) brightness(0.24);
+  filter: blur(3.2px) sepia(0.26) saturate(0.86) brightness(0.58);
 }
 
 .map-page[data-story-mood="aftermath"].is-story-mode .map-canvas {
-  filter: blur(7px) sepia(0.08) saturate(0.42) brightness(0.28);
+  filter: blur(2.8px) sepia(0.04) saturate(0.74) brightness(0.66);
 }
 
 .map-page[data-story-mood="redemption"].is-story-mode .map-canvas {
-  filter: blur(7px) sepia(0.16) saturate(0.58) brightness(0.34);
+  filter: blur(2.8px) sepia(0.16) saturate(0.86) brightness(0.74);
 }
 
 .story-launch {
@@ -716,10 +716,10 @@ body {
 .story-mode {
   --story-warm-wash: rgba(81, 57, 40, 0.22);
   --story-cold-wash: rgba(63, 72, 84, 0.16);
-  --story-mode-start: rgba(45, 30, 19, 0.94);
-  --story-mode-end: rgba(17, 12, 11, 0.985);
-  --story-panel-fill: rgba(40, 28, 21, 0.32);
-  --story-panel-shell: rgba(43, 31, 24, 0.14);
+  --story-mode-start: rgba(45, 30, 19, 0.22);
+  --story-mode-end: rgba(17, 12, 11, 0.34);
+  --story-panel-fill: rgba(40, 28, 21, 0.14);
+  --story-panel-shell: rgba(43, 31, 24, 0.06);
   --story-panel-border: rgba(190, 166, 132, 0.2);
   --story-panel-highlight: rgba(255, 252, 246, 0.11);
   --story-panel-glow: rgba(143, 110, 66, 0.14);
@@ -737,7 +737,7 @@ body {
   background:
     radial-gradient(circle at 50% 0%, var(--story-warm-wash), transparent 30%),
     radial-gradient(circle at 84% 14%, var(--story-cold-wash), transparent 38%),
-    linear-gradient(145deg, rgba(0, 0, 0, 0.16), transparent 46%),
+    linear-gradient(145deg, rgba(0, 0, 0, 0.06), transparent 46%),
     linear-gradient(180deg, var(--story-mode-start), var(--story-mode-end));
   opacity: 0;
   overflow: hidden;
@@ -762,13 +762,13 @@ body {
   background:
     radial-gradient(circle at 14% 18%, var(--story-warm-wash), transparent 28%),
     radial-gradient(circle at 82% 20%, var(--story-cold-wash), transparent 34%),
-    radial-gradient(circle at 50% 100%, rgba(0, 0, 0, 0.54), transparent 54%);
+    radial-gradient(circle at 50% 100%, rgba(0, 0, 0, 0.18), transparent 54%);
 }
 
 .story-mode::after {
   z-index: 0;
   background:
-    radial-gradient(circle at center, transparent 38%, rgba(3, 3, 4, 0.54) 100%),
+    radial-gradient(circle at center, transparent 38%, rgba(3, 3, 4, 0.18) 100%),
     repeating-linear-gradient(
       0deg,
       rgba(255, 255, 255, 0.01) 0 1px,
@@ -779,17 +779,17 @@ body {
       rgba(255, 255, 255, 0.007) 0 1px,
       transparent 1px 6px
     );
-  opacity: 0.64;
+  opacity: 0.38;
   mix-blend-mode: soft-light;
 }
 
 .story-mode[data-mood="foreboding"] {
   --story-warm-wash: rgba(164, 126, 46, 0.26);
   --story-cold-wash: rgba(94, 88, 58, 0.12);
-  --story-mode-start: rgba(66, 48, 26, 0.95);
-  --story-mode-end: rgba(27, 20, 13, 0.985);
-  --story-panel-fill: rgba(126, 93, 38, 0.24);
-  --story-panel-shell: rgba(91, 66, 33, 0.12);
+  --story-mode-start: rgba(66, 48, 26, 0.22);
+  --story-mode-end: rgba(27, 20, 13, 0.34);
+  --story-panel-fill: rgba(126, 93, 38, 0.16);
+  --story-panel-shell: rgba(91, 66, 33, 0.06);
   --story-panel-border: rgba(198, 158, 83, 0.24);
   --story-panel-highlight: rgba(255, 243, 210, 0.12);
   --story-panel-glow: rgba(186, 142, 52, 0.16);
@@ -802,10 +802,10 @@ body {
 .story-mode[data-mood="rupture"] {
   --story-warm-wash: rgba(150, 27, 27, 0.3);
   --story-cold-wash: rgba(81, 17, 26, 0.16);
-  --story-mode-start: rgba(61, 11, 13, 0.96);
-  --story-mode-end: rgba(23, 8, 10, 0.99);
-  --story-panel-fill: rgba(116, 24, 28, 0.24);
-  --story-panel-shell: rgba(88, 17, 19, 0.13);
+  --story-mode-start: rgba(61, 11, 13, 0.24);
+  --story-mode-end: rgba(23, 8, 10, 0.38);
+  --story-panel-fill: rgba(116, 24, 28, 0.16);
+  --story-panel-shell: rgba(88, 17, 19, 0.07);
   --story-panel-border: rgba(166, 58, 52, 0.26);
   --story-panel-highlight: rgba(255, 231, 231, 0.1);
   --story-panel-glow: rgba(176, 31, 31, 0.18);
@@ -818,10 +818,10 @@ body {
 .story-mode[data-mood="aftermath"] {
   --story-warm-wash: rgba(61, 72, 86, 0.1);
   --story-cold-wash: rgba(58, 102, 150, 0.28);
-  --story-mode-start: rgba(18, 27, 41, 0.95);
-  --story-mode-end: rgba(9, 15, 25, 0.99);
-  --story-panel-fill: rgba(40, 78, 122, 0.24);
-  --story-panel-shell: rgba(27, 47, 72, 0.13);
+  --story-mode-start: rgba(18, 27, 41, 0.22);
+  --story-mode-end: rgba(9, 15, 25, 0.36);
+  --story-panel-fill: rgba(40, 78, 122, 0.16);
+  --story-panel-shell: rgba(27, 47, 72, 0.07);
   --story-panel-border: rgba(116, 154, 197, 0.24);
   --story-panel-highlight: rgba(234, 245, 255, 0.1);
   --story-panel-glow: rgba(76, 117, 163, 0.16);
@@ -834,10 +834,10 @@ body {
 .story-mode[data-mood="redemption"] {
   --story-warm-wash: rgba(188, 146, 66, 0.3);
   --story-cold-wash: rgba(97, 83, 54, 0.12);
-  --story-mode-start: rgba(67, 50, 24, 0.94);
-  --story-mode-end: rgba(24, 19, 11, 0.985);
-  --story-panel-fill: rgba(156, 116, 38, 0.24);
-  --story-panel-shell: rgba(109, 80, 31, 0.13);
+  --story-mode-start: rgba(67, 50, 24, 0.22);
+  --story-mode-end: rgba(24, 19, 11, 0.34);
+  --story-panel-fill: rgba(156, 116, 38, 0.16);
+  --story-panel-shell: rgba(109, 80, 31, 0.07);
   --story-panel-border: rgba(212, 168, 75, 0.26);
   --story-panel-highlight: rgba(255, 244, 215, 0.13);
   --story-panel-glow: rgba(201, 156, 67, 0.18);
@@ -913,11 +913,11 @@ body {
   grid-template-rows: auto minmax(0, 1fr) auto;
   gap: 0;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 18%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 18%),
     var(--story-panel-shell);
   box-shadow: none;
-  backdrop-filter: blur(26px) saturate(1.08);
-  -webkit-backdrop-filter: blur(26px) saturate(1.08);
+  backdrop-filter: blur(16px) saturate(1.04);
+  -webkit-backdrop-filter: blur(16px) saturate(1.04);
   overflow: hidden;
   transition:
     opacity var(--card-transition-ms) var(--transition-ease),
@@ -936,10 +936,10 @@ body {
   inset: 1px;
   background:
     linear-gradient(180deg, var(--story-panel-highlight), transparent 14%),
-    linear-gradient(105deg, rgba(255, 255, 255, 0.055), transparent 26%, transparent 72%, rgba(255, 255, 255, 0.02) 100%),
+    linear-gradient(105deg, rgba(255, 255, 255, 0.07), transparent 26%, transparent 72%, rgba(255, 255, 255, 0.03) 100%),
     radial-gradient(circle at 16% 18%, var(--story-panel-glow), transparent 30%),
     radial-gradient(circle at 86% 22%, var(--story-panel-cool-glow), transparent 38%),
-    linear-gradient(135deg, rgba(255, 255, 255, 0.03), transparent 42%, rgba(10, 10, 10, 0.1)),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.02), transparent 42%, rgba(10, 10, 10, 0.04)),
     var(--story-panel-fill);
 }
 
