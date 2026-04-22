@@ -121,10 +121,9 @@
       infoBackdropElement: document.querySelector("[data-info-backdrop]"),
       infoCloseButton: document.querySelector("[data-info-close]"),
       infoTabButtons: Array.from(document.querySelectorAll("[data-info-tab]")),
-      infoScreenElement: document.querySelector("[data-info-screen]"),
-      infoBackButton: document.querySelector("[data-info-back]"),
-      infoScreenCloseButton: document.querySelector("[data-info-screen-close]"),
-      infoPanels: Array.from(document.querySelectorAll("[data-info-panel]")),
+      infoScreenElements: Array.from(document.querySelectorAll("[data-info-screen]")),
+      infoBackButtons: Array.from(document.querySelectorAll("[data-info-back]")),
+      infoScreenCloseButtons: Array.from(document.querySelectorAll("[data-info-screen-close]")),
       storyVeilElement: document.querySelector("[data-story-veil]"),
       storyModeElement: document.querySelector("[data-story-mode]"),
       storyPanelElement: document.querySelector("[data-story-panel]"),
@@ -148,6 +147,7 @@
       storySourceLinkElement: document.querySelector("[data-story-source-link]"),
       storyTimelineRangeElement: document.querySelector("[data-story-timeline-range]"),
       storyTimelineMarkerElement: document.querySelector("[data-story-timeline-marker]"),
+      storyExitButton: document.querySelector("[data-story-exit]"),
       storyBackButton: document.querySelector("[data-story-back]"),
       storyNextButton: document.querySelector("[data-story-next]"),
       placeholderElement: document.querySelector("[data-map-placeholder]"),
@@ -211,6 +211,7 @@
       const isFirstSlide = state.currentIndex === 0;
       const isLastSlide = state.currentIndex === STORY_EVENTS.length - 1;
 
+      elements.storyExitButton.disabled = state.isBusy;
       elements.storyBackButton.disabled = state.isBusy || isFirstSlide;
       elements.storyNextButton.disabled = state.isBusy;
       elements.storyNextButton.textContent = isLastSlide ? "Finish" : "Next";
@@ -639,6 +640,7 @@
         elements.storySourceLinkElement,
         elements.storyTimelineRangeElement,
         elements.storyTimelineMarkerElement,
+        elements.storyExitButton,
         elements.storyBackButton,
         elements.storyNextButton
       ].every(Boolean);
@@ -656,6 +658,7 @@
       elements.launchButton.addEventListener("click", () => {
         openStoryAtSlide(0);
       });
+      elements.storyExitButton.addEventListener("click", returnToMap);
       elements.storyNextButton.addEventListener("click", handleNext);
       elements.storyBackButton.addEventListener("click", handleBack);
     }
@@ -736,26 +739,32 @@
       elements.infoToggleButton,
       elements.infoDrawerElement,
       elements.infoBackdropElement,
-      elements.infoCloseButton,
-      elements.infoScreenElement,
-      elements.infoBackButton,
-      elements.infoScreenCloseButton
+      elements.infoCloseButton
     ];
 
-    if (!requiredElements.every(Boolean)) {
+    if (
+      !requiredElements.every(Boolean) ||
+      !elements.infoScreenElements.length ||
+      !elements.infoBackButtons.length ||
+      !elements.infoScreenCloseButtons.length
+    ) {
       return;
     }
 
     const state = {
       isDrawerOpen: false,
       isScreenOpen: false,
-      activeTab: "guide"
+      activeScreenKey: null
     };
 
-    function renderPanels() {
-      elements.infoPanels.forEach((panel) => {
-        panel.hidden = panel.dataset.infoPanel !== state.activeTab;
+    function renderScreens() {
+      elements.infoScreenElements.forEach((screen) => {
+        screen.hidden = screen.dataset.infoScreen !== state.activeScreenKey;
       });
+    }
+
+    function getScreenByKey(screenKey) {
+      return elements.infoScreenElements.find((screen) => screen.dataset.infoScreen === screenKey) || null;
     }
 
     function openDrawer() {
@@ -800,31 +809,40 @@
     }
 
     function openScreen(tabKey) {
-      state.activeTab = tabKey;
-      renderPanels();
+      if (!getScreenByKey(tabKey)) {
+        return;
+      }
+
+      state.activeScreenKey = tabKey;
+      renderScreens();
       state.isScreenOpen = true;
       closeDrawer();
-      elements.infoScreenElement.hidden = false;
       elements.infoBackdropElement.hidden = false;
       elements.pageElement.classList.add("is-info-screen-open");
 
       globalScope.requestAnimationFrame(() => {
-        elements.infoScreenElement.classList.add("is-visible");
+        const activeScreen = getScreenByKey(tabKey);
+        if (activeScreen) {
+          activeScreen.classList.add("is-visible");
+        }
         elements.infoBackdropElement.classList.add("is-visible");
       });
     }
 
     function closeScreen() {
       state.isScreenOpen = false;
-      elements.infoScreenElement.classList.remove("is-visible");
+      state.activeScreenKey = null;
       elements.pageElement.classList.remove("is-info-screen-open");
+      elements.infoScreenElements.forEach((screen) => {
+        screen.classList.remove("is-visible");
+      });
 
       globalScope.setTimeout(() => {
         if (state.isScreenOpen) {
           return;
         }
 
-        elements.infoScreenElement.hidden = true;
+        renderScreens();
         if (!state.isDrawerOpen) {
           elements.infoBackdropElement.classList.remove("is-visible");
           elements.infoBackdropElement.hidden = true;
@@ -841,12 +859,16 @@
       }, 260);
     }
 
-    renderPanels();
+    renderScreens();
 
     elements.infoToggleButton.addEventListener("click", toggleDrawer);
     elements.infoCloseButton.addEventListener("click", closeDrawer);
-    elements.infoBackButton.addEventListener("click", returnToMenu);
-    elements.infoScreenCloseButton.addEventListener("click", closeScreen);
+    elements.infoBackButtons.forEach((button) => {
+      button.addEventListener("click", returnToMenu);
+    });
+    elements.infoScreenCloseButtons.forEach((button) => {
+      button.addEventListener("click", closeScreen);
+    });
     elements.infoBackdropElement.addEventListener("click", () => {
       if (state.isScreenOpen) {
         closeScreen();

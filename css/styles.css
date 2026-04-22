@@ -224,8 +224,8 @@ body {
 
 .story-launch {
   position: absolute;
-  top: 24px;
   right: 24px;
+  bottom: 24px;
   z-index: 1250;
   overflow: hidden;
   min-width: 104px;
@@ -297,7 +297,7 @@ body {
 .map-page.is-story-mode .story-launch,
 .map-page.is-transitioning-to-map .story-launch {
   opacity: 0;
-  transform: translateY(-12px);
+  transform: translateY(12px);
   pointer-events: none;
 }
 
@@ -520,6 +520,8 @@ body {
   position: absolute;
   inset: 0;
   z-index: 1418;
+  display: grid;
+  place-items: center;
   padding: 34px 28px 28px;
   background:
     radial-gradient(circle at 50% 0%, rgba(122, 92, 60, 0.08), transparent 24%),
@@ -568,6 +570,7 @@ body {
   margin: 0 auto;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
+  align-content: center;
   gap: 26px;
 }
 
@@ -595,35 +598,39 @@ body {
   font-variant-caps: all-small-caps;
 }
 
-.info-screen__content {
-  min-height: 0;
+.info-screen__card {
+  display: grid;
+  gap: 20px;
+  align-content: start;
+  width: min(760px, 100%);
+  max-height: min(72vh, 760px);
+  padding: 28px 30px 32px;
+  border: 1px solid rgba(128, 106, 78, 0.18);
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent 16%),
+    linear-gradient(180deg, rgba(21, 16, 14, 0.95), rgba(8, 7, 7, 0.98));
+  box-shadow:
+    0 26px 56px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
   overflow: auto;
-  padding-right: 8px;
   scrollbar-width: thin;
   scrollbar-color: rgba(201, 163, 107, 0.38) rgba(255, 255, 255, 0.04);
 }
 
-.info-screen__content::-webkit-scrollbar {
+.info-screen__card::-webkit-scrollbar {
   width: 10px;
 }
 
-.info-screen__content::-webkit-scrollbar-track {
+.info-screen__card::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.03);
 }
 
-.info-screen__content::-webkit-scrollbar-thumb {
+.info-screen__card::-webkit-scrollbar-thumb {
   border: 2px solid transparent;
   border-radius: 999px;
   background: linear-gradient(180deg, rgba(132, 106, 75, 0.72), rgba(72, 55, 38, 0.82));
   background-clip: padding-box;
-}
-
-.info-screen__panel {
-  display: grid;
-  gap: 20px;
-  align-content: start;
-  max-width: 760px;
-  padding: 14px 0 36px;
 }
 
 .info-drawer__title {
@@ -962,6 +969,14 @@ body {
   position: relative;
 }
 
+.story-panel__meta-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 .story-panel__count,
 .story-panel__phase {
   margin: 0;
@@ -983,6 +998,43 @@ body {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.03),
     0 12px 22px rgba(0, 0, 0, 0.18);
+}
+
+.story-panel__exit {
+  border: 1px solid rgba(128, 106, 78, 0.18);
+  border-radius: 999px;
+  padding: 9px 14px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 100%),
+    rgba(255, 255, 255, 0.02);
+  color: var(--color-text);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-variant-caps: all-small-caps;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease,
+    opacity 180ms ease;
+}
+
+.story-panel__exit:hover {
+  transform: translateY(-1px);
+  border-color: rgba(160, 132, 96, 0.34);
+}
+
+.story-panel__exit:focus-visible {
+  outline: 2px solid rgba(243, 234, 217, 0.84);
+  outline-offset: 3px;
+}
+
+.story-panel__exit[disabled] {
+  cursor: default;
+  opacity: 0.55;
 }
 
 .story-panel__body {
@@ -1835,8 +1887,8 @@ body {
   }
 
   .story-launch {
-    top: 16px;
     right: 16px;
+    bottom: 16px;
     min-width: 92px;
     padding: 10px 14px;
   }
@@ -1864,6 +1916,11 @@ body {
     width: 100%;
     min-height: calc(100vh - 40px);
     min-height: calc(100dvh - 40px);
+  }
+
+  .info-screen__card {
+    max-height: none;
+    padding: 22px 18px 24px;
   }
 
   .info-screen__header {
@@ -1921,6 +1978,12 @@ body {
 
   .story-panel__meta {
     margin-bottom: 22px;
+    align-items: stretch;
+  }
+
+  .story-panel__meta-actions {
+    width: 100%;
+    justify-content: space-between;
   }
 
   .story-panel__content {

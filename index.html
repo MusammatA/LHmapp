@@ -97,7 +97,13 @@
       </div>
     </aside>
 
-    <section class="info-screen" data-info-screen hidden aria-live="polite">
+    <section
+      class="info-screen"
+      data-info-screen="guide"
+      hidden
+      aria-live="polite"
+      aria-label="User Guide"
+    >
       <div class="info-screen__shell">
         <div class="info-screen__header">
           <button class="info-screen__back" type="button" data-info-back>
@@ -108,73 +114,95 @@
           </button>
         </div>
 
-        <div class="info-screen__content">
-          <section
-            class="info-screen__panel"
-            data-info-panel="guide"
-            aria-label="User Guide"
-          >
-            <h2 class="info-drawer__title">User Guide</h2>
-            <p class="info-drawer__copy">
-              This website can be explored in two ways: as a guided story and as a map.
-            </p>
-            <ul class="info-drawer__list">
-              <li>Click <strong>Start</strong> to enter the narrative slideshow from the beginning.</li>
-              <li>Use <strong>Next</strong> and <strong>Back</strong> to move through Raskolnikov’s journey.</li>
-              <li>Each slide shows the location image first; use the media gallery beneath it to open additional images or video.</li>
-              <li>Open <strong>Read Quote &amp; Analysis</strong> to expand the literary evidence and interpretation for that scene.</li>
-              <li>After the story, return to the map and click any numbered red location dot to jump directly into that part of the narrative.</li>
-              <li>The numbered labels on the map follow the order of the slideshow.</li>
-            </ul>
-          </section>
+        <section class="info-screen__card">
+          <h2 class="info-drawer__title">User Guide</h2>
+          <p class="info-drawer__copy">
+            This website can be explored in two ways: as a guided story and as a map.
+          </p>
+          <ul class="info-drawer__list">
+            <li>Click <strong>Start</strong> to enter the narrative slideshow from the beginning.</li>
+            <li>Use <strong>Next</strong> and <strong>Back</strong> to move through Raskolnikov’s journey.</li>
+            <li>Each slide shows the location image first; use the media gallery beneath it to open additional images or video.</li>
+            <li>Open <strong>Read Quote &amp; Analysis</strong> to expand the literary evidence and interpretation for that scene.</li>
+            <li>After the story, return to the map and click any numbered red location dot to jump directly into that part of the narrative.</li>
+            <li>The numbered labels on the map follow the order of the slideshow.</li>
+          </ul>
+        </section>
+      </div>
+    </section>
 
-          <section
-            class="info-screen__panel"
-            data-info-panel="works"
-            aria-label="Works Cited"
-            hidden
-          >
-            <h2 class="info-drawer__title">Works Cited</h2>
-            <div class="info-drawer__citations">
-              <p class="info-drawer__citation">
-                <span class="info-drawer__citation-label">Project Gutenberg (website page):</span>
-                Dostoevsky, Fyodor. <em>Crime and Punishment</em>. Translated by Constance Garnett, Project Gutenberg,
-                <a href="https://www.gutenberg.org/files/2554/2554-h/2554-h.htm#link2HCH0030" target="_blank" rel="noreferrer">www.gutenberg.org/files/2554/2554-h/2554-h.htm#link2HCH0030</a>.
-                Accessed 21 Apr. 2026.
-              </p>
-              <p class="info-drawer__citation">
-                <span class="info-drawer__citation-label">YouTube video:</span>
-                “crime &amp; punishment (animation)” YouTube, uploaded by channel anatoly,
-                <a href="https://www.youtube.com/watch?v=Xqy4hdzhLZA" target="_blank" rel="noreferrer">www.youtube.com/watch?v=Xqy4hdzhLZA</a>.
-                Accessed 21 Apr. 2026.
-              </p>
-              <p class="info-drawer__citation">
-                <span class="info-drawer__citation-label">Google Map (custom map):</span>
-                <em>Map of Crime and Punishment locations</em>. Google Maps, Google,
-                <a href="https://www.google.com/maps/d/u/0/viewer?mid=1kZN3S_XcnuO3fePOac7ULEmjrxhl0gfv" target="_blank" rel="noreferrer">www.google.com/maps/d/u/0/viewer?mid=1kZN3S_XcnuO3fePOac7ULEmjrxhl0gfv</a>.
-                Accessed 21 Apr. 2026.
-              </p>
-              <p class="info-drawer__citation">
-                <span class="info-drawer__citation-label">ChatGPT (image generation / AI tool):</span>
-                ChatGPT. <em>Image generation responses for Crime and Punishment project</em>. OpenAI, 2026.
-              </p>
-            </div>
-          </section>
-
-          <section
-            class="info-screen__panel"
-            data-info-panel="developer"
-            aria-label="About Developer"
-            hidden
-          >
-            <h2 class="info-drawer__title">About Developer</h2>
-            <div class="info-drawer__developer">
-              <p class="info-drawer__developer-name">Musammat Aktar</p>
-              <p class="info-drawer__copy">Student at Columbia University studying Mathematics and Computer Science</p>
-              <p class="info-drawer__copy">Literature Humanities 2025–2026, Professor Kitzinger</p>
-            </div>
-          </section>
+    <section
+      class="info-screen"
+      data-info-screen="works"
+      hidden
+      aria-live="polite"
+      aria-label="Works Cited"
+    >
+      <div class="info-screen__shell">
+        <div class="info-screen__header">
+          <button class="info-screen__back" type="button" data-info-back>
+            Back to Menu
+          </button>
+          <button class="info-screen__close" type="button" data-info-screen-close>
+            Close
+          </button>
         </div>
+
+        <section class="info-screen__card">
+          <h2 class="info-drawer__title">Works Cited</h2>
+          <div class="info-drawer__citations">
+            <p class="info-drawer__citation">
+              <span class="info-drawer__citation-label">Project Gutenberg (website page):</span>
+              Dostoevsky, Fyodor. <em>Crime and Punishment</em>. Translated by Constance Garnett, Project Gutenberg,
+              <a href="https://www.gutenberg.org/files/2554/2554-h/2554-h.htm#link2HCH0030" target="_blank" rel="noreferrer">www.gutenberg.org/files/2554/2554-h/2554-h.htm#link2HCH0030</a>.
+              Accessed 21 Apr. 2026.
+            </p>
+            <p class="info-drawer__citation">
+              <span class="info-drawer__citation-label">YouTube video:</span>
+              “crime &amp; punishment (animation)” YouTube, uploaded by channel anatoly,
+              <a href="https://www.youtube.com/watch?v=Xqy4hdzhLZA" target="_blank" rel="noreferrer">www.youtube.com/watch?v=Xqy4hdzhLZA</a>.
+              Accessed 21 Apr. 2026.
+            </p>
+            <p class="info-drawer__citation">
+              <span class="info-drawer__citation-label">Google Map (custom map):</span>
+              <em>Map of Crime and Punishment locations</em>. Google Maps, Google,
+              <a href="https://www.google.com/maps/d/u/0/viewer?mid=1kZN3S_XcnuO3fePOac7ULEmjrxhl0gfv" target="_blank" rel="noreferrer">www.google.com/maps/d/u/0/viewer?mid=1kZN3S_XcnuO3fePOac7ULEmjrxhl0gfv</a>.
+              Accessed 21 Apr. 2026.
+            </p>
+            <p class="info-drawer__citation">
+              <span class="info-drawer__citation-label">ChatGPT (image generation / AI tool):</span>
+              ChatGPT. <em>Image generation responses for Crime and Punishment project</em>. OpenAI, 2026.
+            </p>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section
+      class="info-screen"
+      data-info-screen="developer"
+      hidden
+      aria-live="polite"
+      aria-label="About Developer"
+    >
+      <div class="info-screen__shell">
+        <div class="info-screen__header">
+          <button class="info-screen__back" type="button" data-info-back>
+            Back to Menu
+          </button>
+          <button class="info-screen__close" type="button" data-info-screen-close>
+            Close
+          </button>
+        </div>
+
+        <section class="info-screen__card">
+          <h2 class="info-drawer__title">About Developer</h2>
+          <div class="info-drawer__developer">
+            <p class="info-drawer__developer-name">Musammat Aktar</p>
+            <p class="info-drawer__copy">Student at Columbia University studying Mathematics and Computer Science</p>
+            <p class="info-drawer__copy">Literature Humanities 2025–2026, Professor Kitzinger</p>
+          </div>
+        </section>
       </div>
     </section>
 
@@ -195,7 +223,12 @@
       <article class="story-panel" data-story-panel>
         <div class="story-panel__meta">
           <p class="story-panel__count" data-story-count>1 / 13</p>
-          <p class="story-panel__phase" data-story-phase>Before the Murder</p>
+          <div class="story-panel__meta-actions">
+            <p class="story-panel__phase" data-story-phase>Before the Murder</p>
+            <button class="story-panel__exit" type="button" data-story-exit>
+              Exit
+            </button>
+          </div>
         </div>
 
         <div class="story-panel__content" data-story-content>
