@@ -1114,6 +1114,9 @@
       timelineStartDay: 14,
       timelineEndDay: 14,
       phase: "After the Murder",
+      soundLeadInMs: 260,
+      soundFadeInMs: 140,
+      soundVolumeBoost: 1.2,
       soundFiles: Object.freeze([STORY_SOUND.breathing]),
       description:
         "Raskolnikov confesses the crime to Sonya.",

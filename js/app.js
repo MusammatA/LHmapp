@@ -54,7 +54,11 @@
   // Browsers can be inconsistent with those when used directly in URLs, so
   // we normalize them once before handing paths to media elements or Audio().
   function encodeAssetPath(path) {
-    return encodeURI(path).replace(/\[/g, "%5B").replace(/\]/g, "%5D");
+    return encodeURI(path)
+      .replace(/\[/g, "%5B")
+      .replace(/\]/g, "%5D")
+      .replace(/\(/g, "%28")
+      .replace(/\)/g, "%29");
   }
 
   function unique(values) {
@@ -383,7 +387,7 @@
 
       const track = new globalScope.Audio(encodeAssetPath(source));
       track.loop = true;
-      track.preload = "none";
+      track.preload = "auto";
       track.volume = 0;
       track.addEventListener("error", () => {
         state.unavailableSources.add(source);
