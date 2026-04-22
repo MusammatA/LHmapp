@@ -1176,6 +1176,7 @@
       lat: 24.7471,
       lng: 90.4203,
       markerType: "home",
+      markerCaption: "Moymenshing, Bangladesh",
       showTooltip: false,
       includeInInitialBounds: false
     }),

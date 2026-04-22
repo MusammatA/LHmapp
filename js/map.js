@@ -10,8 +10,8 @@
     fillColor: "#d12525",
     fillOpacity: 0.98
   });
-  const HOME_ICON_SIZE = Object.freeze([74, 64]);
-  const HOME_ICON_ANCHOR = Object.freeze([37, 54]);
+  const HOME_ICON_SIZE = Object.freeze([174, 120]);
+  const HOME_ICON_ANCHOR = Object.freeze([87, 94]);
   const PIN_ICON_SIZE = Object.freeze([36, 48]);
   const PIN_ICON_ANCHOR = Object.freeze([18, 44]);
   const STORY_MARKER_FOCUS_ZOOM = 15;
@@ -173,7 +173,19 @@
           return globalScope.L.divIcon({
             className: "map-marker-icon map-marker-icon--home",
             html:
-              '<span class="map-marker map-marker--home"><span class="map-marker__heart-shape"></span><span class="map-marker__heart-text">Home</span></span>',
+              `<span class="map-marker map-marker--home">${
+                location.markerCaption
+                  ? `<span class="map-marker__home-caption">${location.markerCaption}</span>`
+                  : ""
+              }<svg class="map-marker__heart-svg" viewBox="0 0 100 92" aria-hidden="true" focusable="false">
+                <defs>
+                  <linearGradient id="home-heart-gradient" x1="50%" y1="0%" x2="50%" y2="100%">
+                    <stop offset="0%" stop-color="#aa3f57"></stop>
+                    <stop offset="100%" stop-color="#7f233d"></stop>
+                  </linearGradient>
+                </defs>
+                <path d="M50 88C48.4 86.8 46.3 85.1 43.9 83.1C36.8 77.3 27.4 69 19.3 59.8C11 50.4 4 40.1 4 28.8C4 14.8 14.6 5 27.8 5C36.8 5 44.1 9.4 50 16.7C55.9 9.4 63.2 5 72.2 5C85.4 5 96 14.8 96 28.8C96 40.1 89 50.4 80.7 59.8C72.6 69 63.2 77.3 56.1 83.1C53.7 85.1 51.6 86.8 50 88Z" fill="url(#home-heart-gradient)"></path>
+              </svg><span class="map-marker__heart-text">Home</span></span>`,
             iconSize: HOME_ICON_SIZE,
             iconAnchor: HOME_ICON_ANCHOR
           });
@@ -267,16 +279,18 @@
     }
 
     getTooltipOffset(location, index) {
+      const isAuxiliaryMarker = location.markerType && location.markerType !== "story";
+
       switch (this.getTooltipDirection(location, index)) {
         case "right":
-          return [16, 0];
+          return isAuxiliaryMarker ? [24, -12] : [16, 0];
         case "left":
-          return [-16, 0];
+          return isAuxiliaryMarker ? [-24, -12] : [-16, 0];
         case "bottom":
-          return [0, 12];
+          return isAuxiliaryMarker ? [0, 18] : [0, 12];
         case "top":
         default:
-          return [0, -12];
+          return isAuxiliaryMarker ? [0, -20] : [0, -12];
       }
     }
 

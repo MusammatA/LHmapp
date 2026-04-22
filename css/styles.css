@@ -1729,60 +1729,64 @@ body {
 }
 
 .map-marker--home {
-  width: 74px;
-  height: 64px;
-}
-
-.map-marker__heart-shape,
-.map-marker__heart-shape::before,
-.map-marker__heart-shape::after {
-  position: absolute;
-  background: linear-gradient(180deg, var(--color-marker-home-highlight), var(--color-marker-home));
-}
-
-.map-marker__heart-shape {
-  top: 12px;
-  left: 17px;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px 10px 4px 4px;
-  box-shadow:
-    0 16px 24px rgba(0, 0, 0, 0.34),
-    0 0 0 2px rgba(244, 229, 234, 0.88);
-  transform: rotate(-45deg);
-}
-
-.map-marker__heart-shape::before,
-.map-marker__heart-shape::after {
-  content: "";
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-}
-
-.map-marker__heart-shape::before {
-  top: -20px;
-  left: 0;
-}
-
-.map-marker__heart-shape::after {
-  top: 0;
-  left: 20px;
+  width: 174px;
+  height: 120px;
 }
 
 .map-marker__heart-text {
   position: absolute;
-  inset: 0;
+  top: 42px;
+  left: 50%;
   z-index: 1;
-  display: grid;
-  place-items: center;
-  padding-top: 8px;
+  transform: translateX(-50%);
   color: #fff7f8;
   font-family: var(--font-display);
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   font-weight: 700;
   letter-spacing: 0.01em;
+  white-space: nowrap;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.42);
+}
+
+.map-marker__home-caption {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 2;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 132px;
+  max-width: 168px;
+  padding: 7px 12px;
+  border: 1px solid rgba(164, 140, 107, 0.18);
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 100%),
+    rgba(28, 21, 18, 0.94);
+  color: var(--color-text);
+  box-shadow:
+    0 14px 28px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.15;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.map-marker__heart-svg {
+  position: absolute;
+  top: 28px;
+  left: 37px;
+  width: 100px;
+  height: 92px;
+  overflow: visible;
+  filter:
+    drop-shadow(0 18px 26px rgba(0, 0, 0, 0.34))
+    drop-shadow(0 0 0.8px rgba(244, 229, 234, 0.9));
 }
 
 .map-marker--pin {
