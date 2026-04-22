@@ -36,16 +36,33 @@
       <span class="story-launch__label" data-story-launch-label>Start</span>
     </button>
 
-    <button
-      class="ambient-toggle"
-      type="button"
-      data-ambient-toggle
-      aria-label="Toggle ambient audio"
-      aria-pressed="false"
-    >
-      <span class="ambient-toggle__glyph" aria-hidden="true"></span>
-      <span class="ambient-toggle__label" data-ambient-toggle-label>Sound Off</span>
-    </button>
+    <div class="audio-controls" data-audio-controls>
+      <button
+        class="ambient-toggle"
+        type="button"
+        data-ambient-toggle
+        aria-label="Toggle story sound"
+        aria-pressed="false"
+      >
+        <span class="ambient-toggle__glyph" aria-hidden="true"></span>
+        <span class="ambient-toggle__label" data-ambient-toggle-label>Sound Off</span>
+      </button>
+
+      <label class="audio-controls__volume" for="story-volume">
+        <span class="audio-controls__volume-label" data-audio-volume-label>16%</span>
+        <input
+          class="audio-controls__slider"
+          id="story-volume"
+          type="range"
+          min="10"
+          max="25"
+          step="1"
+          value="16"
+          data-audio-volume
+          aria-label="Story sound volume"
+        >
+      </label>
+    </div>
 
     <button
       class="info-toggle"

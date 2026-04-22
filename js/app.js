@@ -12,6 +12,7 @@
   const CHAPTER_CARD_FADE_MS = 360;
   const RESET_VISITED_ON_GUIDED_REPLAY = false;
   const AMBIENT_AUDIO_SESSION_KEY = "geography-of-guilt.ambient-muted";
+  const STORY_AUDIO_VOLUME_SESSION_KEY = "geography-of-guilt.story-volume";
   const STORY_ENTRY_MODE = Object.freeze({
     guided: "guided",
     exploratory: "exploratory"
@@ -19,15 +20,10 @@
   const PREFERS_REDUCED_MOTION = Boolean(
     globalScope.matchMedia && globalScope.matchMedia("(prefers-reduced-motion: reduce)").matches
   );
-  /* Ambient audio controls: replace these placeholder files when audio assets are ready. */
-  const AMBIENT_AUDIO_TRACKS = Object.freeze({
-    map: "assets/audio/map-ambience.mp3",
-    story: "assets/audio/story-ambience.mp3"
-  });
-  const AMBIENT_AUDIO_VOLUMES = Object.freeze({
-    map: 0.16,
-    story: 0.11
-  });
+  const STORY_SOUND_FADE_MS = 700;
+  const STORY_SOUND_MIN_VOLUME = 0.1;
+  const STORY_SOUND_MAX_VOLUME = 0.25;
+  const STORY_SOUND_DEFAULT_VOLUME = 0.16;
   const SUPPORTED_MEDIA_EXTENSIONS = Object.freeze([
     ".png",
     ".jpg",
@@ -47,6 +43,10 @@
 
   function motionSafeDuration(duration) {
     return PREFERS_REDUCED_MOTION ? 0 : duration;
+  }
+
+  function clamp(value, minimum, maximum) {
+    return Math.min(Math.max(value, minimum), maximum);
   }
 
   function unique(values) {
@@ -187,8 +187,11 @@
       introElement: document.querySelector("[data-intro-screen]"),
       launchButton: document.querySelector("[data-story-launch]"),
       launchLabelElement: document.querySelector("[data-story-launch-label]"),
+      audioControlsElement: document.querySelector("[data-audio-controls]"),
       ambientToggleButton: document.querySelector("[data-ambient-toggle]"),
       ambientToggleLabelElement: document.querySelector("[data-ambient-toggle-label]"),
+      audioVolumeInput: document.querySelector("[data-audio-volume]"),
+      audioVolumeLabelElement: document.querySelector("[data-audio-volume-label]"),
       infoToggleButton: document.querySelector("[data-info-toggle]"),
       infoDrawerElement: document.querySelector("[data-info-drawer]"),
       infoBackdropElement: document.querySelector("[data-info-backdrop]"),
@@ -235,11 +238,18 @@
 
   /* Ambient audio controls */
   function createAmbientAudioController(elements) {
-    if (!elements.ambientToggleButton || !elements.ambientToggleLabelElement) {
+    if (
+      !elements.ambientToggleButton ||
+      !elements.ambientToggleLabelElement ||
+      !elements.audioVolumeInput ||
+      !elements.audioVolumeLabelElement
+    ) {
       return Object.freeze({
         armFromInteraction() {},
         setAmbientMode() {},
-        toggleMute() {}
+        toggleMute() {},
+        setStorySoundForEvent() {},
+        syncStoryMediaAudio() {}
       });
     }
 
@@ -247,11 +257,13 @@
       currentMode: "map",
       hasInteraction: false,
       isMuted: true,
-      unavailableModes: new Set(),
-      tracks: {
-        map: null,
-        story: null
-      }
+      volume: STORY_SOUND_DEFAULT_VOLUME,
+      activeSceneEventId: null,
+      activeSceneSoundPath: null,
+      activeSceneTrack: null,
+      activeVideoElement: null,
+      unavailableSources: new Set(),
+      fadeTimers: new WeakMap()
     };
 
     try {
@@ -263,9 +275,19 @@
       // Session storage is optional; keep the in-memory default if it is unavailable.
     }
 
-    function persistMuteState() {
+    try {
+      const storedVolumeValue = Number(globalScope.sessionStorage.getItem(STORY_AUDIO_VOLUME_SESSION_KEY));
+      if (!Number.isNaN(storedVolumeValue) && storedVolumeValue) {
+        state.volume = clamp(storedVolumeValue, STORY_SOUND_MIN_VOLUME, STORY_SOUND_MAX_VOLUME);
+      }
+    } catch (error) {
+      // Session storage is optional; keep the in-memory default if it is unavailable.
+    }
+
+    function persistState() {
       try {
         globalScope.sessionStorage.setItem(AMBIENT_AUDIO_SESSION_KEY, String(state.isMuted));
+        globalScope.sessionStorage.setItem(STORY_AUDIO_VOLUME_SESSION_KEY, String(state.volume));
       } catch (error) {
         // No-op when session storage is unavailable.
       }
@@ -277,97 +299,219 @@
       }
 
       track.pause();
+    }
+
+    function stopTrack(track) {
+      if (!track) {
+        return;
+      }
+
+      pauseTrack(track);
       track.currentTime = 0;
     }
 
-    function pauseAllTracks() {
-      pauseTrack(state.tracks.map);
-      pauseTrack(state.tracks.story);
+    function clearFadeTimer(track) {
+      const timerId = state.fadeTimers.get(track);
+
+      if (timerId) {
+        globalScope.clearInterval(timerId);
+        state.fadeTimers.delete(track);
+      }
     }
 
-    function createTrack(mode) {
-      if (state.tracks[mode]) {
-        return state.tracks[mode];
+    function fadeTrackVolume(track, targetVolume, durationMs, { pauseOnComplete = false } = {}) {
+      if (!track) {
+        return Promise.resolve();
       }
 
-      const source = AMBIENT_AUDIO_TRACKS[mode];
+      clearFadeTimer(track);
 
-      if (!source) {
-        state.unavailableModes.add(mode);
+      const safeDuration = motionSafeDuration(durationMs);
+      const clampedTarget = clamp(targetVolume, 0, STORY_SOUND_MAX_VOLUME);
+
+      if (safeDuration === 0) {
+        track.volume = clampedTarget;
+
+        if (pauseOnComplete && clampedTarget === 0) {
+          pauseTrack(track);
+        }
+
+        return Promise.resolve();
+      }
+
+      const frameMs = 50;
+      const totalSteps = Math.max(1, Math.round(safeDuration / frameMs));
+      const startVolume = Number(track.volume) || 0;
+      let currentStep = 0;
+
+      return new Promise((resolve) => {
+        const timerId = globalScope.setInterval(() => {
+          currentStep += 1;
+          const progress = Math.min(currentStep / totalSteps, 1);
+          track.volume = startVolume + ((clampedTarget - startVolume) * progress);
+
+          if (progress >= 1) {
+            clearFadeTimer(track);
+
+            if (pauseOnComplete && clampedTarget === 0) {
+              pauseTrack(track);
+            }
+
+            resolve();
+          }
+        }, frameMs);
+
+        state.fadeTimers.set(track, timerId);
+      });
+    }
+
+    function createSceneTrack(source) {
+      if (!source || state.unavailableSources.has(source)) {
         return null;
       }
 
       const track = new globalScope.Audio(encodeURI(source));
       track.loop = true;
       track.preload = "none";
-      track.volume = AMBIENT_AUDIO_VOLUMES[mode] || 0.12;
+      track.volume = 0;
       track.addEventListener("error", () => {
-        state.unavailableModes.add(mode);
-        if (state.currentMode === mode) {
-          pauseTrack(track);
-          renderAmbientToggle();
+        state.unavailableSources.add(source);
+
+        if (state.activeSceneSoundPath === source) {
+          state.activeSceneSoundPath = null;
+          state.activeSceneTrack = null;
+          renderAudioControls();
         }
       });
 
-      state.tracks[mode] = track;
       return track;
     }
 
-    function isAmbientAudioAvailable() {
-      return !["map", "story"].every((mode) => state.unavailableModes.has(mode));
+    function setVideoVolume() {
+      if (!state.activeVideoElement) {
+        return;
+      }
+
+      state.activeVideoElement.muted = state.isMuted;
+      state.activeVideoElement.volume = state.isMuted ? 0 : state.volume;
     }
 
-    async function playCurrentMode() {
-      if (state.isMuted || !state.hasInteraction) {
+    function renderAudioControls() {
+      const hasSceneAudio = Boolean(state.activeSceneSoundPath);
+      const hasVideoAudio = Boolean(state.activeVideoElement);
+      const isAudioUnavailable = hasSceneAudio && state.unavailableSources.has(state.activeSceneSoundPath);
+      const hasAnyAudio = hasSceneAudio || hasVideoAudio;
+      const isEnabled = !state.isMuted && hasAnyAudio && !isAudioUnavailable;
+
+      elements.audioVolumeInput.value = String(Math.round(state.volume * 100));
+      elements.audioVolumeLabelElement.textContent = `${Math.round(state.volume * 100)}%`;
+      elements.audioVolumeInput.disabled = !hasAnyAudio;
+      elements.ambientToggleButton.disabled = !hasAnyAudio;
+      elements.ambientToggleButton.dataset.audioState = !hasSceneAudio
+        ? hasVideoAudio
+          ? state.isMuted ? "muted" : "playing"
+          : "idle"
+        : isAudioUnavailable
+          ? "missing"
+          : isEnabled
+            ? "playing"
+            : "muted";
+      elements.ambientToggleButton.setAttribute("aria-pressed", String(isEnabled));
+      elements.ambientToggleButton.title = !hasSceneAudio
+        ? hasVideoAudio
+          ? state.isMuted
+            ? "Video sound is muted."
+            : "Video sound is playing."
+          : "This slide does not have a dedicated sound file."
+        : isAudioUnavailable
+          ? "The sound file for this slide could not be loaded."
+          : state.isMuted
+            ? "Story sound is muted."
+            : "Story sound is playing.";
+      elements.ambientToggleLabelElement.textContent = !hasSceneAudio
+        ? hasVideoAudio
+          ? state.isMuted ? "Sound Off" : "Sound On"
+          : "No Sound"
+        : isAudioUnavailable
+          ? "Audio Missing"
+          : state.isMuted
+            ? "Sound Off"
+            : "Sound On";
+    }
+
+    function stopActiveSceneTrack({ resetTime = false } = {}) {
+      if (!state.activeSceneTrack) {
         return;
       }
 
-      const track = createTrack(state.currentMode);
+      clearFadeTimer(state.activeSceneTrack);
+      stopTrack(state.activeSceneTrack);
 
-      if (!track || state.unavailableModes.has(state.currentMode)) {
-        renderAmbientToggle();
+      if (resetTime) {
+        state.activeSceneTrack.currentTime = 0;
+      }
+    }
+
+    async function stopSceneSound({ fade = true, resetTime = false } = {}) {
+      if (!state.activeSceneTrack) {
         return;
       }
 
-      pauseTrack(state.currentMode === "map" ? state.tracks.story : state.tracks.map);
-      track.volume = AMBIENT_AUDIO_VOLUMES[state.currentMode] || 0.12;
+      const trackToStop = state.activeSceneTrack;
+      state.activeSceneTrack = null;
+
+      if (fade) {
+        await fadeTrackVolume(trackToStop, 0, STORY_SOUND_FADE_MS, {
+          pauseOnComplete: true
+        });
+      } else {
+        stopTrack(trackToStop);
+      }
+
+      if (resetTime) {
+        trackToStop.currentTime = 0;
+      }
+    }
+
+    async function playSceneSound(source) {
+      if (!source || state.unavailableSources.has(source)) {
+        renderAudioControls();
+        return;
+      }
+
+      const nextTrack = createSceneTrack(source);
+
+      if (!nextTrack) {
+        renderAudioControls();
+        return;
+      }
 
       try {
-        await track.play();
+        if (!state.isMuted && state.hasInteraction) {
+          await nextTrack.play();
+        }
       } catch (error) {
-        // Browsers can still block playback until enough interaction has occurred.
+        // Browser autoplay restrictions can still require a later interaction.
       }
 
-      renderAmbientToggle();
-    }
+      const previousTrack = state.activeSceneTrack;
+      state.activeSceneTrack = nextTrack;
 
-    function renderAmbientToggle() {
-      const isUnavailable = !isAmbientAudioAvailable();
-      const isCurrentModeUnavailable = state.unavailableModes.has(state.currentMode);
+      if (previousTrack && previousTrack !== nextTrack) {
+        fadeTrackVolume(previousTrack, 0, STORY_SOUND_FADE_MS, {
+          pauseOnComplete: true
+        }).then(() => {
+          stopTrack(previousTrack);
+        });
+      }
 
-      elements.ambientToggleButton.disabled = isUnavailable;
-      elements.ambientToggleButton.dataset.audioState = isUnavailable
-        ? "unavailable"
-        : isCurrentModeUnavailable
-          ? "missing"
-        : state.isMuted
-          ? "muted"
-          : "playing";
-      elements.ambientToggleButton.setAttribute("aria-pressed", String(!state.isMuted && !isUnavailable));
-      elements.ambientToggleButton.title = isUnavailable
-        ? "Add audio files at assets/audio/map-ambience.mp3 and assets/audio/story-ambience.mp3 to enable ambient sound."
-        : isCurrentModeUnavailable
-          ? "Add an audio file for this mode to enable ambient sound here."
-        : state.isMuted
-          ? "Ambient audio is muted."
-          : "Ambient audio is playing.";
-      elements.ambientToggleLabelElement.textContent = isUnavailable
-        ? "Audio Unavailable"
-        : isCurrentModeUnavailable
-          ? "Audio Missing"
-        : state.isMuted
-          ? "Sound Off"
-          : "Sound On";
+      if (state.isMuted) {
+        nextTrack.volume = 0;
+      } else {
+        await fadeTrackVolume(nextTrack, state.volume, STORY_SOUND_FADE_MS);
+      }
+
+      renderAudioControls();
     }
 
     function armFromInteraction() {
@@ -375,40 +519,153 @@
         state.hasInteraction = true;
       }
 
-      if (!state.isMuted) {
-        playCurrentMode();
+      if (state.isMuted || state.currentMode !== "story" || !state.activeSceneSoundPath) {
+        return;
       }
+
+      if (state.activeVideoElement) {
+        setVideoVolume();
+        renderAudioControls();
+        return;
+      }
+
+      if (state.activeSceneTrack) {
+        state.activeSceneTrack.volume = 0;
+
+        state.activeSceneTrack.play().then(() => {
+          fadeTrackVolume(state.activeSceneTrack, state.volume, STORY_SOUND_FADE_MS);
+        }).catch(() => {
+          // Browser may still require another interaction.
+        });
+
+        renderAudioControls();
+        return;
+      }
+
+      playSceneSound(state.activeSceneSoundPath);
     }
 
     function setAmbientMode(mode) {
       state.currentMode = mode === "story" ? "story" : "map";
-
-      if (!state.isMuted) {
-        playCurrentMode();
+      if (state.currentMode === "map") {
+        state.activeVideoElement = null;
+        state.activeSceneEventId = null;
+        state.activeSceneSoundPath = null;
+        stopSceneSound({
+          fade: true,
+          resetTime: true
+        });
+      } else if (!state.isMuted && state.activeSceneSoundPath && !state.activeSceneTrack) {
+        playSceneSound(state.activeSceneSoundPath);
       }
+
+      setVideoVolume();
+      renderAudioControls();
     }
 
     function toggleMute() {
-      if (!isAmbientAudioAvailable()) {
-        renderAmbientToggle();
+      if (!state.activeSceneSoundPath && !state.activeVideoElement) {
+        renderAudioControls();
         return;
       }
 
       state.isMuted = !state.isMuted;
-      persistMuteState();
+      persistState();
 
       if (state.isMuted) {
-        pauseAllTracks();
+        stopActiveSceneTrack();
       } else {
         armFromInteraction();
       }
 
-      renderAmbientToggle();
+      setVideoVolume();
+      renderAudioControls();
+    }
+
+    async function setStorySoundForEvent(event, activeMediaItem = null) {
+      const nextSource = Array.isArray(event?.soundFiles) && event.soundFiles.length
+        ? event.soundFiles[0]
+        : null;
+      const isVideoFocused = activeMediaItem?.type === "video";
+      const previousSource = state.activeSceneSoundPath;
+      const currentTrackMatchesNextSource = previousSource === nextSource;
+
+      state.activeSceneEventId = event?.id || null;
+      state.activeSceneSoundPath = nextSource;
+
+      if (state.currentMode !== "story" || !nextSource || isVideoFocused) {
+        await stopSceneSound({
+          fade: true,
+          resetTime: true
+        });
+        renderAudioControls();
+        return;
+      }
+
+      if (state.activeSceneTrack && currentTrackMatchesNextSource) {
+        if (state.isMuted) {
+          await fadeTrackVolume(state.activeSceneTrack, 0, STORY_SOUND_FADE_MS, {
+            pauseOnComplete: true
+          });
+        } else {
+          if (state.activeSceneTrack.paused && state.hasInteraction) {
+            try {
+              await state.activeSceneTrack.play();
+            } catch (error) {
+              // Browser may still require another interaction.
+            }
+          }
+
+          await fadeTrackVolume(state.activeSceneTrack, state.volume, STORY_SOUND_FADE_MS);
+        }
+
+        renderAudioControls();
+        return;
+      }
+
+      await playSceneSound(nextSource);
+    }
+
+    async function syncStoryMediaAudio(activeMediaItem, videoElement, event) {
+      state.activeVideoElement = activeMediaItem?.type === "video" ? (videoElement || null) : null;
+      setVideoVolume();
+
+      if (state.currentMode !== "story") {
+        renderAudioControls();
+        return;
+      }
+
+      if (activeMediaItem?.type === "video") {
+        await stopSceneSound({
+          fade: true,
+          resetTime: false
+        });
+        renderAudioControls();
+        return;
+      }
+
+      await setStorySoundForEvent(event, activeMediaItem);
     }
 
     elements.ambientToggleButton.addEventListener("click", () => {
       armFromInteraction();
       toggleMute();
+    });
+
+    elements.audioVolumeInput.addEventListener("input", () => {
+      state.volume = clamp(
+        Number(elements.audioVolumeInput.value) / 100,
+        STORY_SOUND_MIN_VOLUME,
+        STORY_SOUND_MAX_VOLUME
+      );
+      persistState();
+
+      if (state.activeSceneTrack && !state.isMuted) {
+        fadeTrackVolume(state.activeSceneTrack, state.volume, STORY_SOUND_FADE_MS);
+      }
+
+      setVideoVolume();
+      renderAudioControls();
     });
 
     document.addEventListener("pointerdown", () => {
@@ -417,12 +674,14 @@
       }
     }, { passive: true });
 
-    renderAmbientToggle();
+    renderAudioControls();
 
     return Object.freeze({
       armFromInteraction,
       setAmbientMode,
-      toggleMute
+      toggleMute,
+      setStorySoundForEvent,
+      syncStoryMediaAudio
     });
   }
 
@@ -696,8 +955,6 @@
           showMediaFallback();
         };
 
-        elements.storyMediaVideoElement.muted = false;
-        elements.storyMediaVideoElement.volume = 1;
         elements.storyMediaVideoElement.src = item.src;
         elements.storyMediaVideoElement.load();
         return;
@@ -742,13 +999,20 @@
     function renderActiveMedia() {
       state.mediaRequestToken += 1;
       const token = state.mediaRequestToken;
+      const activeMediaItem = state.mediaItems[state.activeMediaIndex] || null;
 
       if (!state.mediaItems.length) {
+        audioController.syncStoryMediaAudio(null, elements.storyMediaVideoElement, getCurrentEvent());
         showMediaFallback();
         return;
       }
 
       updateMediaGallerySelection();
+      audioController.syncStoryMediaAudio(
+        activeMediaItem,
+        elements.storyMediaVideoElement,
+        getCurrentEvent()
+      );
       loadMediaItem(state.activeMediaIndex, token);
     }
 
@@ -905,6 +1169,7 @@
       state.isBusy = true;
       state.entryMode = entryMode;
       state.currentIndex = normalizeStoryIndex(startIndex);
+      audioController.setAmbientMode("story");
       renderSlide({
         syncMapState: true,
         pulseActiveMarker: true
@@ -912,7 +1177,6 @@
 
       elements.launchButton.disabled = true;
       mapController.setInteractivity(false);
-      audioController.setAmbientMode("story");
       elements.pageElement.classList.remove("is-map-active");
       elements.pageElement.classList.add("is-transitioning", "is-transitioning-to-story");
 

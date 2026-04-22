@@ -779,6 +779,14 @@
     return Object.freeze(event);
   }
 
+  const STORY_SOUND = Object.freeze({
+    rain: "Slide 1/rainy-city-street-sound-effect.mp3",
+    tavern: "Slide 2/placidplace-tavern-ambience-with-openfire-effect-no-loops-86151 copy.mp3",
+    dream: "Slide 7/protoU - Static Memories.mp3",
+    murder: "Slide 9/church-bell-tolls-with-traffic.mp3",
+    bridge: "Slide 12/Coins Drop In Water Sound Effect.mp3"
+  });
+
   const STORY_EVENTS = Object.freeze([
     createStoryEvent({
       id: "tenement-origin",
@@ -796,6 +804,7 @@
       timelineStartDay: 1,
       timelineEndDay: 2,
       phase: "Before the Murder",
+      soundFiles: Object.freeze([STORY_SOUND.rain]),
       description:
         "The novel opens in Raskolnikov’s cramped room, where he isolates himself and begins to dwell on troubling, “monstrous” thoughts.",
       quote:
@@ -821,6 +830,7 @@
       timelineStartDay: 2,
       timelineEndDay: 2,
       phase: "Before the Murder",
+      soundFiles: Object.freeze([STORY_SOUND.tavern]),
       description:
         "Raskolnikov meets Marmeladov, who shares the story of his family’s suffering.",
       quote: "“Raskolnikov listened attentively.”",
@@ -845,6 +855,7 @@
       timelineStartDay: 2,
       timelineEndDay: 2,
       phase: "Before the Murder",
+      soundFiles: Object.freeze(["Slide 3/rainy-city-street-sound-effect.mp3"]),
       description:
         "After accompanying Marmeladov home, Raskolnikov witnesses the family’s poverty firsthand and impulsively leaves money for them.",
       quote:
@@ -870,6 +881,7 @@
       timelineStartDay: 2,
       timelineEndDay: 3,
       phase: "Before the Murder",
+      soundFiles: Object.freeze(["Slide 4/rainy-city-street-sound-effect.mp3"]),
       description:
         "Raskolnikov reads a letter he receives from his mother after a long time.",
       quote:
@@ -894,6 +906,7 @@
       timelineStartDay: 3,
       timelineEndDay: 3,
       phase: "Before the Murder",
+      soundFiles: Object.freeze(["Slide 6/rainy-city-street-sound-effect.mp3"]),
       description:
         "While walking in a distracted state, thoughts of his sister Dunya interrupt his mental isolation.",
       quote:
@@ -918,6 +931,7 @@
       timelineStartDay: 3,
       timelineEndDay: 4,
       phase: "Before the Murder",
+      soundFiles: Object.freeze([STORY_SOUND.dream]),
       description:
         "Overcome with exhaustion and drunk, Raskolnikov falls asleep outdoors and dreams of his childhood.",
       quote:
@@ -942,6 +956,7 @@
       timelineStartDay: 4,
       timelineEndDay: 4,
       phase: "Before the Murder",
+      soundFiles: Object.freeze(["Slide 8/placidplace-tavern-ambience-with-openfire-effect-no-loops-86151 copy.mp3"]),
       description:
         "Raskolnikov sits in a tavern in the Haymarket overhearing a student argue that killing the pawnbroker would be justified.",
       quote:
@@ -967,6 +982,7 @@
       timelineStartDay: 4,
       timelineEndDay: 4,
       phase: "The Murder",
+      soundFiles: Object.freeze([STORY_SOUND.murder]),
       description:
         "Raskolnikov kills the pawnbroker and, unexpectedly, her sister. Now in great detail he is cleaning the tools of his crime.",
       quote:
@@ -991,6 +1007,7 @@
       timelineStartDay: 5,
       timelineEndDay: 6,
       phase: "After the Murder",
+      soundFiles: Object.freeze(["Slide 10/rainy-city-street-sound-effect.mp3"]),
       description:
         "At the Police Station on Bolshaya Pod'yacheskaya Ulitsa, Rodion Raskolnikov is inside the building after being summoned about a minor matter.",
       quote:
@@ -1015,6 +1032,7 @@
       timelineStartDay: 5,
       timelineEndDay: 6,
       phase: "After the Murder",
+      soundFiles: Object.freeze(["Slide 11/rainy-city-street-sound-effect.mp3"]),
       description:
         "Raskolnikov hides the stolen items instead of using them.",
       quote:
@@ -1039,6 +1057,7 @@
       timelineStartDay: 7,
       timelineEndDay: 9,
       phase: "After the Murder",
+      soundFiles: Object.freeze([STORY_SOUND.bridge]),
       description:
         "At the Nikolaevsky Bridge, Rodion Raskolnikov stands alone, looking out over the river after wandering through the city. A stranger has just given him a small coin, mistaking him for a beggar. He pauses, opens his hand, looks at the coin for a moment, then throws it into the water and walks away without speaking to anyone.",
       quote:
@@ -1063,6 +1082,7 @@
       timelineStartDay: 8,
       timelineEndDay: 10,
       phase: "After the Murder",
+      soundFiles: Object.freeze(["Slide 13/rainy-city-street-sound-effect.mp3"]),
       description:
         "Right after his tense encounter with Razumikhin, Raskolnikov walks to a bridge and stops in the middle, leaning over the railing and looking out at the water. A crowd gathers nearby as a woman attempts to drown herself in the canal, and a policeman pulls her out.",
       quote:
