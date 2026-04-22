@@ -116,6 +116,12 @@
       introElement: document.querySelector("[data-intro-screen]"),
       launchButton: document.querySelector("[data-story-launch]"),
       launchLabelElement: document.querySelector("[data-story-launch-label]"),
+      infoToggleButton: document.querySelector("[data-info-toggle]"),
+      infoDrawerElement: document.querySelector("[data-info-drawer]"),
+      infoBackdropElement: document.querySelector("[data-info-backdrop]"),
+      infoCloseButton: document.querySelector("[data-info-close]"),
+      infoTabButtons: Array.from(document.querySelectorAll("[data-info-tab]")),
+      infoPanels: Array.from(document.querySelectorAll("[data-info-panel]")),
       storyVeilElement: document.querySelector("[data-story-veil]"),
       storyModeElement: document.querySelector("[data-story-mode]"),
       storyPanelElement: document.querySelector("[data-story-panel]"),
@@ -721,6 +727,99 @@
     elements.introElement.addEventListener("transitionend", handleTransitionEnd);
   }
 
+  function createInfoDrawerController(elements) {
+    const requiredElements = [
+      elements.pageElement,
+      elements.infoToggleButton,
+      elements.infoDrawerElement,
+      elements.infoBackdropElement,
+      elements.infoCloseButton
+    ];
+
+    if (!requiredElements.every(Boolean)) {
+      return;
+    }
+
+    const state = {
+      isOpen: false,
+      activeTab: "guide"
+    };
+
+    function renderTabs() {
+      elements.infoTabButtons.forEach((button) => {
+        const isActive = button.dataset.infoTab === state.activeTab;
+        button.classList.toggle("is-active", isActive);
+        button.setAttribute("aria-selected", String(isActive));
+        button.tabIndex = isActive ? 0 : -1;
+      });
+
+      elements.infoPanels.forEach((panel) => {
+        panel.hidden = panel.dataset.infoPanel !== state.activeTab;
+      });
+    }
+
+    function openDrawer() {
+      state.isOpen = true;
+      elements.infoDrawerElement.hidden = false;
+      elements.infoBackdropElement.hidden = false;
+      elements.infoToggleButton.setAttribute("aria-expanded", "true");
+      elements.pageElement.classList.add("is-info-drawer-open");
+
+      globalScope.requestAnimationFrame(() => {
+        elements.infoDrawerElement.classList.add("is-visible");
+        elements.infoBackdropElement.classList.add("is-visible");
+      });
+    }
+
+    function closeDrawer() {
+      state.isOpen = false;
+      elements.infoToggleButton.setAttribute("aria-expanded", "false");
+      elements.infoDrawerElement.classList.remove("is-visible");
+      elements.infoBackdropElement.classList.remove("is-visible");
+      elements.pageElement.classList.remove("is-info-drawer-open");
+
+      globalScope.setTimeout(() => {
+        if (state.isOpen) {
+          return;
+        }
+
+        elements.infoDrawerElement.hidden = true;
+        elements.infoBackdropElement.hidden = true;
+      }, 260);
+    }
+
+    function toggleDrawer() {
+      if (state.isOpen) {
+        closeDrawer();
+        return;
+      }
+
+      openDrawer();
+    }
+
+    function selectTab(tabKey) {
+      state.activeTab = tabKey;
+      renderTabs();
+    }
+
+    renderTabs();
+
+    elements.infoToggleButton.addEventListener("click", toggleDrawer);
+    elements.infoCloseButton.addEventListener("click", closeDrawer);
+    elements.infoBackdropElement.addEventListener("click", closeDrawer);
+    elements.infoTabButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        selectTab(button.dataset.infoTab || "guide");
+      });
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && state.isOpen) {
+        closeDrawer();
+      }
+    });
+  }
+
   function bootMap() {
     const elements = createElements();
     const mapController = new SceneMapController(elements);
@@ -739,6 +838,7 @@
 
       storyController.openAtSlide(location.slideIndex - 1);
     });
+    createInfoDrawerController(elements);
     createIntroController(elements, mapController);
   }
 

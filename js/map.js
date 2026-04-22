@@ -5,10 +5,10 @@
   const TILE_LAYER_ATTRIBUTION = "&copy; OpenStreetMap contributors";
   const MARKER_STYLE = Object.freeze({
     radius: 7,
-    color: "#f3ead9",
+    color: "#ffd2cc",
     weight: 2,
-    fillColor: "#d8cab1",
-    fillOpacity: 0.92
+    fillColor: "#d12525",
+    fillOpacity: 0.98
   });
   const HOME_ICON_SIZE = Object.freeze([74, 64]);
   const HOME_ICON_ANCHOR = Object.freeze([37, 54]);
