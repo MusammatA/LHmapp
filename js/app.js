@@ -242,16 +242,33 @@
         button.dataset.mediaType = item.type;
         button.setAttribute("aria-label", `View ${item.label}`);
 
+        const previewFrame = document.createElement("span");
+        previewFrame.className = "story-media-thumb__frame";
+
         if (item.type === "image") {
           const thumbnail = document.createElement("img");
           thumbnail.className = "story-media-thumb__image";
           thumbnail.src = item.src;
           thumbnail.alt = "";
-          button.append(thumbnail);
+          previewFrame.append(thumbnail);
         } else {
+          previewFrame.classList.add("story-media-thumb__frame--video");
           const badge = document.createElement("span");
-          badge.className = "story-media-thumb__label";
-          badge.textContent = item.label;
+          badge.className = "story-media-thumb__video-badge";
+          badge.textContent = "Video";
+          previewFrame.append(badge);
+        }
+
+        const caption = document.createElement("span");
+        caption.className = "story-media-thumb__caption";
+        caption.textContent = item.label;
+
+        button.append(previewFrame, caption);
+
+        if (item.type === "video") {
+          const badge = document.createElement("span");
+          badge.className = "story-media-thumb__audio-note";
+          badge.textContent = "Sound available";
           button.append(badge);
         }
 

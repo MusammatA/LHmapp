@@ -747,22 +747,22 @@ body {
 
 .story-panel__media-gallery {
   display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(92px, 112px);
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  gap: 14px;
   padding: 14px;
   border-top: 1px solid rgba(155, 133, 104, 0.08);
   background:
     linear-gradient(180deg, rgba(7, 7, 8, 0.1), rgba(7, 7, 8, 0.28)),
     rgba(18, 14, 12, 0.82);
-  overflow-x: auto;
+  overflow: auto;
 }
 
 .story-media-thumb {
   display: grid;
-  place-items: center;
-  height: 76px;
-  padding: 0;
+  gap: 8px;
+  align-content: start;
+  min-height: 146px;
+  padding: 10px;
   border: 1px solid rgba(163, 140, 109, 0.08);
   border-radius: 4px;
   background:
@@ -790,6 +790,26 @@ body {
     0 14px 24px rgba(0, 0, 0, 0.22);
 }
 
+.story-media-thumb__frame {
+  position: relative;
+  display: grid;
+  width: 100%;
+  height: 92px;
+  border: 1px solid rgba(159, 135, 104, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 100%),
+    rgba(9, 8, 8, 0.8);
+}
+
+.story-media-thumb__frame--video {
+  place-items: center;
+  background:
+    radial-gradient(circle at top, rgba(135, 110, 77, 0.16), transparent 36%),
+    linear-gradient(180deg, rgba(28, 20, 18, 0.96), rgba(10, 10, 10, 0.96));
+}
+
 .story-media-thumb__image {
   display: block;
   width: 100%;
@@ -797,13 +817,39 @@ body {
   object-fit: cover;
 }
 
-.story-media-thumb__label {
-  padding: 10px;
-  font-size: 0.72rem;
+.story-media-thumb__video-badge,
+.story-media-thumb__caption,
+.story-media-thumb__audio-note {
+  display: block;
+}
+
+.story-media-thumb__video-badge {
+  color: var(--story-phase-accent);
+  font-family: var(--font-display);
+  font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  text-align: center;
+  font-variant-caps: all-small-caps;
+}
+
+.story-media-thumb__caption {
+  color: var(--color-text);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-align: left;
+  font-variant-caps: all-small-caps;
+}
+
+.story-media-thumb__audio-note {
+  color: var(--color-muted);
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: left;
+  font-variant-caps: all-small-caps;
 }
 
 .story-panel__media-fallback {
