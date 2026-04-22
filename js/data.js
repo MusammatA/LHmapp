@@ -831,6 +831,8 @@
       timelineStartDay: 2,
       timelineEndDay: 2,
       phase: "Before the Murder",
+      soundLeadInMs: 280,
+      soundFadeInMs: 220,
       soundVolumeBoost: 1.2,
       soundFiles: Object.freeze([STORY_SOUND.tavern]),
       description:
@@ -933,7 +935,8 @@
       timelineStartDay: 3,
       timelineEndDay: 4,
       phase: "Before the Murder",
-      soundLeadInMs: 320,
+      soundLeadInMs: 360,
+      soundFadeInMs: 180,
       soundFiles: Object.freeze([STORY_SOUND.dream]),
       description:
         "Overcome with exhaustion and drunk, Raskolnikov falls asleep outdoors and dreams of his childhood.",

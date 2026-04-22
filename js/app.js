@@ -12,7 +12,7 @@
   const CHAPTER_CARD_FADE_MS = 360;
   const RESET_VISITED_ON_GUIDED_REPLAY = false;
   const MAP_AMBIENT_SOUND_PATH = "Wind Sound SOUND EFFECT - No Copyright[Download Free].mp3";
-  const AMBIENT_AUDIO_SESSION_KEY = "geography-of-guilt.ambient-muted";
+  const AMBIENT_AUDIO_SESSION_KEY = "geography-of-guilt.ambient-muted.v2";
   const STORY_AUDIO_VOLUME_SESSION_KEY = "geography-of-guilt.story-volume.v2";
   const STORY_ENTRY_MODE = Object.freeze({
     guided: "guided",
@@ -48,6 +48,13 @@
 
   function clamp(value, minimum, maximum) {
     return Math.min(Math.max(value, minimum), maximum);
+  }
+
+  // Some local asset filenames include characters like square brackets.
+  // Browsers can be inconsistent with those when used directly in URLs, so
+  // we normalize them once before handing paths to media elements or Audio().
+  function encodeAssetPath(path) {
+    return encodeURI(path).replace(/\[/g, "%5B").replace(/\]/g, "%5D");
   }
 
   function unique(values) {
@@ -173,7 +180,7 @@
         return {
           id: `${event.id}-${index}`,
           path,
-          src: encodeURI(path),
+          src: encodeAssetPath(path),
           type,
           label
         };
@@ -258,7 +265,7 @@
     const state = {
       currentMode: "map",
       hasInteraction: false,
-      isMuted: true,
+      isMuted: false,
       volume: STORY_SOUND_DEFAULT_VOLUME,
       mapSoundPath: MAP_AMBIENT_SOUND_PATH,
       mapTrack: null,
@@ -374,7 +381,7 @@
         return null;
       }
 
-      const track = new globalScope.Audio(encodeURI(source));
+      const track = new globalScope.Audio(encodeAssetPath(source));
       track.loop = true;
       track.preload = "none";
       track.volume = 0;
@@ -405,6 +412,16 @@
       const volumeBoost = Number.isFinite(soundBoost) && soundBoost > 0 ? soundBoost : 1;
 
       return clamp(state.volume * volumeBoost, STORY_SOUND_MIN_VOLUME, STORY_SOUND_MAX_VOLUME);
+    }
+
+    function resolveSceneFadeDuration(event) {
+      const configuredDuration = Number(event?.soundFadeInMs);
+
+      if (Number.isFinite(configuredDuration) && configuredDuration >= 0) {
+        return configuredDuration;
+      }
+
+      return STORY_SOUND_FADE_MS;
     }
 
     function hasMapAmbientAudio() {
@@ -627,7 +644,11 @@
       if (state.isMuted) {
         nextTrack.volume = 0;
       } else {
-        await fadeTrackVolume(nextTrack, resolveSceneTargetVolume(event), STORY_SOUND_FADE_MS);
+        await fadeTrackVolume(
+          nextTrack,
+          resolveSceneTargetVolume(event),
+          resolveSceneFadeDuration(event)
+        );
       }
 
       renderAudioControls();
@@ -665,7 +686,7 @@
           fadeTrackVolume(
             state.activeSceneTrack,
             resolveSceneTargetVolume(activeEvent),
-            STORY_SOUND_FADE_MS
+            resolveSceneFadeDuration(activeEvent)
           );
         }).catch(() => {
           // Browser may still require another interaction.
@@ -767,7 +788,7 @@
           await fadeTrackVolume(
             state.activeSceneTrack,
             resolveSceneTargetVolume(event),
-            STORY_SOUND_FADE_MS
+            resolveSceneFadeDuration(event)
           );
         }
 
