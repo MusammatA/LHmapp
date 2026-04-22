@@ -784,7 +784,8 @@
     tavern: "Slide 2/placidplace-tavern-ambience-with-openfire-effect-no-loops-86151 copy.mp3",
     dream: "Slide 7/protoU - Static Memories.mp3",
     murder: "Slide 9/church-bell-tolls-with-traffic.mp3",
-    bridge: "Slide 12/Coins Drop In Water Sound Effect.mp3"
+    bridge: "Slide 12/Coins Drop In Water Sound Effect.mp3",
+    breathing: "Slide 14/Slow Breathing Sound Effect (HD).mp3"
   });
 
   const STORY_EVENTS = Object.freeze([
@@ -1110,6 +1111,7 @@
       timelineStartDay: 14,
       timelineEndDay: 14,
       phase: "After the Murder",
+      soundFiles: Object.freeze([STORY_SOUND.breathing]),
       description:
         "Raskolnikov confesses the crime to Sonya.",
       quote:

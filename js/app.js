@@ -11,6 +11,7 @@
   const CHAPTER_CARD_HOLD_MS = 920;
   const CHAPTER_CARD_FADE_MS = 360;
   const RESET_VISITED_ON_GUIDED_REPLAY = false;
+  const MAP_AMBIENT_SOUND_PATH = "Wind Sound SOUND EFFECT - No Copyright[Download Free].mp3";
   const AMBIENT_AUDIO_SESSION_KEY = "geography-of-guilt.ambient-muted";
   const STORY_AUDIO_VOLUME_SESSION_KEY = "geography-of-guilt.story-volume.v2";
   const STORY_ENTRY_MODE = Object.freeze({
@@ -247,6 +248,7 @@
       return Object.freeze({
         armFromInteraction() {},
         setAmbientMode() {},
+        primeStorySoundForEvent() {},
         toggleMute() {},
         setStorySoundForEvent() {},
         syncStoryMediaAudio() {}
@@ -258,6 +260,8 @@
       hasInteraction: false,
       isMuted: true,
       volume: STORY_SOUND_DEFAULT_VOLUME,
+      mapSoundPath: MAP_AMBIENT_SOUND_PATH,
+      mapTrack: null,
       activeSceneEventId: null,
       activeSceneSoundPath: null,
       activeSceneTrack: null,
@@ -403,18 +407,31 @@
       return clamp(state.volume * volumeBoost, STORY_SOUND_MIN_VOLUME, STORY_SOUND_MAX_VOLUME);
     }
 
+    function hasMapAmbientAudio() {
+      return Boolean(state.mapSoundPath) && !state.unavailableSources.has(state.mapSoundPath);
+    }
+
     function renderAudioControls() {
+      const hasMapAudio = state.currentMode === "map" && Boolean(state.mapSoundPath);
       const hasSceneAudio = Boolean(state.activeSceneSoundPath);
       const hasVideoAudio = Boolean(state.activeVideoElement);
-      const isAudioUnavailable = hasSceneAudio && state.unavailableSources.has(state.activeSceneSoundPath);
-      const hasAnyAudio = hasSceneAudio || hasVideoAudio;
+      const isAudioUnavailable = hasMapAudio
+        ? state.unavailableSources.has(state.mapSoundPath)
+        : hasSceneAudio && state.unavailableSources.has(state.activeSceneSoundPath);
+      const hasAnyAudio = hasMapAudio || hasSceneAudio || hasVideoAudio;
       const isEnabled = !state.isMuted && hasAnyAudio && !isAudioUnavailable;
 
       elements.audioVolumeInput.value = String(Math.round(state.volume * 100));
       elements.audioVolumeLabelElement.textContent = `${Math.round(state.volume * 100)}%`;
       elements.audioVolumeInput.disabled = !hasAnyAudio;
       elements.ambientToggleButton.disabled = !hasAnyAudio;
-      elements.ambientToggleButton.dataset.audioState = !hasSceneAudio
+      elements.ambientToggleButton.dataset.audioState = hasMapAudio
+        ? isAudioUnavailable
+          ? "missing"
+          : isEnabled
+            ? "playing"
+            : "muted"
+        : !hasSceneAudio
         ? hasVideoAudio
           ? state.isMuted ? "muted" : "playing"
           : "idle"
@@ -424,7 +441,13 @@
             ? "playing"
             : "muted";
       elements.ambientToggleButton.setAttribute("aria-pressed", String(isEnabled));
-      elements.ambientToggleButton.title = !hasSceneAudio
+      elements.ambientToggleButton.title = hasMapAudio
+        ? isAudioUnavailable
+          ? "The map ambience file could not be loaded."
+          : state.isMuted
+            ? "Map ambience is muted."
+            : "Map ambience is playing."
+        : !hasSceneAudio
         ? hasVideoAudio
           ? state.isMuted
             ? "Video sound is muted."
@@ -435,7 +458,9 @@
           : state.isMuted
             ? "Story sound is muted."
             : "Story sound is playing.";
-      elements.ambientToggleLabelElement.textContent = !hasSceneAudio
+      elements.ambientToggleLabelElement.textContent = hasMapAudio
+        ? state.isMuted ? "Sound Off" : "Sound On"
+        : !hasSceneAudio
         ? hasVideoAudio
           ? state.isMuted ? "Sound Off" : "Sound On"
           : "No Sound"
@@ -459,6 +484,19 @@
       }
     }
 
+    function stopMapTrack({ resetTime = false } = {}) {
+      if (!state.mapTrack) {
+        return;
+      }
+
+      clearFadeTimer(state.mapTrack);
+      stopTrack(state.mapTrack);
+
+      if (resetTime) {
+        state.mapTrack.currentTime = 0;
+      }
+    }
+
     async function stopSceneSound({ fade = true, resetTime = false } = {}) {
       if (!state.activeSceneTrack) {
         return;
@@ -478,6 +516,80 @@
       if (resetTime) {
         trackToStop.currentTime = 0;
       }
+    }
+
+    async function stopMapSound({ fade = true, resetTime = false } = {}) {
+      if (!state.mapTrack) {
+        return;
+      }
+
+      const trackToStop = state.mapTrack;
+      state.mapTrack = null;
+
+      if (fade) {
+        await fadeTrackVolume(trackToStop, 0, STORY_SOUND_FADE_MS, {
+          pauseOnComplete: true
+        });
+      } else {
+        stopTrack(trackToStop);
+      }
+
+      if (resetTime) {
+        trackToStop.currentTime = 0;
+      }
+    }
+
+    async function playMapSound() {
+      if (!hasMapAmbientAudio()) {
+        renderAudioControls();
+        return;
+      }
+
+      if (state.mapTrack) {
+        if (state.isMuted) {
+          await fadeTrackVolume(state.mapTrack, 0, STORY_SOUND_FADE_MS, {
+            pauseOnComplete: true
+          });
+        } else {
+          if (state.mapTrack.paused && state.hasInteraction) {
+            try {
+              await state.mapTrack.play();
+            } catch (error) {
+              // Browser autoplay restrictions can still require a later interaction.
+            }
+          }
+
+          await fadeTrackVolume(state.mapTrack, state.volume, STORY_SOUND_FADE_MS);
+        }
+
+        renderAudioControls();
+        return;
+      }
+
+      const nextTrack = createSceneTrack(state.mapSoundPath);
+
+      if (!nextTrack) {
+        renderAudioControls();
+        return;
+      }
+
+      try {
+        if (!state.isMuted && state.hasInteraction) {
+          await nextTrack.play();
+        }
+      } catch (error) {
+        // Browser autoplay restrictions can still require a later interaction.
+      }
+
+      state.mapTrack = nextTrack;
+
+      if (state.isMuted) {
+        nextTrack.volume = 0;
+      } else {
+        await fadeTrackVolume(nextTrack, state.volume, STORY_SOUND_FADE_MS);
+      }
+
+      renderAudioControls();
     }
 
     async function playSceneSound(source, event = null) {
@@ -526,7 +638,16 @@
         state.hasInteraction = true;
       }
 
-      if (state.isMuted || state.currentMode !== "story" || !state.activeSceneSoundPath) {
+      if (state.isMuted) {
+        return;
+      }
+
+      if (state.currentMode === "map") {
+        playMapSound();
+        return;
+      }
+
+      if (!state.activeSceneSoundPath) {
         return;
       }
 
@@ -568,9 +689,21 @@
           fade: true,
           resetTime: true
         });
+        if (!state.isMuted) {
+          playMapSound();
+        }
       } else if (!state.isMuted && state.activeSceneSoundPath && !state.activeSceneTrack) {
+        stopMapSound({
+          fade: true,
+          resetTime: false
+        });
         const activeEvent = STORY_EVENTS.find((event) => event.id === state.activeSceneEventId) || null;
         playSceneSound(state.activeSceneSoundPath, activeEvent);
+      } else if (state.currentMode === "story") {
+        stopMapSound({
+          fade: true,
+          resetTime: false
+        });
       }
 
       setVideoVolume();
@@ -578,7 +711,7 @@
     }
 
     function toggleMute() {
-      if (!state.activeSceneSoundPath && !state.activeVideoElement) {
+      if (!hasMapAmbientAudio() && !state.activeSceneSoundPath && !state.activeVideoElement) {
         renderAudioControls();
         return;
       }
@@ -588,6 +721,7 @@
 
       if (state.isMuted) {
         stopActiveSceneTrack();
+        stopMapTrack();
       } else {
         armFromInteraction();
       }
@@ -696,6 +830,10 @@
           resolveSceneTargetVolume(activeEvent),
           STORY_SOUND_FADE_MS
         );
+      }
+
+      if (state.mapTrack && !state.isMuted) {
+        fadeTrackVolume(state.mapTrack, state.volume, STORY_SOUND_FADE_MS);
       }
 
       setVideoVolume();
