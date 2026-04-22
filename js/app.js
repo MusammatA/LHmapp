@@ -121,6 +121,9 @@
       infoBackdropElement: document.querySelector("[data-info-backdrop]"),
       infoCloseButton: document.querySelector("[data-info-close]"),
       infoTabButtons: Array.from(document.querySelectorAll("[data-info-tab]")),
+      infoScreenElement: document.querySelector("[data-info-screen]"),
+      infoBackButton: document.querySelector("[data-info-back]"),
+      infoScreenCloseButton: document.querySelector("[data-info-screen-close]"),
       infoPanels: Array.from(document.querySelectorAll("[data-info-panel]")),
       storyVeilElement: document.querySelector("[data-story-veil]"),
       storyModeElement: document.querySelector("[data-story-mode]"),
@@ -733,7 +736,10 @@
       elements.infoToggleButton,
       elements.infoDrawerElement,
       elements.infoBackdropElement,
-      elements.infoCloseButton
+      elements.infoCloseButton,
+      elements.infoScreenElement,
+      elements.infoBackButton,
+      elements.infoScreenCloseButton
     ];
 
     if (!requiredElements.every(Boolean)) {
@@ -741,25 +747,19 @@
     }
 
     const state = {
-      isOpen: false,
+      isDrawerOpen: false,
+      isScreenOpen: false,
       activeTab: "guide"
     };
 
-    function renderTabs() {
-      elements.infoTabButtons.forEach((button) => {
-        const isActive = button.dataset.infoTab === state.activeTab;
-        button.classList.toggle("is-active", isActive);
-        button.setAttribute("aria-selected", String(isActive));
-        button.tabIndex = isActive ? 0 : -1;
-      });
-
+    function renderPanels() {
       elements.infoPanels.forEach((panel) => {
         panel.hidden = panel.dataset.infoPanel !== state.activeTab;
       });
     }
 
     function openDrawer() {
-      state.isOpen = true;
+      state.isDrawerOpen = true;
       elements.infoDrawerElement.hidden = false;
       elements.infoBackdropElement.hidden = false;
       elements.infoToggleButton.setAttribute("aria-expanded", "true");
@@ -772,24 +772,26 @@
     }
 
     function closeDrawer() {
-      state.isOpen = false;
+      state.isDrawerOpen = false;
       elements.infoToggleButton.setAttribute("aria-expanded", "false");
       elements.infoDrawerElement.classList.remove("is-visible");
-      elements.infoBackdropElement.classList.remove("is-visible");
       elements.pageElement.classList.remove("is-info-drawer-open");
 
       globalScope.setTimeout(() => {
-        if (state.isOpen) {
+        if (state.isDrawerOpen) {
           return;
         }
 
         elements.infoDrawerElement.hidden = true;
-        elements.infoBackdropElement.hidden = true;
+        if (!state.isScreenOpen) {
+          elements.infoBackdropElement.classList.remove("is-visible");
+          elements.infoBackdropElement.hidden = true;
+        }
       }, 260);
     }
 
     function toggleDrawer() {
-      if (state.isOpen) {
+      if (state.isDrawerOpen) {
         closeDrawer();
         return;
       }
@@ -797,24 +799,79 @@
       openDrawer();
     }
 
-    function selectTab(tabKey) {
+    function openScreen(tabKey) {
       state.activeTab = tabKey;
-      renderTabs();
+      renderPanels();
+      state.isScreenOpen = true;
+      closeDrawer();
+      elements.infoScreenElement.hidden = false;
+      elements.infoBackdropElement.hidden = false;
+      elements.pageElement.classList.add("is-info-screen-open");
+
+      globalScope.requestAnimationFrame(() => {
+        elements.infoScreenElement.classList.add("is-visible");
+        elements.infoBackdropElement.classList.add("is-visible");
+      });
     }
 
-    renderTabs();
+    function closeScreen() {
+      state.isScreenOpen = false;
+      elements.infoScreenElement.classList.remove("is-visible");
+      elements.pageElement.classList.remove("is-info-screen-open");
+
+      globalScope.setTimeout(() => {
+        if (state.isScreenOpen) {
+          return;
+        }
+
+        elements.infoScreenElement.hidden = true;
+        if (!state.isDrawerOpen) {
+          elements.infoBackdropElement.classList.remove("is-visible");
+          elements.infoBackdropElement.hidden = true;
+        }
+      }, 260);
+    }
+
+    function returnToMenu() {
+      closeScreen();
+      globalScope.setTimeout(() => {
+        if (!state.isScreenOpen) {
+          openDrawer();
+        }
+      }, 260);
+    }
+
+    renderPanels();
 
     elements.infoToggleButton.addEventListener("click", toggleDrawer);
     elements.infoCloseButton.addEventListener("click", closeDrawer);
-    elements.infoBackdropElement.addEventListener("click", closeDrawer);
+    elements.infoBackButton.addEventListener("click", returnToMenu);
+    elements.infoScreenCloseButton.addEventListener("click", closeScreen);
+    elements.infoBackdropElement.addEventListener("click", () => {
+      if (state.isScreenOpen) {
+        closeScreen();
+        return;
+      }
+
+      closeDrawer();
+    });
     elements.infoTabButtons.forEach((button) => {
       button.addEventListener("click", () => {
-        selectTab(button.dataset.infoTab || "guide");
+        openScreen(button.dataset.infoTab || "guide");
       });
     });
 
     document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape" && state.isOpen) {
+      if (event.key !== "Escape") {
+        return;
+      }
+
+      if (state.isScreenOpen) {
+        closeScreen();
+        return;
+      }
+
+      if (state.isDrawerOpen) {
         closeDrawer();
       }
     });
