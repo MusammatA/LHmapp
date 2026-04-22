@@ -3,20 +3,80 @@
   const DEFAULT_MAP_ZOOM = 12;
   const TILE_LAYER_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
   const TILE_LAYER_ATTRIBUTION = "&copy; OpenStreetMap contributors";
-  const MARKER_STYLE = Object.freeze({
-    radius: 7,
-    color: "#ffd2cc",
-    weight: 2,
-    fillColor: "#d12525",
-    fillOpacity: 0.98
+  const STORY_MARKER_FOCUS_ZOOM = 15;
+  const STORY_MARKER_OPEN_DELAY_MS = 420;
+  const STORY_MARKER_PULSE_MS = 1650;
+  const STORY_PATH_PANE = "storyPathPane";
+  const TOOLTIP_DIRECTIONS = Object.freeze(["top", "right", "left", "bottom"]);
+
+  /* Story marker pulse and visited states */
+  const STORY_MARKER_STYLES = Object.freeze({
+    default: Object.freeze({
+      radius: 7,
+      color: "#ffd4cd",
+      weight: 2,
+      fillColor: "#de1f1f",
+      fillOpacity: 0.98
+    }),
+    visited: Object.freeze({
+      radius: 7,
+      color: "#cba5a1",
+      weight: 2,
+      fillColor: "#8e2929",
+      fillOpacity: 0.92
+    }),
+    active: Object.freeze({
+      radius: 8.4,
+      color: "#ffe7df",
+      weight: 2.4,
+      fillColor: "#ff3232",
+      fillOpacity: 1
+    }),
+    hover: Object.freeze({
+      radius: 8,
+      color: "#ffe0d8",
+      weight: 2.2,
+      fillColor: "#ff2b2b",
+      fillOpacity: 1
+    })
   });
+
+  /* Guided-mode path line between story locations */
+  const STORY_PATH_STYLES = Object.freeze({
+    base: Object.freeze({
+      color: "#8f7152",
+      weight: 2.2,
+      opacity: 0.22,
+      dashArray: "10 12",
+      lineCap: "round",
+      lineJoin: "round",
+      className: "story-path-line story-path-line--base",
+      pane: STORY_PATH_PANE
+    }),
+    progress: Object.freeze({
+      color: "#d1b38b",
+      weight: 2.8,
+      opacity: 0.58,
+      lineCap: "round",
+      lineJoin: "round",
+      className: "story-path-line story-path-line--progress",
+      pane: STORY_PATH_PANE
+    }),
+    current: Object.freeze({
+      color: "#f1deba",
+      weight: 3.6,
+      opacity: 0.84,
+      lineCap: "round",
+      lineJoin: "round",
+      className: "story-path-line story-path-line--current",
+      pane: STORY_PATH_PANE
+    })
+  });
+
   const HOME_ICON_SIZE = Object.freeze([174, 120]);
   const HOME_ICON_ANCHOR = Object.freeze([87, 94]);
   const PIN_ICON_SIZE = Object.freeze([36, 48]);
   const PIN_ICON_ANCHOR = Object.freeze([18, 44]);
-  const STORY_MARKER_FOCUS_ZOOM = 15;
-  const STORY_MARKER_OPEN_DELAY_MS = 420;
-  const TOOLTIP_DIRECTIONS = Object.freeze(["top", "right", "left", "bottom"]);
 
   function toLatLng(location) {
     return [location.lat, location.lng];
@@ -48,6 +108,18 @@
     return wrapper;
   }
 
+  function createStoryMarkerRecord(location, marker) {
+    return {
+      location,
+      marker,
+      markerElement: null,
+      tooltipElement: null,
+      isHovered: false,
+      isPulsing: false,
+      pulseTimerId: null
+    };
+  }
+
   class SceneMapController {
     constructor(elements) {
       this.mapElement = elements.mapElement;
@@ -59,13 +131,23 @@
       this.tileLayer = null;
       this.markers = [];
       this.locations = [];
+      this.storyEvents = [];
       this.interactionEnabled = true;
       this.locationSelectHandler = null;
       this.locationSelectTimer = null;
+      this.storyMarkerRecords = [];
+      this.storyMarkerBySlideIndex = new Map();
+      this.visitedStorySlides = new Set();
+      this.activeStorySlideIndex = null;
+      this.storyPathVisible = false;
+      this.storyPathBaseLine = null;
+      this.storyPathProgressLine = null;
+      this.storyPathCurrentLine = null;
     }
 
-    async initialize({ locations, interactive = true }) {
+    async initialize({ locations, storyEvents = [], interactive = true }) {
       this.locations = locations.slice();
+      this.storyEvents = Array.isArray(storyEvents) ? storyEvents.slice() : [];
       this.interactionEnabled = interactive;
 
       if (!globalScope.L) {
@@ -103,15 +185,16 @@
         maxZoom: 19
       }).addTo(this.map);
 
+      this.ensureStoryPathPane();
       this.setInteractivity(this.interactionEnabled);
 
       const bounds = [];
 
       this.locations.forEach((location, index) => {
         const marker = this.createMarker(location);
-        const isStoryLocation = Number.isInteger(location.slideIndex);
+        const isStoryLocation = Array.isArray(location.slideIndices) && location.slideIndices.length > 0;
         const markerLabelClass = isStoryLocation
-          ? "location-label location-label--interactive"
+          ? "location-label location-label--interactive location-label--story"
           : "location-label";
 
         if (location.showTooltip !== false && location.label) {
@@ -122,20 +205,37 @@
             offset: this.getTooltipOffset(location, index),
             className: markerLabelClass
           });
+        }
+
+        if (isStoryLocation) {
+          const record = createStoryMarkerRecord(location, marker);
+          this.storyMarkerRecords.push(record);
+
+          location.slideIndices.forEach((slideNumber) => {
+            this.storyMarkerBySlideIndex.set(slideNumber, record);
+          });
+
+          marker.on("click", () => {
+            this.handleLocationSelection(location);
+          });
+          marker.on("mouseover", () => {
+            record.isHovered = true;
+            this.applyStoryMarkerVisualState(record);
+          });
+          marker.on("mouseout", () => {
+            record.isHovered = false;
+            this.applyStoryMarkerVisualState(record);
+          });
 
           const tooltip = marker.getTooltip();
 
-          if (tooltip && isStoryLocation) {
+          if (tooltip) {
             tooltip.on("click", () => {
               this.handleLocationSelection(location);
             });
           }
-        }
 
-        if (isStoryLocation) {
-          marker.on("click", () => {
-            this.handleLocationSelection(location);
-          });
+          this.deferStoryMarkerElementSync(record);
         }
 
         this.markers.push(marker);
@@ -144,6 +244,8 @@
           bounds.push(toLatLng(location));
         }
       });
+
+      this.renderStoryPath();
 
       const initialBounds = bounds.length
         ? bounds
@@ -157,14 +259,34 @@
       }
     }
 
-    createMarker(location) {
-      const marker = location.markerType === "story"
-        ? globalScope.L.circleMarker(toLatLng(location), MARKER_STYLE)
-        : globalScope.L.marker(toLatLng(location), {
-            icon: this.createMarkerIcon(location)
-          });
+    ensureStoryPathPane() {
+      if (!this.map) {
+        return;
+      }
 
-      return marker.addTo(this.map);
+      if (!this.map.getPane(STORY_PATH_PANE)) {
+        this.map.createPane(STORY_PATH_PANE);
+      }
+
+      const pane = this.map.getPane(STORY_PATH_PANE);
+
+      if (pane) {
+        pane.style.zIndex = "360";
+        pane.style.pointerEvents = "none";
+      }
+    }
+
+    createMarker(location) {
+      if (location.markerType === "story") {
+        return globalScope.L.circleMarker(toLatLng(location), {
+          ...STORY_MARKER_STYLES.default,
+          className: "story-marker-dot"
+        }).addTo(this.map);
+      }
+
+      return globalScope.L.marker(toLatLng(location), {
+        icon: this.createMarkerIcon(location)
+      }).addTo(this.map);
     }
 
     createMarkerIcon(location) {
@@ -215,6 +337,265 @@
       }
     }
 
+    deferStoryMarkerElementSync(record, attemptsRemaining = 4) {
+      globalScope.requestAnimationFrame(() => {
+        this.syncStoryMarkerElements(record, attemptsRemaining);
+      });
+    }
+
+    syncStoryMarkerElements(record, attemptsRemaining = 0) {
+      if (!record) {
+        return;
+      }
+
+      record.markerElement = record.marker.getElement() || null;
+
+      if (record.markerElement) {
+        record.markerElement.classList.add("story-marker-dot");
+      }
+
+      const tooltip = record.marker.getTooltip();
+      record.tooltipElement = tooltip && typeof tooltip.getElement === "function"
+        ? tooltip.getElement()
+        : null;
+
+      if (record.tooltipElement) {
+        record.tooltipElement.classList.add("location-label--story");
+      }
+
+      this.applyStoryMarkerVisualState(record);
+
+      if ((!record.markerElement || !record.tooltipElement) && attemptsRemaining > 0) {
+        globalScope.setTimeout(() => {
+          this.deferStoryMarkerElementSync(record, attemptsRemaining - 1);
+        }, 80);
+      }
+    }
+
+    getStoryMarkerStyle(record) {
+      const isActive = this.activeStorySlideIndex !== null
+        && record.location.slideIndices.includes(this.activeStorySlideIndex);
+      const isVisited = record.location.slideIndices.some((slideNumber) =>
+        this.visitedStorySlides.has(slideNumber)
+      );
+
+      if (isActive) {
+        return STORY_MARKER_STYLES.active;
+      }
+
+      if (record.isHovered) {
+        return STORY_MARKER_STYLES.hover;
+      }
+
+      return isVisited ? STORY_MARKER_STYLES.visited : STORY_MARKER_STYLES.default;
+    }
+
+    applyStoryMarkerVisualState(record) {
+      if (!record || !record.marker) {
+        return;
+      }
+
+      const isActive = this.activeStorySlideIndex !== null
+        && record.location.slideIndices.includes(this.activeStorySlideIndex);
+      const isVisited = record.location.slideIndices.some((slideNumber) =>
+        this.visitedStorySlides.has(slideNumber)
+      );
+      const style = this.getStoryMarkerStyle(record);
+
+      record.marker.setStyle(style);
+
+      if (record.markerElement) {
+        record.markerElement.classList.toggle("is-visited", isVisited);
+        record.markerElement.classList.toggle("is-active", isActive);
+        record.markerElement.classList.toggle("is-pulsing", record.isPulsing);
+      }
+
+      if (record.tooltipElement) {
+        record.tooltipElement.classList.toggle("location-label--visited", isVisited);
+        record.tooltipElement.classList.toggle("location-label--active", isActive);
+      }
+    }
+
+    applyStoryMarkerStateToAll() {
+      this.storyMarkerRecords.forEach((record) => {
+        this.applyStoryMarkerVisualState(record);
+      });
+    }
+
+    triggerStoryMarkerPulse(record) {
+      if (!record) {
+        return;
+      }
+
+      if (record.pulseTimerId) {
+        globalScope.clearTimeout(record.pulseTimerId);
+      }
+
+      record.isPulsing = false;
+      this.applyStoryMarkerVisualState(record);
+
+      globalScope.requestAnimationFrame(() => {
+        record.isPulsing = true;
+        this.applyStoryMarkerVisualState(record);
+
+        record.pulseTimerId = globalScope.setTimeout(() => {
+          record.isPulsing = false;
+          record.pulseTimerId = null;
+          this.applyStoryMarkerVisualState(record);
+        }, STORY_MARKER_PULSE_MS);
+      });
+    }
+
+    markSlideVisited(slideIndex) {
+      if (!Number.isInteger(slideIndex)) {
+        return;
+      }
+
+      this.visitedStorySlides.add(slideIndex);
+      const record = this.storyMarkerBySlideIndex.get(slideIndex);
+
+      if (record) {
+        this.applyStoryMarkerVisualState(record);
+      }
+    }
+
+    setActiveStoryMarker(slideIndex, { pulse = true } = {}) {
+      const previousRecord = this.storyMarkerBySlideIndex.get(this.activeStorySlideIndex);
+      const nextRecord = this.storyMarkerBySlideIndex.get(slideIndex);
+
+      this.activeStorySlideIndex = Number.isInteger(slideIndex) ? slideIndex : null;
+
+      if (previousRecord && previousRecord !== nextRecord) {
+        this.applyStoryMarkerVisualState(previousRecord);
+      }
+
+      if (nextRecord) {
+        this.applyStoryMarkerVisualState(nextRecord);
+
+        if (pulse) {
+          this.triggerStoryMarkerPulse(nextRecord);
+        }
+      }
+    }
+
+    clearActiveStoryMarker() {
+      const record = this.storyMarkerBySlideIndex.get(this.activeStorySlideIndex);
+      this.activeStorySlideIndex = null;
+
+      if (record) {
+        this.applyStoryMarkerVisualState(record);
+      }
+    }
+
+    resetVisitedStoryMarkers() {
+      this.visitedStorySlides.clear();
+      this.applyStoryMarkerStateToAll();
+    }
+
+    /* Guided-mode path line between story locations */
+    renderStoryPath() {
+      if (!this.map || !this.storyEvents.length) {
+        return;
+      }
+
+      const coordinates = this.storyEvents.map(toLatLng);
+
+      if (coordinates.length < 2) {
+        return;
+      }
+
+      this.storyPathBaseLine = globalScope.L.polyline(coordinates, STORY_PATH_STYLES.base).addTo(this.map);
+      this.storyPathProgressLine = globalScope.L.polyline([], STORY_PATH_STYLES.progress).addTo(this.map);
+      this.storyPathCurrentLine = globalScope.L.polyline([], STORY_PATH_STYLES.current).addTo(this.map);
+
+      this.hideStoryPathLayers();
+    }
+
+    hideStoryPathLayers() {
+      [this.storyPathBaseLine, this.storyPathProgressLine, this.storyPathCurrentLine].forEach((line) => {
+        if (!line) {
+          return;
+        }
+
+        line.setStyle({ opacity: 0 });
+      });
+    }
+
+    showStoryPath() {
+      if (!this.storyPathBaseLine) {
+        return;
+      }
+
+      this.storyPathVisible = true;
+      this.storyPathBaseLine.setStyle({ opacity: STORY_PATH_STYLES.base.opacity });
+    }
+
+    updateStoryPathProgress(currentSlideIndex) {
+      if (!this.storyPathBaseLine || !this.storyPathProgressLine || !this.storyPathCurrentLine) {
+        return;
+      }
+
+      if (!Number.isInteger(currentSlideIndex) || currentSlideIndex < 1) {
+        this.clearStoryPath();
+        return;
+      }
+
+      this.showStoryPath();
+
+      const progressCoordinates = this.storyEvents
+        .slice(0, currentSlideIndex)
+        .map(toLatLng);
+      const currentSegmentCoordinates = currentSlideIndex > 1
+        ? this.storyEvents.slice(currentSlideIndex - 2, currentSlideIndex).map(toLatLng)
+        : [];
+
+      this.storyPathProgressLine.setLatLngs(progressCoordinates);
+      this.storyPathProgressLine.setStyle({
+        opacity: progressCoordinates.length > 1 ? STORY_PATH_STYLES.progress.opacity : 0
+      });
+
+      this.storyPathCurrentLine.setLatLngs(currentSegmentCoordinates);
+      this.storyPathCurrentLine.setStyle({
+        opacity: currentSegmentCoordinates.length > 1 ? STORY_PATH_STYLES.current.opacity : 0
+      });
+    }
+
+    clearStoryPath() {
+      this.storyPathVisible = false;
+
+      if (this.storyPathProgressLine) {
+        this.storyPathProgressLine.setLatLngs([]);
+        this.storyPathProgressLine.setStyle({ opacity: 0 });
+      }
+
+      if (this.storyPathCurrentLine) {
+        this.storyPathCurrentLine.setLatLngs([]);
+        this.storyPathCurrentLine.setStyle({ opacity: 0 });
+      }
+
+      if (this.storyPathBaseLine) {
+        this.storyPathBaseLine.setStyle({ opacity: 0 });
+      }
+    }
+
+    focusStorySlide(slideIndex) {
+      if (!this.map || !Number.isInteger(slideIndex)) {
+        return;
+      }
+
+      const storyEvent = this.storyEvents[slideIndex - 1];
+
+      if (!storyEvent) {
+        return;
+      }
+
+      this.map.flyTo([storyEvent.lat, storyEvent.lng], STORY_MARKER_FOCUS_ZOOM, {
+        animate: true,
+        duration: 0.9,
+        easeLinearity: 0.25
+      });
+    }
+
     setInteractivity(isEnabled) {
       this.interactionEnabled = Boolean(isEnabled);
 
@@ -251,6 +632,10 @@
       }
 
       this.focusLocation(location);
+
+      if (Number.isInteger(location.slideIndex)) {
+        this.setActiveStoryMarker(location.slideIndex, { pulse: true });
+      }
 
       if (this.locationSelectTimer) {
         globalScope.clearTimeout(this.locationSelectTimer);

@@ -37,6 +37,17 @@
     </button>
 
     <button
+      class="ambient-toggle"
+      type="button"
+      data-ambient-toggle
+      aria-label="Toggle ambient audio"
+      aria-pressed="false"
+    >
+      <span class="ambient-toggle__glyph" aria-hidden="true"></span>
+      <span class="ambient-toggle__label" data-ambient-toggle-label>Sound Off</span>
+    </button>
+
+    <button
       class="info-toggle"
       type="button"
       data-info-toggle
@@ -207,6 +218,13 @@
     </section>
 
     <div class="story-veil" data-story-veil hidden></div>
+
+    <section class="chapter-card" data-chapter-card hidden aria-live="polite">
+      <div class="chapter-card__inner" data-chapter-card-inner>
+        <p class="chapter-card__eyebrow" data-chapter-card-eyebrow>Entering a New Phase</p>
+        <h2 class="chapter-card__title" data-chapter-card-title>Before the Murder</h2>
+      </div>
+    </section>
 
     <section class="story-mode" data-story-mode hidden aria-live="polite">
       <div class="story-timeline" aria-label="Approximate 14-day narrative timeline">

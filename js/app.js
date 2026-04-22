@@ -7,6 +7,27 @@
   const STORY_REVEAL_DELAY_MS = 120;
   const SLIDE_TRANSITION_MS = 340;
   const STORY_TIMELINE_DAYS = 14;
+  const CHAPTER_CARD_ENABLED = true;
+  const CHAPTER_CARD_HOLD_MS = 920;
+  const CHAPTER_CARD_FADE_MS = 360;
+  const RESET_VISITED_ON_GUIDED_REPLAY = false;
+  const AMBIENT_AUDIO_SESSION_KEY = "geography-of-guilt.ambient-muted";
+  const STORY_ENTRY_MODE = Object.freeze({
+    guided: "guided",
+    exploratory: "exploratory"
+  });
+  const PREFERS_REDUCED_MOTION = Boolean(
+    globalScope.matchMedia && globalScope.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
+  /* Ambient audio controls: replace these placeholder files when audio assets are ready. */
+  const AMBIENT_AUDIO_TRACKS = Object.freeze({
+    map: "assets/audio/map-ambience.mp3",
+    story: "assets/audio/story-ambience.mp3"
+  });
+  const AMBIENT_AUDIO_VOLUMES = Object.freeze({
+    map: 0.16,
+    story: 0.11
+  });
   const SUPPORTED_MEDIA_EXTENSIONS = Object.freeze([
     ".png",
     ".jpg",
@@ -22,6 +43,10 @@
     return new Promise((resolve) => {
       globalScope.setTimeout(resolve, duration);
     });
+  }
+
+  function motionSafeDuration(duration) {
+    return PREFERS_REDUCED_MOTION ? 0 : duration;
   }
 
   function unique(values) {
@@ -49,6 +74,52 @@
     }
 
     return "foreboding";
+  }
+
+  function resolveNarrativePhaseKey(event) {
+    if (event.id === "sonya-apartment") {
+      return "confession";
+    }
+
+    if (event.phase === "The Murder") {
+      return "murder";
+    }
+
+    if (event.phase === "After the Murder") {
+      return "aftermath";
+    }
+
+    return "before";
+  }
+
+  function createChapterCardCopy(event) {
+    switch (resolveNarrativePhaseKey(event)) {
+      case "murder":
+        return {
+          eyebrow: "Crossing the Threshold",
+          title: "The Murder",
+          mood: "rupture"
+        };
+      case "aftermath":
+        return {
+          eyebrow: "The City After Blood",
+          title: "After the Murder",
+          mood: "aftermath"
+        };
+      case "confession":
+        return {
+          eyebrow: "Toward Witness and Mercy",
+          title: "Sonya and the Confession",
+          mood: "redemption"
+        };
+      case "before":
+      default:
+        return {
+          eyebrow: "The Thought Before the Act",
+          title: "Before the Murder",
+          mood: "foreboding"
+        };
+    }
   }
 
   function inferMediaType(path) {
@@ -116,6 +187,8 @@
       introElement: document.querySelector("[data-intro-screen]"),
       launchButton: document.querySelector("[data-story-launch]"),
       launchLabelElement: document.querySelector("[data-story-launch-label]"),
+      ambientToggleButton: document.querySelector("[data-ambient-toggle]"),
+      ambientToggleLabelElement: document.querySelector("[data-ambient-toggle-label]"),
       infoToggleButton: document.querySelector("[data-info-toggle]"),
       infoDrawerElement: document.querySelector("[data-info-drawer]"),
       infoBackdropElement: document.querySelector("[data-info-backdrop]"),
@@ -125,6 +198,10 @@
       infoBackButtons: Array.from(document.querySelectorAll("[data-info-back]")),
       infoScreenCloseButtons: Array.from(document.querySelectorAll("[data-info-screen-close]")),
       storyVeilElement: document.querySelector("[data-story-veil]"),
+      chapterCardElement: document.querySelector("[data-chapter-card]"),
+      chapterCardInnerElement: document.querySelector("[data-chapter-card-inner]"),
+      chapterCardEyebrowElement: document.querySelector("[data-chapter-card-eyebrow]"),
+      chapterCardTitleElement: document.querySelector("[data-chapter-card-title]"),
       storyModeElement: document.querySelector("[data-story-mode]"),
       storyPanelElement: document.querySelector("[data-story-panel]"),
       storyCountElement: document.querySelector("[data-story-count]"),
@@ -156,11 +233,246 @@
     };
   }
 
-  function createStoryController(elements, mapController) {
+  /* Ambient audio controls */
+  function createAmbientAudioController(elements) {
+    if (!elements.ambientToggleButton || !elements.ambientToggleLabelElement) {
+      return Object.freeze({
+        armFromInteraction() {},
+        setAmbientMode() {},
+        toggleMute() {}
+      });
+    }
+
+    const state = {
+      currentMode: "map",
+      hasInteraction: false,
+      isMuted: true,
+      unavailableModes: new Set(),
+      tracks: {
+        map: null,
+        story: null
+      }
+    };
+
+    try {
+      const storedMuteValue = globalScope.sessionStorage.getItem(AMBIENT_AUDIO_SESSION_KEY);
+      if (storedMuteValue === "false") {
+        state.isMuted = false;
+      }
+    } catch (error) {
+      // Session storage is optional; keep the in-memory default if it is unavailable.
+    }
+
+    function persistMuteState() {
+      try {
+        globalScope.sessionStorage.setItem(AMBIENT_AUDIO_SESSION_KEY, String(state.isMuted));
+      } catch (error) {
+        // No-op when session storage is unavailable.
+      }
+    }
+
+    function pauseTrack(track) {
+      if (!track) {
+        return;
+      }
+
+      track.pause();
+      track.currentTime = 0;
+    }
+
+    function pauseAllTracks() {
+      pauseTrack(state.tracks.map);
+      pauseTrack(state.tracks.story);
+    }
+
+    function createTrack(mode) {
+      if (state.tracks[mode]) {
+        return state.tracks[mode];
+      }
+
+      const source = AMBIENT_AUDIO_TRACKS[mode];
+
+      if (!source) {
+        state.unavailableModes.add(mode);
+        return null;
+      }
+
+      const track = new globalScope.Audio(encodeURI(source));
+      track.loop = true;
+      track.preload = "none";
+      track.volume = AMBIENT_AUDIO_VOLUMES[mode] || 0.12;
+      track.addEventListener("error", () => {
+        state.unavailableModes.add(mode);
+        if (state.currentMode === mode) {
+          pauseTrack(track);
+          renderAmbientToggle();
+        }
+      });
+
+      state.tracks[mode] = track;
+      return track;
+    }
+
+    function isAmbientAudioAvailable() {
+      return !["map", "story"].every((mode) => state.unavailableModes.has(mode));
+    }
+
+    async function playCurrentMode() {
+      if (state.isMuted || !state.hasInteraction) {
+        return;
+      }
+
+      const track = createTrack(state.currentMode);
+
+      if (!track || state.unavailableModes.has(state.currentMode)) {
+        renderAmbientToggle();
+        return;
+      }
+
+      pauseTrack(state.currentMode === "map" ? state.tracks.story : state.tracks.map);
+      track.volume = AMBIENT_AUDIO_VOLUMES[state.currentMode] || 0.12;
+
+      try {
+        await track.play();
+      } catch (error) {
+        // Browsers can still block playback until enough interaction has occurred.
+      }
+
+      renderAmbientToggle();
+    }
+
+    function renderAmbientToggle() {
+      const isUnavailable = !isAmbientAudioAvailable();
+      const isCurrentModeUnavailable = state.unavailableModes.has(state.currentMode);
+
+      elements.ambientToggleButton.disabled = isUnavailable;
+      elements.ambientToggleButton.dataset.audioState = isUnavailable
+        ? "unavailable"
+        : isCurrentModeUnavailable
+          ? "missing"
+        : state.isMuted
+          ? "muted"
+          : "playing";
+      elements.ambientToggleButton.setAttribute("aria-pressed", String(!state.isMuted && !isUnavailable));
+      elements.ambientToggleButton.title = isUnavailable
+        ? "Add audio files at assets/audio/map-ambience.mp3 and assets/audio/story-ambience.mp3 to enable ambient sound."
+        : isCurrentModeUnavailable
+          ? "Add an audio file for this mode to enable ambient sound here."
+        : state.isMuted
+          ? "Ambient audio is muted."
+          : "Ambient audio is playing.";
+      elements.ambientToggleLabelElement.textContent = isUnavailable
+        ? "Audio Unavailable"
+        : isCurrentModeUnavailable
+          ? "Audio Missing"
+        : state.isMuted
+          ? "Sound Off"
+          : "Sound On";
+    }
+
+    function armFromInteraction() {
+      if (!state.hasInteraction) {
+        state.hasInteraction = true;
+      }
+
+      if (!state.isMuted) {
+        playCurrentMode();
+      }
+    }
+
+    function setAmbientMode(mode) {
+      state.currentMode = mode === "story" ? "story" : "map";
+
+      if (!state.isMuted) {
+        playCurrentMode();
+      }
+    }
+
+    function toggleMute() {
+      if (!isAmbientAudioAvailable()) {
+        renderAmbientToggle();
+        return;
+      }
+
+      state.isMuted = !state.isMuted;
+      persistMuteState();
+
+      if (state.isMuted) {
+        pauseAllTracks();
+      } else {
+        armFromInteraction();
+      }
+
+      renderAmbientToggle();
+    }
+
+    elements.ambientToggleButton.addEventListener("click", () => {
+      armFromInteraction();
+      toggleMute();
+    });
+
+    document.addEventListener("pointerdown", () => {
+      if (!state.hasInteraction) {
+        armFromInteraction();
+      }
+    }, { passive: true });
+
+    renderAmbientToggle();
+
+    return Object.freeze({
+      armFromInteraction,
+      setAmbientMode,
+      toggleMute
+    });
+  }
+
+  /* Optional interstitial chapter cards between major phases */
+  function createChapterCardController(elements) {
+    if (
+      !elements.chapterCardElement ||
+      !elements.chapterCardInnerElement ||
+      !elements.chapterCardEyebrowElement ||
+      !elements.chapterCardTitleElement
+    ) {
+      return Object.freeze({
+        async show() {}
+      });
+    }
+
+    async function show(event) {
+      if (!CHAPTER_CARD_ENABLED) {
+        return;
+      }
+
+      const cardCopy = createChapterCardCopy(event);
+      elements.chapterCardEyebrowElement.textContent = cardCopy.eyebrow;
+      elements.chapterCardTitleElement.textContent = cardCopy.title;
+      elements.chapterCardElement.dataset.mood = cardCopy.mood;
+      elements.chapterCardInnerElement.dataset.mood = cardCopy.mood;
+      elements.chapterCardElement.hidden = false;
+
+      globalScope.requestAnimationFrame(() => {
+        elements.chapterCardElement.classList.add("is-visible");
+      });
+
+      await wait(motionSafeDuration(CHAPTER_CARD_HOLD_MS));
+
+      elements.chapterCardElement.classList.remove("is-visible");
+      await wait(motionSafeDuration(CHAPTER_CARD_FADE_MS));
+      elements.chapterCardElement.hidden = true;
+    }
+
+    return Object.freeze({
+      show
+    });
+  }
+
+  function createStoryController(elements, mapController, audioController, chapterCardController) {
     const state = {
       currentIndex: 0,
       isBusy: false,
       hasCompletedSequence: false,
+      entryMode: STORY_ENTRY_MODE.guided,
       mediaItems: [],
       activeMediaIndex: 0,
       mediaRequestToken: 0
@@ -205,6 +517,24 @@
       }
 
       elements.launchLabelElement.textContent = state.hasCompletedSequence ? "Replay" : "Start";
+    }
+
+    function syncMapStoryState({ pulseActiveMarker = true } = {}) {
+      const slideIndex = state.currentIndex + 1;
+
+      mapController.focusStorySlide(slideIndex);
+      mapController.markSlideVisited(slideIndex);
+      mapController.setActiveStoryMarker(slideIndex, {
+        pulse: pulseActiveMarker
+      });
+
+      if (state.entryMode === STORY_ENTRY_MODE.guided) {
+        mapController.showStoryPath();
+        mapController.updateStoryPathProgress(slideIndex);
+        return;
+      }
+
+      mapController.clearStoryPath();
     }
 
     function updateNavigationState() {
@@ -460,7 +790,7 @@
       }
     }
 
-    function renderSlide() {
+    function renderSlide({ syncMapState = false, pulseActiveMarker = true } = {}) {
       const event = getCurrentEvent();
 
       applyStoryMood(event);
@@ -477,6 +807,12 @@
         elements.storyContentElement.scrollTop = 0;
       }
 
+      if (syncMapState) {
+        syncMapStoryState({
+          pulseActiveMarker
+        });
+      }
+
       updateNavigationState();
     }
 
@@ -490,6 +826,11 @@
         return;
       }
 
+      const previousEvent = getCurrentEvent();
+      const nextEvent = STORY_EVENTS[nextIndex];
+      const shouldShowChapterCard = state.entryMode === STORY_ENTRY_MODE.guided
+        && resolveNarrativePhaseKey(previousEvent) !== resolveNarrativePhaseKey(nextEvent);
+
       state.isBusy = true;
       updateNavigationState();
       elements.storyPanelElement.classList.add("is-changing");
@@ -497,7 +838,15 @@
       await wait(SLIDE_TRANSITION_MS / 2);
 
       state.currentIndex = nextIndex;
-      renderSlide();
+
+      if (shouldShowChapterCard) {
+        await chapterCardController.show(nextEvent);
+      }
+
+      renderSlide({
+        syncMapState: true,
+        pulseActiveMarker: true
+      });
 
       globalScope.requestAnimationFrame(() => {
         elements.storyPanelElement.classList.remove("is-changing");
@@ -519,7 +868,7 @@
 
     async function hideVeil() {
       elements.storyVeilElement.classList.remove("is-visible");
-      await wait(BLACKOUT_MS);
+      await wait(motionSafeDuration(BLACKOUT_MS));
       elements.storyVeilElement.hidden = true;
     }
 
@@ -539,35 +888,51 @@
       delete elements.pageElement.dataset.storyMood;
     }
 
-    async function enterStoryMode(startIndex = 0) {
+    async function enterStoryMode(startIndex = 0, entryMode = STORY_ENTRY_MODE.guided) {
       if (!STORY_EVENTS.length || state.isBusy) {
         return;
       }
 
+      if (
+        entryMode === STORY_ENTRY_MODE.guided &&
+        startIndex === 0 &&
+        state.hasCompletedSequence &&
+        RESET_VISITED_ON_GUIDED_REPLAY
+      ) {
+        mapController.resetVisitedStoryMarkers();
+      }
+
       state.isBusy = true;
+      state.entryMode = entryMode;
       state.currentIndex = normalizeStoryIndex(startIndex);
-      renderSlide();
+      renderSlide({
+        syncMapState: true,
+        pulseActiveMarker: true
+      });
 
       elements.launchButton.disabled = true;
       mapController.setInteractivity(false);
-      elements.pageElement.classList.add("is-transitioning-to-story");
+      audioController.setAmbientMode("story");
+      elements.pageElement.classList.remove("is-map-active");
+      elements.pageElement.classList.add("is-transitioning", "is-transitioning-to-story");
 
       showVeil();
-      await wait(BLACKOUT_MS);
+      await wait(motionSafeDuration(BLACKOUT_MS));
 
       elements.pageElement.classList.remove("is-transitioning-to-story");
-      elements.pageElement.classList.add("is-story-mode");
+      elements.pageElement.classList.add("is-story-mode", "is-story-active");
       showStoryMode();
 
-      await wait(STORY_REVEAL_DELAY_MS);
+      await wait(motionSafeDuration(STORY_REVEAL_DELAY_MS));
       await hideVeil();
 
+      elements.pageElement.classList.remove("is-transitioning");
       state.isBusy = false;
       updateNavigationState();
     }
 
-    function openStoryAtSlide(index) {
-      return enterStoryMode(index);
+    function openStoryAtSlide(index, entryMode = STORY_ENTRY_MODE.exploratory) {
+      return enterStoryMode(index, entryMode);
     }
 
     async function returnToMap() {
@@ -578,21 +943,26 @@
       state.isBusy = true;
       updateNavigationState();
 
-      elements.pageElement.classList.add("is-transitioning-to-map");
+      elements.pageElement.classList.add("is-transitioning", "is-transitioning-to-map");
       showVeil();
-      await wait(BLACKOUT_MS);
+      await wait(motionSafeDuration(BLACKOUT_MS));
 
       hideStoryMode();
 
-      elements.pageElement.classList.remove("is-story-mode", "is-transitioning-to-map");
+      elements.pageElement.classList.remove("is-story-mode", "is-story-active", "is-transitioning-to-map");
+      elements.pageElement.classList.add("is-map-active");
       state.hasCompletedSequence = true;
       updateLaunchLabel();
+      mapController.clearActiveStoryMarker();
+      mapController.clearStoryPath();
       mapController.setInteractivity(true);
+      audioController.setAmbientMode("map");
       elements.launchButton.disabled = false;
 
-      await wait(STORY_REVEAL_DELAY_MS);
+      await wait(motionSafeDuration(STORY_REVEAL_DELAY_MS));
       await hideVeil();
 
+      elements.pageElement.classList.remove("is-transitioning");
       state.isBusy = false;
       updateNavigationState();
     }
@@ -651,12 +1021,17 @@
       }
 
       updateLaunchLabel();
-      renderSlide();
+      renderSlide({
+        syncMapState: false,
+        pulseActiveMarker: false
+      });
       elements.storyModeElement.hidden = true;
       elements.storyVeilElement.hidden = true;
+      audioController.setAmbientMode("map");
 
       elements.launchButton.addEventListener("click", () => {
-        openStoryAtSlide(0);
+        audioController.armFromInteraction();
+        openStoryAtSlide(0, STORY_ENTRY_MODE.guided);
       });
       elements.storyExitButton.addEventListener("click", returnToMap);
       elements.storyNextButton.addEventListener("click", handleNext);
@@ -670,13 +1045,17 @@
     });
   }
 
-  function createIntroController(elements, mapController) {
+  function createIntroController(elements, mapController, audioController) {
     if (!elements.introElement || !elements.pageElement) {
       if (elements.launchButton) {
         elements.launchButton.disabled = false;
       }
 
+      if (elements.pageElement) {
+        elements.pageElement.classList.add("is-map-active");
+      }
       mapController.setInteractivity(true);
+      audioController.setAmbientMode("map");
       return;
     }
 
@@ -700,6 +1079,8 @@
       }
 
       elements.pageElement.classList.remove("is-intro-active", "is-intro-leaving");
+      elements.pageElement.classList.remove("is-transitioning");
+      elements.pageElement.classList.add("is-map-active");
       elements.introElement.hidden = true;
 
       if (elements.launchButton) {
@@ -707,6 +1088,7 @@
       }
 
       mapController.setInteractivity(true);
+      audioController.setAmbientMode("map");
     }
 
     function beginIntroDismissal() {
@@ -714,7 +1096,9 @@
         return;
       }
 
+      audioController.armFromInteraction();
       hasStarted = true;
+      elements.pageElement.classList.add("is-transitioning");
       elements.pageElement.classList.add("is-intro-leaving");
       fallbackTimerId = globalScope.setTimeout(completeIntro, INTRO_TRANSITION_MS + 120);
     }
@@ -757,6 +1141,13 @@
       activeScreenKey: null
     };
 
+    function syncInfoStateClass() {
+      elements.pageElement.classList.toggle(
+        "is-info-open",
+        state.isDrawerOpen || state.isScreenOpen
+      );
+    }
+
     function renderScreens() {
       elements.infoScreenElements.forEach((screen) => {
         screen.hidden = screen.dataset.infoScreen !== state.activeScreenKey;
@@ -773,6 +1164,7 @@
       elements.infoBackdropElement.hidden = false;
       elements.infoToggleButton.setAttribute("aria-expanded", "true");
       elements.pageElement.classList.add("is-info-drawer-open");
+      syncInfoStateClass();
 
       globalScope.requestAnimationFrame(() => {
         elements.infoDrawerElement.classList.add("is-visible");
@@ -785,6 +1177,7 @@
       elements.infoToggleButton.setAttribute("aria-expanded", "false");
       elements.infoDrawerElement.classList.remove("is-visible");
       elements.pageElement.classList.remove("is-info-drawer-open");
+      syncInfoStateClass();
 
       globalScope.setTimeout(() => {
         if (state.isDrawerOpen) {
@@ -819,6 +1212,7 @@
       closeDrawer();
       elements.infoBackdropElement.hidden = false;
       elements.pageElement.classList.add("is-info-screen-open");
+      syncInfoStateClass();
 
       globalScope.requestAnimationFrame(() => {
         const activeScreen = getScreenByKey(tabKey);
@@ -833,6 +1227,7 @@
       state.isScreenOpen = false;
       state.activeScreenKey = null;
       elements.pageElement.classList.remove("is-info-screen-open");
+      syncInfoStateClass();
       elements.infoScreenElements.forEach((screen) => {
         screen.classList.remove("is-visible");
       });
@@ -906,19 +1301,28 @@
 
     mapController.initialize({
       locations: MAP_LOCATIONS,
+      storyEvents: STORY_EVENTS,
       interactive: !shouldLockMapAtStart
     });
 
-    const storyController = createStoryController(elements, mapController);
+    const ambientAudioController = createAmbientAudioController(elements);
+    const chapterCardController = createChapterCardController(elements);
+    const storyController = createStoryController(
+      elements,
+      mapController,
+      ambientAudioController,
+      chapterCardController
+    );
     mapController.setLocationSelectHandler((location) => {
       if (!Number.isInteger(location.slideIndex)) {
         return;
       }
 
-      storyController.openAtSlide(location.slideIndex - 1);
+      ambientAudioController.armFromInteraction();
+      storyController.openAtSlide(location.slideIndex - 1, STORY_ENTRY_MODE.exploratory);
     });
     createInfoDrawerController(elements);
-    createIntroController(elements, mapController);
+    createIntroController(elements, mapController, ambientAudioController);
   }
 
   bootMap();
