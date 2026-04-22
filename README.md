@@ -1,145 +1,207 @@
 # Through the Mind of Raskolnikov
 
-A vanilla HTML, CSS, and JavaScript literary mapping project built around *Crime and Punishment*. The experience is structured as a guided cinematic sequence through modern-day St. Petersburg, using Leaflet with OpenStreetMap plus scene-based media and interpretation.
+An interactive literary map and story experience based on *Crime and Punishment*. The project combines a live Leaflet/OpenStreetMap map with a guided slideshow that follows Raskolnikov through modern-day St. Petersburg, using location images, generated illustrations, video, sound, quotations, and analysis.
+
+## What The Site Does
+
+- Opens with a full-screen intro overlay above the map
+- Lets users explore the map freely after the intro
+- Supports a guided `Start` mode that walks through the narrative in order
+- Lets users jump into the slideshow by clicking numbered story markers on the map
+- Displays per-slide media galleries with images and optional video
+- Plays ambient map audio plus slide-specific soundscapes
+- Includes menu screens for the user guide, works cited, and developer information
+
+## Tech Stack
+
+- Plain `HTML`
+- Plain `CSS`
+- Plain `JavaScript`
+- [Leaflet](https://leafletjs.com/) for the map
+- [OpenStreetMap](https://www.openstreetmap.org/) tiles for map data
+
+There is no build step and no framework. The project is meant to stay easy to inspect and edit directly.
 
 ## Project Structure
 
-- `index.html`
-- `css/styles.css`
-- `js/app.js`
-- `js/map.js`
-- `js/ui.js`
-- `js/data.js`
-- `assets/images/`
-- `assets/videos/`
+- [index.html](/Users/musammataktar/Desktop/LHmapp/index.html)
+  Main document shell, overlay markup, controls, and script/style includes.
 
-The scripts load with plain deferred `<script>` tags instead of ES modules so the project can still run when `index.html` is opened directly in a browser.
+- [css/styles.css](/Users/musammataktar/Desktop/LHmapp/css/styles.css)
+  Visual system, layout, motion, typography, glass/story styling, map-label styling, and responsive rules.
 
-## Where The Main Logic Lives
+- [js/app.js](/Users/musammataktar/Desktop/LHmapp/js/app.js)
+  Main application controller. Handles intro flow, menu screens, story mode, media rendering, audio, transitions, and navigation state.
 
-- `js/data.js`
-  Scene content, coordinates, media paths, quotes, interpretations, and per-scene timing.
+- [js/map.js](/Users/musammataktar/Desktop/LHmapp/js/map.js)
+  Leaflet map controller. Handles map setup, story markers, custom markers, visited/current states, path lines, and map focus behavior.
 
-- `js/map.js`
-  Leaflet map creation, OpenStreetMap tile loading, route line drawing, marker setup, and scene-to-scene pan/zoom behavior.
+- [js/data.js](/Users/musammataktar/Desktop/LHmapp/js/data.js)
+  Story events, map locations, coordinates, labels, media paths, quotes, analysis, and sound configuration.
 
-- `js/ui.js`
-  DOM rendering, media switching, delayed text reveal, and the scene text editing interface.
+- `Slide 1/` ... `Slide 14/`
+  Per-slide media folders. These contain the images, video, and sound files used by the slideshow.
 
-- `js/app.js`
-  Application state, scene navigation, and `localStorage` persistence for editable scene text.
+## Running The Project
 
-## Map Setup
+Because the app uses plain deferred scripts, you can:
 
-This project uses:
+1. Open [index.html](/Users/musammataktar/Desktop/LHmapp/index.html) directly in a browser, or
+2. Serve the folder with any simple static server if you prefer
 
-- Leaflet for the interactive map library
-- OpenStreetMap for map tiles
+Leaflet is loaded from a CDN, so the map requires an internet connection.
 
-There is no Google Maps API key or billing setup required.
+## User Experience Overview
 
-Leaflet is loaded by CDN in `index.html`, and the tile layer is configured in `js/map.js`.
+### Map Mode
 
-## Add Or Edit Scenes
+- The user lands on an intro overlay over the map
+- After clicking to enter, the map becomes interactive
+- Numbered red markers represent story-linked locations
+- Special markers also appear for `Home`, `Columbia Lit Hum`, and `Detroit`
+- Clicking a numbered story marker opens the slideshow at that scene
 
-All scenes live in `js/data.js`.
+### Story Mode
 
-Each scene object supports:
+- `Start` begins the full narrative from slide 1
+- `Back`, `Next`, and `Exit` control the slideshow
+- A day-range timeline appears at the top of each slide
+- The media panel supports multiple images and optional video
+- The quote and analysis live inside an expandable section to keep the default slide view cleaner
 
-- `sequence`
-- `dayLabel`
-- `id`
-- `title`
+### Audio
+
+- The map can play a wind ambience
+- Story slides can play scene-specific looping soundscapes
+- The murder slide preserves the video’s own audio behavior
+- Sound can be muted or adjusted with the site-wide sound controls
+
+## Where To Edit Content
+
+### 1. Update Story Text
+
+Edit [js/data.js](/Users/musammataktar/Desktop/LHmapp/js/data.js).
+
+Each story event includes content such as:
+
 - `locationName`
-- `modernAddress`
-- `lat`
-- `lng`
-- `mediaType`
-- `mediaSrc`
-- `importance`
-- `importanceLabel`
-- `isMajorTurningPoint`
-- `psychologicalRole`
+- `mapLabel`
+- `address`
+- `description`
 - `quote`
-- `interpretation`
-- `delayBeforeText`
-- `mapZoom`
-- `notes`
+- `quoteSource`
+- `analysis`
+- `dayRange`
+- `phase`
 
-To add a new scene:
+The slideshow order follows the order of `STORY_EVENTS`.
 
-1. Duplicate an existing scene object in `js/data.js`.
-2. Give it a unique `id`.
-3. Update the title, day label, location, coordinates, media path, and text.
-4. Set `importance` to `secondary`, `important`, or `major`.
-5. Add a short `psychologicalRole` line that explains the scene's mental or moral function.
-6. Keep it in the array where you want it to appear in the linear sequence.
+### 2. Update Coordinates Or Map Labels
 
-The site renders scene order directly from the array order.
+Also edit [js/data.js](/Users/musammataktar/Desktop/LHmapp/js/data.js).
 
-Importance controls pacing and emphasis:
-
-- `secondary`
-  Faster reveal and lighter treatment.
-- `important`
-  Moderate delay and stronger emphasis.
-- `major`
-  Longest reveal delay and the strongest visual treatment in the interface.
-
-## Change Coordinates
-
-In `js/data.js`, edit:
+Relevant fields:
 
 - `lat`
 - `lng`
-- `mapZoom`
+- `mapLabel`
+- `address`
 
-These values control where the Leaflet map pans and how tightly it zooms for that scene.
+The red numbered story markers are built from the story events automatically.
 
-## Replace Media
+### 3. Replace Slide Media
 
-Images go in `assets/images/`.
+Put new files in the relevant slide folder, then update that slide’s `mediaFiles` entry in [js/data.js](/Users/musammataktar/Desktop/LHmapp/js/data.js).
 
-Videos go in `assets/videos/`.
-
-Then update `mediaType` and `mediaSrc` in `js/data.js`.
-
-Examples:
+Example:
 
 ```js
-mediaType: "image",
-mediaSrc: "assets/images/your-scene-image.png"
+mediaFiles: Object.freeze([
+  "Slide 7/location-photo.jpg",
+  "Slide 7/illustration.png",
+  "Slide 7/scene-video.mp4"
+])
 ```
+
+Supported media types:
+
+- `.png`
+- `.jpg`
+- `.jpeg`
+- `.webp`
+- `.mp4`
+- `.mov`
+- `.webm`
+
+### 4. Replace Slide Audio
+
+Each slide can optionally declare:
+
+- `soundFiles`
+- `soundLeadInMs`
+- `soundFadeInMs`
+- `soundVolumeBoost`
+
+Example:
 
 ```js
-mediaType: "video",
-mediaSrc: "assets/videos/your-scene-video.mp4"
+soundFiles: Object.freeze(["Slide 14/Slow Breathing Sound Effect (HD).mp3"]),
+soundLeadInMs: 260,
+soundFadeInMs: 140,
+soundVolumeBoost: 1.2
 ```
 
-If a file is missing, the app shows a fallback message instead of crashing.
+These are all configured in [js/data.js](/Users/musammataktar/Desktop/LHmapp/js/data.js).
 
-## Scene Text Editing
+## Code Notes
 
-Quote and interpretation fields are directly editable for any visitor.
+### `js/app.js`
 
-How it works:
+The main sections are:
 
-- Open the experience and move to any scene
-- Edit the `Quote` and `Interpretation` fields directly
-- Click `Save Edits`
-- Saved changes are stored in the browser under the `localStorage` key:
+- element collection
+- ambient audio controller
+- chapter-card controller
+- story controller
+- intro controller
+- info drawer controller
+- application bootstrap
 
-```text
-geography-of-guilt.scene-edits.v1
+If you want to change slide behavior, this is usually the file to start with.
+
+### `js/map.js`
+
+The map controller keeps story-specific behavior isolated from the rest of the app:
+
+- visited marker states
+- active marker pulse
+- story path rendering
+- location focus and fly-to behavior
+- custom marker rendering
+
+### `js/data.js`
+
+This is the single source of truth for:
+
+- story sequence
+- map-linked locations
+- captions and addresses
+- media paths
+- sound cues
+
+## Maintenance Advice
+
+- Keep filenames stable once they are referenced in [js/data.js](/Users/musammataktar/Desktop/LHmapp/js/data.js)
+- Use per-slide folders for story assets instead of scattering new files around the repo
+- Prefer adding small helper functions in [js/app.js](/Users/musammataktar/Desktop/LHmapp/js/app.js) or [js/map.js](/Users/musammataktar/Desktop/LHmapp/js/map.js) instead of layering logic inline
+- Re-run a quick syntax check after edits:
+
+```bash
+node --check js/app.js
+node --check js/map.js
+node --check js/data.js
 ```
 
-Important:
+## Credits
 
-- Edits are local to the browser and device
-- They do not rewrite `js/data.js`
-- To clear local edits, either use the reset button for a scene or clear that `localStorage` key
-
-## Maintenance Notes
-
-- The app is intentionally lightweight. The only external runtime dependency is Leaflet, loaded from CDN.
-- If you later want more scenes, add them in `js/data.js` and drop new media into `assets/images/` or `assets/videos/`.
+This project was built as a Literature Humanities mapping/storytelling assignment centered on Raskolnikov’s psychological movement through *Crime and Punishment*.

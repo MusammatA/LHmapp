@@ -324,11 +324,12 @@ body {
 
 .audio-controls {
   position: absolute;
-  top: 84px;
-  right: 24px;
+  top: 92px;
+  left: 24px;
   z-index: 1402;
   display: inline-flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   gap: 12px;
 }
 
@@ -478,7 +479,7 @@ body {
 .info-toggle {
   position: absolute;
   top: 24px;
-  right: 24px;
+  left: 24px;
   z-index: 1410;
   display: grid;
   place-items: center;
@@ -2390,9 +2391,8 @@ body {
   }
 
   .audio-controls {
-    top: 76px;
-    right: 16px;
-    left: auto;
+    top: 72px;
+    left: 16px;
     gap: 8px;
     flex-direction: column;
     align-items: stretch;
@@ -2410,8 +2410,7 @@ body {
 
   .info-toggle {
     top: 16px;
-    right: 16px;
-    left: auto;
+    left: 16px;
     width: 48px;
     height: 48px;
   }

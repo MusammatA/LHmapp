@@ -308,6 +308,10 @@
       }
     }
 
+    function getActiveSceneEvent() {
+      return STORY_EVENTS.find((event) => event.id === state.activeSceneEventId) || null;
+    }
+
     function pauseTrack(track) {
       if (!track) {
         return;
@@ -378,6 +382,18 @@
 
         state.fadeTimers.set(track, timerId);
       });
+    }
+
+    async function safelyPlayTrack(track) {
+      if (!track || !state.hasInteraction || state.isMuted) {
+        return;
+      }
+
+      try {
+        await track.play();
+      } catch (error) {
+        // Browser autoplay restrictions can still require a later interaction.
+      }
     }
 
     function createSceneTrack(source) {
@@ -573,11 +589,7 @@
           });
         } else {
           if (state.mapTrack.paused && state.hasInteraction) {
-            try {
-              await state.mapTrack.play();
-            } catch (error) {
-              // Browser autoplay restrictions can still require a later interaction.
-            }
+            await safelyPlayTrack(state.mapTrack);
           }
 
           await fadeTrackVolume(state.mapTrack, state.volume, STORY_SOUND_FADE_MS);
@@ -594,13 +606,7 @@
         return;
       }
 
-      try {
-        if (!state.isMuted && state.hasInteraction) {
-          await nextTrack.play();
-        }
-      } catch (error) {
-        // Browser autoplay restrictions can still require a later interaction.
-      }
+      await safelyPlayTrack(nextTrack);
 
       state.mapTrack = nextTrack;
 
@@ -626,13 +632,7 @@
         return;
       }
 
-      try {
-        if (!state.isMuted && state.hasInteraction) {
-          await nextTrack.play();
-        }
-      } catch (error) {
-        // Browser autoplay restrictions can still require a later interaction.
-      }
+      await safelyPlayTrack(nextTrack);
 
       const previousTrack = state.activeSceneTrack;
       state.activeSceneTrack = nextTrack;
@@ -685,22 +685,20 @@
       if (state.activeSceneTrack) {
         state.activeSceneTrack.volume = 0;
 
-        state.activeSceneTrack.play().then(() => {
-          const activeEvent = STORY_EVENTS.find((event) => event.id === state.activeSceneEventId) || null;
+        safelyPlayTrack(state.activeSceneTrack).then(() => {
+          const activeEvent = getActiveSceneEvent();
           fadeTrackVolume(
             state.activeSceneTrack,
             resolveSceneTargetVolume(activeEvent),
             resolveSceneFadeDuration(activeEvent)
           );
-        }).catch(() => {
-          // Browser may still require another interaction.
         });
 
         renderAudioControls();
         return;
       }
 
-      const activeEvent = STORY_EVENTS.find((event) => event.id === state.activeSceneEventId) || null;
+      const activeEvent = getActiveSceneEvent();
       playSceneSound(state.activeSceneSoundPath, activeEvent);
     }
 
@@ -722,7 +720,7 @@
           fade: true,
           resetTime: false
         });
-        const activeEvent = STORY_EVENTS.find((event) => event.id === state.activeSceneEventId) || null;
+        const activeEvent = getActiveSceneEvent();
         playSceneSound(state.activeSceneSoundPath, activeEvent);
       } else if (state.currentMode === "story") {
         stopMapSound({
@@ -782,11 +780,7 @@
           });
         } else {
           if (state.activeSceneTrack.paused && state.hasInteraction) {
-            try {
-              await state.activeSceneTrack.play();
-            } catch (error) {
-              // Browser may still require another interaction.
-            }
+            await safelyPlayTrack(state.activeSceneTrack);
           }
 
           await fadeTrackVolume(
@@ -849,7 +843,7 @@
       persistState();
 
       if (state.activeSceneTrack && !state.isMuted) {
-        const activeEvent = STORY_EVENTS.find((event) => event.id === state.activeSceneEventId) || null;
+        const activeEvent = getActiveSceneEvent();
         fadeTrackVolume(
           state.activeSceneTrack,
           resolveSceneTargetVolume(activeEvent),
