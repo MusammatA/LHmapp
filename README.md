@@ -1,4 +1,4 @@
-# The Geography of Guilt
+# Through the Mind of Raskolnikov
 
 A vanilla HTML, CSS, and JavaScript literary mapping project built around *Crime and Punishment*. The experience is structured as a guided cinematic sequence through modern-day St. Petersburg, using Leaflet with OpenStreetMap plus scene-based media and interpretation.
 

@@ -262,7 +262,7 @@
   }
 
   const APP_METADATA = Object.freeze({
-    title: "The Geography of Guilt",
+    title: "Through the Mind of Raskolnikov",
     subtitle: "A scene-by-scene literary mapping project built around Crime and Punishment.",
     sceneEditsStorageKey: "geography-of-guilt.scene-edits.v1"
   });
