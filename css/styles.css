@@ -714,13 +714,17 @@ body {
 }
 
 .story-mode {
-  --story-warm-wash: rgba(81, 57, 40, 0.12);
-  --story-cold-wash: rgba(63, 72, 84, 0.14);
-  --story-panel-fill: rgba(18, 14, 12, 0.88);
+  --story-warm-wash: rgba(81, 57, 40, 0.22);
+  --story-cold-wash: rgba(63, 72, 84, 0.16);
+  --story-mode-start: rgba(45, 30, 19, 0.94);
+  --story-mode-end: rgba(17, 12, 11, 0.985);
+  --story-panel-fill: rgba(40, 28, 21, 0.88);
+  --story-panel-shell: rgba(43, 31, 24, 0.28);
   --story-panel-border: rgba(123, 101, 74, 0.14);
-  --story-panel-glow: rgba(103, 78, 53, 0.08);
+  --story-panel-glow: rgba(143, 110, 66, 0.14);
+  --story-panel-cool-glow: rgba(70, 82, 96, 0.08);
   --story-phase-accent: var(--color-accent);
-  --story-phase-fill: rgba(255, 255, 255, 0.025);
+  --story-phase-fill: rgba(145, 109, 58, 0.12);
   --story-track: rgba(176, 157, 130, 0.12);
   --story-range-glow: rgba(103, 78, 53, 0.08);
   position: absolute;
@@ -730,8 +734,10 @@ body {
   place-items: stretch;
   padding: 0;
   background:
-    radial-gradient(circle at top, rgba(112, 79, 43, 0.05), transparent 30%),
-    linear-gradient(180deg, rgba(16, 12, 11, 0.92), rgba(6, 6, 7, 0.98));
+    radial-gradient(circle at 50% 0%, var(--story-warm-wash), transparent 30%),
+    radial-gradient(circle at 84% 14%, var(--story-cold-wash), transparent 38%),
+    linear-gradient(145deg, rgba(0, 0, 0, 0.16), transparent 46%),
+    linear-gradient(180deg, var(--story-mode-start), var(--story-mode-end));
   opacity: 0;
   overflow: hidden;
   isolation: isolate;
@@ -753,9 +759,9 @@ body {
 .story-mode::before {
   z-index: 0;
   background:
-    radial-gradient(circle at 14% 18%, var(--story-warm-wash), transparent 26%),
-    radial-gradient(circle at 82% 20%, var(--story-cold-wash), transparent 32%),
-    radial-gradient(circle at 50% 100%, rgba(0, 0, 0, 0.58), transparent 52%);
+    radial-gradient(circle at 14% 18%, var(--story-warm-wash), transparent 28%),
+    radial-gradient(circle at 82% 20%, var(--story-cold-wash), transparent 34%),
+    radial-gradient(circle at 50% 100%, rgba(0, 0, 0, 0.54), transparent 54%);
 }
 
 .story-mode::after {
@@ -777,44 +783,63 @@ body {
 }
 
 .story-mode[data-mood="foreboding"] {
-  --story-warm-wash: rgba(85, 58, 37, 0.12);
-  --story-cold-wash: rgba(61, 70, 78, 0.16);
-  --story-panel-fill: rgba(20, 15, 13, 0.88);
-  --story-panel-border: rgba(126, 103, 74, 0.14);
-  --story-phase-accent: #8d7350;
+  --story-warm-wash: rgba(164, 126, 46, 0.26);
+  --story-cold-wash: rgba(94, 88, 58, 0.12);
+  --story-mode-start: rgba(66, 48, 26, 0.95);
+  --story-mode-end: rgba(27, 20, 13, 0.985);
+  --story-panel-fill: rgba(69, 50, 29, 0.9);
+  --story-panel-shell: rgba(91, 66, 33, 0.3);
+  --story-panel-border: rgba(156, 124, 72, 0.2);
+  --story-panel-glow: rgba(186, 142, 52, 0.16);
+  --story-panel-cool-glow: rgba(103, 91, 54, 0.08);
+  --story-phase-accent: #b89243;
+  --story-phase-fill: rgba(180, 137, 54, 0.12);
+  --story-range-glow: rgba(180, 137, 54, 0.14);
 }
 
 .story-mode[data-mood="rupture"] {
-  --story-warm-wash: rgba(87, 30, 26, 0.18);
-  --story-cold-wash: rgba(42, 27, 30, 0.12);
-  --story-panel-fill: rgba(16, 11, 11, 0.9);
-  --story-panel-border: rgba(98, 54, 49, 0.16);
-  --story-panel-glow: rgba(98, 36, 30, 0.1);
-  --story-phase-accent: #7f4b45;
-  --story-phase-fill: rgba(98, 36, 30, 0.08);
-  --story-range-glow: rgba(98, 36, 30, 0.1);
+  --story-warm-wash: rgba(150, 27, 27, 0.3);
+  --story-cold-wash: rgba(81, 17, 26, 0.16);
+  --story-mode-start: rgba(61, 11, 13, 0.96);
+  --story-mode-end: rgba(23, 8, 10, 0.99);
+  --story-panel-fill: rgba(70, 16, 18, 0.9);
+  --story-panel-shell: rgba(88, 17, 19, 0.32);
+  --story-panel-border: rgba(127, 42, 39, 0.24);
+  --story-panel-glow: rgba(176, 31, 31, 0.18);
+  --story-panel-cool-glow: rgba(90, 24, 34, 0.1);
+  --story-phase-accent: #bf4a4a;
+  --story-phase-fill: rgba(143, 24, 24, 0.16);
+  --story-range-glow: rgba(163, 29, 29, 0.18);
 }
 
 .story-mode[data-mood="aftermath"] {
-  --story-warm-wash: rgba(56, 46, 40, 0.06);
-  --story-cold-wash: rgba(71, 81, 93, 0.18);
-  --story-panel-fill: rgba(14, 15, 18, 0.88);
-  --story-panel-border: rgba(89, 99, 111, 0.14);
-  --story-panel-glow: rgba(77, 89, 104, 0.08);
-  --story-phase-accent: #6f7984;
-  --story-phase-fill: rgba(77, 89, 104, 0.08);
-  --story-range-glow: rgba(77, 89, 104, 0.1);
+  --story-warm-wash: rgba(61, 72, 86, 0.1);
+  --story-cold-wash: rgba(58, 102, 150, 0.28);
+  --story-mode-start: rgba(18, 27, 41, 0.95);
+  --story-mode-end: rgba(9, 15, 25, 0.99);
+  --story-panel-fill: rgba(24, 39, 58, 0.89);
+  --story-panel-shell: rgba(27, 47, 72, 0.28);
+  --story-panel-border: rgba(86, 118, 153, 0.22);
+  --story-panel-glow: rgba(76, 117, 163, 0.16);
+  --story-panel-cool-glow: rgba(118, 151, 188, 0.12);
+  --story-phase-accent: #7ca8d6;
+  --story-phase-fill: rgba(82, 125, 177, 0.14);
+  --story-range-glow: rgba(82, 125, 177, 0.2);
 }
 
 .story-mode[data-mood="redemption"] {
-  --story-warm-wash: rgba(112, 84, 51, 0.16);
-  --story-cold-wash: rgba(63, 72, 79, 0.12);
-  --story-panel-fill: rgba(22, 16, 13, 0.84);
-  --story-panel-border: rgba(140, 116, 83, 0.16);
-  --story-panel-glow: rgba(122, 95, 61, 0.1);
-  --story-phase-accent: #9c7e56;
-  --story-phase-fill: rgba(122, 95, 61, 0.08);
-  --story-range-glow: rgba(122, 95, 61, 0.1);
+  --story-warm-wash: rgba(188, 146, 66, 0.3);
+  --story-cold-wash: rgba(97, 83, 54, 0.12);
+  --story-mode-start: rgba(67, 50, 24, 0.94);
+  --story-mode-end: rgba(24, 19, 11, 0.985);
+  --story-panel-fill: rgba(83, 61, 26, 0.88);
+  --story-panel-shell: rgba(109, 80, 31, 0.28);
+  --story-panel-border: rgba(173, 136, 62, 0.22);
+  --story-panel-glow: rgba(201, 156, 67, 0.18);
+  --story-panel-cool-glow: rgba(101, 88, 52, 0.08);
+  --story-phase-accent: #d0a44f;
+  --story-phase-fill: rgba(176, 135, 52, 0.14);
+  --story-range-glow: rgba(176, 135, 52, 0.2);
 }
 
 .story-timeline {
@@ -882,7 +907,7 @@ body {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
   gap: 0;
-  background: rgba(0, 0, 0, 0.18);
+  background: var(--story-panel-shell);
   box-shadow: none;
   backdrop-filter: blur(18px);
   overflow: hidden;
@@ -902,10 +927,10 @@ body {
 .story-panel::before {
   inset: 1px;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 12%),
-    radial-gradient(circle at 16% 18%, var(--story-panel-glow), transparent 26%),
-    radial-gradient(circle at 86% 22%, rgba(68, 78, 89, 0.05), transparent 34%),
-    linear-gradient(135deg, rgba(49, 36, 29, 0.06), transparent 40%, rgba(10, 10, 10, 0.34)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 12%),
+    radial-gradient(circle at 16% 18%, var(--story-panel-glow), transparent 28%),
+    radial-gradient(circle at 86% 22%, var(--story-panel-cool-glow), transparent 36%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.018), transparent 42%, rgba(10, 10, 10, 0.22)),
     var(--story-panel-fill);
 }
 
@@ -1092,11 +1117,11 @@ body {
   min-height: 0;
   height: var(--story-media-frame-height);
   max-height: var(--story-media-frame-height);
-  border: 1px solid rgba(213, 185, 137, 0.14);
+  border: 1px solid color-mix(in srgb, var(--story-phase-accent) 26%, rgba(213, 185, 137, 0.14));
   border-radius: 10px;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 16%),
-    linear-gradient(160deg, rgba(21, 16, 14, 0.98), rgba(8, 8, 10, 0.98));
+    linear-gradient(180deg, color-mix(in srgb, var(--story-phase-accent) 12%, rgba(255, 255, 255, 0.03)), transparent 16%),
+    linear-gradient(160deg, color-mix(in srgb, var(--story-phase-accent) 16%, rgba(21, 16, 14, 0.98)), rgba(8, 8, 10, 0.98));
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.04),
     0 24px 48px rgba(0, 0, 0, 0.28);
@@ -1109,8 +1134,8 @@ body {
   min-height: 0;
   height: auto;
   background:
-    radial-gradient(circle at top, rgba(255, 255, 255, 0.02), transparent 28%),
-    linear-gradient(180deg, #120e0d, #070707);
+    radial-gradient(circle at top, color-mix(in srgb, var(--story-phase-accent) 12%, rgba(255, 255, 255, 0.02)), transparent 28%),
+    linear-gradient(180deg, color-mix(in srgb, var(--story-phase-accent) 15%, #120e0d), #070707);
   overflow: hidden;
 }
 
@@ -1190,10 +1215,10 @@ body {
   gap: 14px;
   min-height: var(--story-media-gallery-height);
   padding: 14px;
-  border-top: 1px solid rgba(155, 133, 104, 0.08);
+  border-top: 1px solid color-mix(in srgb, var(--story-phase-accent) 22%, rgba(155, 133, 104, 0.08));
   background:
-    linear-gradient(180deg, rgba(7, 7, 8, 0.1), rgba(7, 7, 8, 0.28)),
-    rgba(18, 14, 12, 0.82);
+    linear-gradient(180deg, color-mix(in srgb, var(--story-phase-accent) 8%, rgba(7, 7, 8, 0.1)), rgba(7, 7, 8, 0.28)),
+    color-mix(in srgb, var(--story-phase-accent) 12%, rgba(18, 14, 12, 0.82));
   overflow: auto;
 }
 
@@ -1203,11 +1228,11 @@ body {
   align-content: start;
   min-height: 146px;
   padding: 10px;
-  border: 1px solid rgba(163, 140, 109, 0.08);
+  border: 1px solid color-mix(in srgb, var(--story-phase-accent) 18%, rgba(163, 140, 109, 0.08));
   border-radius: 4px;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 72%),
-    rgba(255, 255, 255, 0.015);
+    linear-gradient(180deg, color-mix(in srgb, var(--story-phase-accent) 8%, rgba(255, 255, 255, 0.02)), transparent 72%),
+    color-mix(in srgb, var(--story-phase-accent) 9%, rgba(255, 255, 255, 0.015));
   color: var(--color-text);
   cursor: pointer;
   overflow: hidden;
@@ -1372,11 +1397,11 @@ body {
 
 .story-panel__details {
   margin-top: 8px;
-  border: 1px solid rgba(138, 116, 88, 0.14);
+  border: 1px solid color-mix(in srgb, var(--story-phase-accent) 22%, rgba(138, 116, 88, 0.14));
   border-radius: 10px;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent 64%),
-    rgba(28, 21, 18, 0.44);
+    linear-gradient(180deg, color-mix(in srgb, var(--story-phase-accent) 10%, rgba(255, 255, 255, 0.025)), transparent 64%),
+    color-mix(in srgb, var(--story-phase-accent) 14%, rgba(28, 21, 18, 0.44));
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.03),
     0 20px 34px rgba(0, 0, 0, 0.12);
