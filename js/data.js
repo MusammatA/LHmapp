@@ -812,7 +812,7 @@
         "Slide 2/tavern.jpg",
         "Slide 2/ChatGPT Image Apr 21, 2026, 02_45_33 PM.png"
       ]),
-      locationName: "Tavern where Raskolnikov meets Marmeladov",
+      locationName: "Tavern with Marmeladov",
       mapLabel: "Tavern where Raskolnikov meets Marmeladov",
       address: "19 Prospekt Rimskogo-Korsakova, St. Petersburg, Russia",
       lat: 59.9242,
@@ -826,7 +826,7 @@
       quote: "“Raskolnikov listened attentively.”",
       quoteSource: "Page 38",
       analysis:
-        "The tavern where Raskolnikov meets Marmeladov shows him real poverty and suffering up close. Marmeladov tells his story of failure and guilt, and instead of judging him the way his theory suggests, Raskolnikov actually listens and feels sympathy for him. This shows a clear contradiction in his thinking: even though he’s starting to believe some people are “worthless” in society, he still can’t ignore their suffering. The tavern scene makes it clear that his ideas and his emotions don’t match, and that his theory isn’t as solid as he thinks.",
+        "The tavern scene is the first sign that Raskolnikov cannot sustain emotional detachment in the presence of real suffering. Marmeladov tells his story of failure and guilt, and instead of judging him the way his theory suggests, Raskolnikov actually listens and feels sympathy for him. This shows a clear contradiction in his thinking: even though he’s starting to believe some people are “worthless” in society, he still can’t ignore their suffering. The tavern scene makes it clear that his ideas and his emotions don’t match, and that his theory isn’t as solid as he thinks.",
       sourceUrl: "https://www.planetpublish.com/wp-content/uploads/2011/11/Crime_and_Punishment_T.pdf"
     }),
     createStoryEvent({
@@ -861,7 +861,7 @@
         "Slide 4/c04fa1bf-d5d4-483d-9800-cfe4eb52fd5a.png",
         "Slide 4/FD41-De-woonkamer-van-Raskolnikov.jpg"
       ]),
-      locationName: "Raskolnikov’s Tenement (Return)",
+      locationName: "Mother’s Letter",
       mapLabel: "Raskolnikov’s Tenement",
       address: "17 Grazhdanskaya Ulitsa, St. Petersburg, Russia",
       lat: 59.92764,
@@ -876,7 +876,7 @@
         "“Almost from the first, while he read the letter, Raskolnikov’s face was wet with tears; but when he finished it, his face was pale and distorted and a bitter, wrathful and malignant smile was on his lips.”",
       quoteSource: "Part 1, Chapter 3",
       analysis:
-        "When Raskolnikov reads his mother’s letter, he first reacts emotionally, but this quickly turns into a “bitter, wrathful and malignant smile.” Unlike earlier moments where his empathy leads him to act compassionately, here his emotional response is redirected into anger. Instead of focusing on helping his family directly, he becomes outraged at the conditions that force his sister to sacrifice herself. This shift shows a change in his psychological state, as he begins to transform emotion into justification, moving closer to the belief that extreme actions may be necessary to correct injustice."
+        "The letter marks a shift from diffuse misery to focused outrage. Raskolnikov’s tears show that he is still emotionally bound to his mother and sister, but the speed with which grief turns into bitterness reveals a mind that cannot remain in helpless feeling for long. Instead, emotion hardens into resentment. The scene matters because private pain begins to acquire ideological force: Dunya’s sacrifice becomes not only something he suffers, but something he starts to interpret as proof that the world itself is intolerable."
     }),
     createStoryEvent({
       id: "k-boulevard",
@@ -909,7 +909,7 @@
         "Slide 7/anglijskaya-naberezhnaya-6-915x604.jpg",
         "Slide 7/ChatGPT Image Apr 21, 2026, 02_58_59 PM.png"
       ]),
-      locationName: "River Embankment",
+      locationName: "Horse Dream",
       mapLabel: "River Embankment",
       address: "Zhdanovskaya Naberezhnaya, St. Petersburg, Russia",
       lat: 59.9583503,
@@ -924,7 +924,7 @@
         "“Father! Why did they... kill... the poor horse!” he sobbed, but his voice broke and the words came in shrieks from his panting chest.",
       quoteSource: "Part 1, Chapter 5",
       analysis:
-        "The horse dream reveals that Raskolnikov cannot experience violence abstractly: he feels it from the victim’s side, not the aggressor’s. This matters because his theory depends on reducing human beings to ideas that can be sacrificed, whereas the dream restores suffering as immediate, particular, and intolerable. At the same time, his position as a helpless witness suggests that his later desire to become an “extraordinary man” grows partly out of a revolt against his own powerlessness. The dream therefore exposes his ideology not as his true nature, but as a defense against a psyche that is deeply vulnerable to pain and morally unable to justify cruelty."
+        "The horse dream functions as a psychological counterargument to the murder before the murder happens. In it, Raskolnikov does not witness violence from the side of the aggressor or the judge, but from the side of helpless pity. That matters because his later theory depends on distance, hierarchy, and the reduction of a life to an obstacle. The dream makes such reduction impossible. It reveals that, beneath his abstract thinking, Raskolnikov isn’t built to be the person his theory requires, he’s too emotionally tied to human suffering to carry it out."
     }),
     createStoryEvent({
       id: "sennaya-square",
@@ -933,7 +933,7 @@
         "Slide 8/heymarket.jpg",
         "Slide 8/ChatGPT Image Apr 21, 2026, 03_04_52 PM.png"
       ]),
-      locationName: "Sennaya Square",
+      locationName: "Haymarket",
       mapLabel: "Sennaya Square",
       address: "Sennaya Square, St. Petersburg, Russia",
       lat: 59.9262,
@@ -958,7 +958,7 @@
         "Slide 9/ChatGPT Image Apr 21, 2026, 03_08_07 PM.png",
         "Slide 9/e9.mp4"
       ]),
-      locationName: "Moneylender’s Residence",
+      locationName: "Murder",
       mapLabel: "Moneylender’s Residence",
       address: "15 Srednyaya Pod'yacheskaya Ulitsa, St. Petersburg, Russia",
       lat: 59.9246885,
@@ -968,12 +968,12 @@
       timelineEndDay: 4,
       phase: "The Murder",
       description:
-        "Raskolnikov kills the pawnbroker and, unexpectedly, her sister.",
+        "Raskolnikov kills the pawnbroker and, unexpectedly, her sister. Now in great detail he is cleaning the tools of his crime.",
       quote:
         "“But a sort of blankness, even dreaminess, had begun by degrees to take possession of him; at moments he forgot himself, or rather, forgot what was of importance, and caught at trifles.”",
       quoteSource: "Part 1, Chapter 7",
       analysis:
-        "The description of a “blankness” and “dreaminess” taking hold of Raskolnikov reveals a dissociative psychological state in which he is no longer fully aware or in control of his actions. Rather than acting through clear reasoning, he experiences a breakdown of conscious thought, allowing him to proceed without confronting the reality of what he is about to do. This mental detachment suggests that the crime is not carried out through rational conviction, but through a temporary collapse of his ability to think and feel clearly."
+        "During the murder, Raskolnikov does not appear as the decisive, self-possessed figure his theory imagines. Instead, he acts in a state of fragmentation, distraction, and partial dissociation. This matters because the scene exposes the gap between fantasy and execution: he wanted to prove that he could act beyond ordinary moral paralysis, yet the crime occurs in a haze of confusion rather than sovereign will. The murder therefore begins to disprove the identity he hoped to test."
     }),
     createStoryEvent({
       id: "police-station",
@@ -982,7 +982,7 @@
         "Slide 10/download.jpeg",
         "Slide 10/a9ed19c1-0980-4c4b-ace3-19137ac44ba6.png"
       ]),
-      locationName: "Police Station",
+      locationName: "Police Station After Murder",
       mapLabel: "Police Station",
       address: "35 Bol'shaya Pod'yacheskaya Ulitsa, St. Petersburg, Russia",
       lat: 59.9211164,
@@ -1006,7 +1006,7 @@
         "Slide 11/71tYOaO29mL._AC_UF894,1000_QL80_.jpg",
         "Slide 11/9c058041-ea2e-45f7-b23f-1c24e8aed2a5.png"
       ]),
-      locationName: "Voznesensky Avenue",
+      locationName: "Purse",
       mapLabel: "Voznesensky Avenue",
       address: "5 Voznesensky Ave, St. Petersburg, Russia",
       lat: 59.9338,
@@ -1054,7 +1054,7 @@
         "Slide 13/bridge.jpeg",
         "Slide 13/ChatGPT Image Apr 21, 2026, 03_21_39 PM.png"
       ]),
-      locationName: "Bridge after conflict with Razumikhin",
+      locationName: "Woman in Canal",
       mapLabel: "Bridge after conflict with Razumikhin",
       address: "34 Voznesensky Ave, St. Petersburg, Russia",
       lat: 59.9256,
@@ -1066,7 +1066,7 @@
       description:
         "Right after his tense encounter with Razumikhin, Raskolnikov walks to a bridge and stops in the middle, leaning over the railing and looking out at the water. A crowd gathers nearby as a woman attempts to drown herself in the canal, and a policeman pulls her out.",
       quote:
-        "“The crowd broke up. The police still remained round the woman, someone mentioned the police station.... Raskolnikov looked on with a strange sensation of indifference and apathy.”",
+        "“The crowd broke up. The police still remained around the woman, someone mentioned the police station.... Raskolnikov looked on with a strange sensation of indifference and apathy.”",
       quoteSource: "Part 2, Chapter 6",
       analysis:
         "Raskolnikov’s psychological state shifts from intense agitation to emotional numbness, shown in the line, “Complete apathy had succeeded to it.” After his confrontation with Razumikhin, he no longer reacts with panic or defiance, but instead becomes detached from everything around him. Even the attempted suicide at the bridge fails to provoke a strong response, revealing that his earlier inner conflict has collapsed into exhaustion. This moment marks a turning point where he stops actively struggling with his guilt and instead drifts into a state of indifference and isolation."
@@ -1078,7 +1078,7 @@
         "Slide 14/96_big.jpg",
         "Slide 14/36df63a7-94e9-4ad9-b112-223053bb0106.png"
       ]),
-      locationName: "Sonya Marmeladov’s Apartment",
+      locationName: "Sonya Confession",
       mapLabel: "Sonya Marmeladov’s Apartment",
       address: "73 Griboyedov Channel Embankment, St. Petersburg, Russia",
       lat: 59.9274508,
@@ -1093,7 +1093,7 @@
         "“He did not yet know why it must be so, he only felt it, and the agonising sense of his impotence before the inevitable almost crushed him.”",
       quoteSource: "Part 6, Chapter 4",
       analysis:
-        "In this moment, Raskolnikov is no longer acting out of control or pride but is overwhelmed by an inner force he can’t resist. His earlier belief that he could act freely and justify his crime collapses, replaced by a sense that confession is unavoidable. This marks a shift from intellectual arrogance to emotional vulnerability, as guilt and the need for connection, especially with Sonya, begin to overpower his isolation."
+        "By the time he confesses to Sonya, the question is no longer whether he can justify the crime, but whether he can keep carrying it on his own. What breaks in this moment is his belief that he can exist independently from others. He doesn’t confess out of pride or even full repentance, but because the weight of what he has done becomes too much to contain alone. Sonya matters because, for the first time, he can’t keep up the idea that he is self-sufficient."
     })
   ]);
 
