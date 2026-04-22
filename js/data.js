@@ -1113,6 +1113,7 @@
     slideIndex = null,
     slideIndices = [],
     markerType = "story",
+    markerCaption = null,
     showTooltip = true,
     includeInInitialBounds = true,
     tooltipDirection = null
@@ -1125,6 +1126,7 @@
       slideIndex,
       slideIndices: Object.freeze(slideIndices.slice()),
       markerType,
+      markerCaption,
       showTooltip,
       includeInInitialBounds,
       tooltipDirection
