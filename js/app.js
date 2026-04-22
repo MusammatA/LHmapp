@@ -12,7 +12,7 @@
   const CHAPTER_CARD_FADE_MS = 360;
   const RESET_VISITED_ON_GUIDED_REPLAY = false;
   const AMBIENT_AUDIO_SESSION_KEY = "geography-of-guilt.ambient-muted";
-  const STORY_AUDIO_VOLUME_SESSION_KEY = "geography-of-guilt.story-volume";
+  const STORY_AUDIO_VOLUME_SESSION_KEY = "geography-of-guilt.story-volume.v2";
   const STORY_ENTRY_MODE = Object.freeze({
     guided: "guided",
     exploratory: "exploratory"
@@ -23,7 +23,7 @@
   const STORY_SOUND_FADE_MS = 700;
   const STORY_SOUND_MIN_VOLUME = 0.1;
   const STORY_SOUND_MAX_VOLUME = 0.25;
-  const STORY_SOUND_DEFAULT_VOLUME = 0.16;
+  const STORY_SOUND_DEFAULT_VOLUME = 0.25;
   const SUPPORTED_MEDIA_EXTENSIONS = Object.freeze([
     ".png",
     ".jpg",
@@ -396,6 +396,13 @@
       state.activeVideoElement.volume = state.isMuted ? 0 : state.volume;
     }
 
+    function resolveSceneTargetVolume(event) {
+      const soundBoost = Number(event?.soundVolumeBoost);
+      const volumeBoost = Number.isFinite(soundBoost) && soundBoost > 0 ? soundBoost : 1;
+
+      return clamp(state.volume * volumeBoost, STORY_SOUND_MIN_VOLUME, STORY_SOUND_MAX_VOLUME);
+    }
+
     function renderAudioControls() {
       const hasSceneAudio = Boolean(state.activeSceneSoundPath);
       const hasVideoAudio = Boolean(state.activeVideoElement);
@@ -473,7 +480,7 @@
       }
     }
 
-    async function playSceneSound(source) {
+    async function playSceneSound(source, event = null) {
       if (!source || state.unavailableSources.has(source)) {
         renderAudioControls();
         return;
@@ -508,7 +515,7 @@
       if (state.isMuted) {
         nextTrack.volume = 0;
       } else {
-        await fadeTrackVolume(nextTrack, state.volume, STORY_SOUND_FADE_MS);
+        await fadeTrackVolume(nextTrack, resolveSceneTargetVolume(event), STORY_SOUND_FADE_MS);
       }
 
       renderAudioControls();
@@ -533,7 +540,12 @@
         state.activeSceneTrack.volume = 0;
 
         state.activeSceneTrack.play().then(() => {
-          fadeTrackVolume(state.activeSceneTrack, state.volume, STORY_SOUND_FADE_MS);
+          const activeEvent = STORY_EVENTS.find((event) => event.id === state.activeSceneEventId) || null;
+          fadeTrackVolume(
+            state.activeSceneTrack,
+            resolveSceneTargetVolume(activeEvent),
+            STORY_SOUND_FADE_MS
+          );
         }).catch(() => {
           // Browser may still require another interaction.
         });
@@ -542,7 +554,8 @@
         return;
       }
 
-      playSceneSound(state.activeSceneSoundPath);
+      const activeEvent = STORY_EVENTS.find((event) => event.id === state.activeSceneEventId) || null;
+      playSceneSound(state.activeSceneSoundPath, activeEvent);
     }
 
     function setAmbientMode(mode) {
@@ -556,7 +569,8 @@
           resetTime: true
         });
       } else if (!state.isMuted && state.activeSceneSoundPath && !state.activeSceneTrack) {
-        playSceneSound(state.activeSceneSoundPath);
+        const activeEvent = STORY_EVENTS.find((event) => event.id === state.activeSceneEventId) || null;
+        playSceneSound(state.activeSceneSoundPath, activeEvent);
       }
 
       setVideoVolume();
@@ -616,14 +630,29 @@
             }
           }
 
-          await fadeTrackVolume(state.activeSceneTrack, state.volume, STORY_SOUND_FADE_MS);
+          await fadeTrackVolume(
+            state.activeSceneTrack,
+            resolveSceneTargetVolume(event),
+            STORY_SOUND_FADE_MS
+          );
         }
 
         renderAudioControls();
         return;
       }
 
-      await playSceneSound(nextSource);
+      await playSceneSound(nextSource, event);
+    }
+
+    function primeStorySoundForEvent(event) {
+      if (state.currentMode !== "story" || !event?.soundLeadInMs) {
+        return;
+      }
+
+      // Positive soundLeadInMs opts a scene into an early crossfade as the panel transition begins.
+      setStorySoundForEvent(event).catch(() => {
+        // If the browser delays playback, the normal slide render will retry cleanly.
+      });
     }
 
     async function syncStoryMediaAudio(activeMediaItem, videoElement, event) {
@@ -661,7 +690,12 @@
       persistState();
 
       if (state.activeSceneTrack && !state.isMuted) {
-        fadeTrackVolume(state.activeSceneTrack, state.volume, STORY_SOUND_FADE_MS);
+        const activeEvent = STORY_EVENTS.find((event) => event.id === state.activeSceneEventId) || null;
+        fadeTrackVolume(
+          state.activeSceneTrack,
+          resolveSceneTargetVolume(activeEvent),
+          STORY_SOUND_FADE_MS
+        );
       }
 
       setVideoVolume();
@@ -679,6 +713,7 @@
     return Object.freeze({
       armFromInteraction,
       setAmbientMode,
+      primeStorySoundForEvent,
       toggleMute,
       setStorySoundForEvent,
       syncStoryMediaAudio
@@ -1098,6 +1133,10 @@
       state.isBusy = true;
       updateNavigationState();
       elements.storyPanelElement.classList.add("is-changing");
+
+      if (Number(nextEvent.soundLeadInMs) > 0) {
+        audioController.primeStorySoundForEvent(nextEvent);
+      }
 
       await wait(SLIDE_TRANSITION_MS / 2);
 

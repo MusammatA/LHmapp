@@ -830,6 +830,7 @@
       timelineStartDay: 2,
       timelineEndDay: 2,
       phase: "Before the Murder",
+      soundVolumeBoost: 1.2,
       soundFiles: Object.freeze([STORY_SOUND.tavern]),
       description:
         "Raskolnikov meets Marmeladov, who shares the story of his family’s suffering.",
@@ -931,6 +932,7 @@
       timelineStartDay: 3,
       timelineEndDay: 4,
       phase: "Before the Murder",
+      soundLeadInMs: 320,
       soundFiles: Object.freeze([STORY_SOUND.dream]),
       description:
         "Overcome with exhaustion and drunk, Raskolnikov falls asleep outdoors and dreams of his childhood.",
@@ -956,6 +958,7 @@
       timelineStartDay: 4,
       timelineEndDay: 4,
       phase: "Before the Murder",
+      soundVolumeBoost: 1.2,
       soundFiles: Object.freeze(["Slide 8/placidplace-tavern-ambience-with-openfire-effect-no-loops-86151 copy.mp3"]),
       description:
         "Raskolnikov sits in a tavern in the Haymarket overhearing a student argue that killing the pawnbroker would be justified.",
