@@ -87,55 +87,55 @@
       label: "Isolation",
       marker: Object.freeze({
         default: createMarkerStyle({
-          radius: 6.2,
-          color: "#cfbf83",
-          weight: 1.8,
-          fillColor: "#8d7336",
-          fillOpacity: 0.94,
-          opacity: 0.96
+          radius: 7.2,
+          color: "#fff4ad",
+          weight: 2.4,
+          fillColor: "#f0c53d",
+          fillOpacity: 1,
+          opacity: 1
         }),
         visited: createMarkerStyle({
-          radius: 6.2,
-          color: "#9f8a59",
-          weight: 1.8,
-          fillColor: "#5f4d26",
-          fillOpacity: 0.88,
-          opacity: 0.92
+          radius: 7.2,
+          color: "#f7e084",
+          weight: 2.2,
+          fillColor: "#cda42c",
+          fillOpacity: 0.96,
+          opacity: 0.98
         }),
         active: createMarkerStyle({
-          radius: 7.5,
-          color: "#ead79e",
-          weight: 2.3,
-          fillColor: "#b88e3f",
+          radius: 8.5,
+          color: "#fff9cf",
+          weight: 2.8,
+          fillColor: "#ffd34a",
           fillOpacity: 1,
           opacity: 1
         }),
         hover: createMarkerStyle({
-          radius: 6.9,
-          color: "#ddca90",
-          weight: 2,
-          fillColor: "#9d7b39",
-          fillOpacity: 0.98,
+          radius: 7.9,
+          color: "#fff5b8",
+          weight: 2.6,
+          fillColor: "#f8cb44",
+          fillOpacity: 1,
           opacity: 1
         })
       }),
       path: Object.freeze({
         future: createPathStyle({
-          color: "#6c5328",
-          weight: 2.4,
-          opacity: 0.44,
+          color: "#a07318",
+          weight: 2.7,
+          opacity: 0.56,
           dashArray: "8 10"
         }),
         completed: createPathStyle({
-          color: "#9a7541",
-          weight: 3,
-          opacity: 0.68,
+          color: "#c7931a",
+          weight: 3.2,
+          opacity: 0.8,
           dashArray: "7 7"
         }),
         current: createPathStyle({
-          color: "#b68c55",
-          weight: 3.5,
-          opacity: 0.9,
+          color: "#e0aa1f",
+          weight: 3.8,
+          opacity: 0.96,
           dashArray: "5 6"
         })
       })
@@ -144,59 +144,59 @@
       label: "Conflict",
       marker: Object.freeze({
         default: createMarkerStyle({
-          radius: 6.9,
-          color: "#d6a96e",
-          weight: 2.1,
-          fillColor: "#a5662e",
-          fillOpacity: 0.92,
-          opacity: 0.96,
+          radius: 7.5,
+          color: "#ffe4a3",
+          weight: 2.5,
+          fillColor: "#ffb22e",
+          fillOpacity: 1,
+          opacity: 1,
           dashArray: "2 4"
         }),
         visited: createMarkerStyle({
-          radius: 6.9,
-          color: "#a98558",
-          weight: 2.1,
-          fillColor: "#684120",
-          fillOpacity: 0.86,
-          opacity: 0.9,
+          radius: 7.5,
+          color: "#ffd278",
+          weight: 2.3,
+          fillColor: "#d98e18",
+          fillOpacity: 0.96,
+          opacity: 0.98,
           dashArray: "2 4"
         }),
         active: createMarkerStyle({
-          radius: 8,
-          color: "#ebc38f",
-          weight: 2.5,
-          fillColor: "#bf7b33",
+          radius: 8.8,
+          color: "#fff0c2",
+          weight: 2.9,
+          fillColor: "#ffc341",
           fillOpacity: 1,
           opacity: 1,
           dashArray: "2 4"
         }),
         hover: createMarkerStyle({
-          radius: 7.5,
-          color: "#e2b680",
-          weight: 2.3,
-          fillColor: "#b36d30",
-          fillOpacity: 0.98,
+          radius: 8.2,
+          color: "#ffe8ab",
+          weight: 2.7,
+          fillColor: "#ffbc35",
+          fillOpacity: 1,
           opacity: 1,
           dashArray: "2 4"
         })
       }),
       path: Object.freeze({
         future: createPathStyle({
-          color: "#7f4f22",
-          weight: 2.5,
-          opacity: 0.46,
+          color: "#b86d18",
+          weight: 2.8,
+          opacity: 0.6,
           dashArray: "7 8"
         }),
         completed: createPathStyle({
-          color: "#a36830",
-          weight: 3.05,
-          opacity: 0.72,
+          color: "#db861b",
+          weight: 3.3,
+          opacity: 0.84,
           dashArray: "5 6"
         }),
         current: createPathStyle({
-          color: "#be8042",
-          weight: 3.55,
-          opacity: 0.92,
+          color: "#f5a52a",
+          weight: 3.85,
+          opacity: 0.98,
           dashArray: "4 5"
         })
       })
@@ -205,59 +205,59 @@
       label: "Self-Authorization",
       marker: Object.freeze({
         default: createMarkerStyle({
-          radius: 7.2,
-          color: "#c36b44",
-          weight: 2.25,
-          fillColor: "#7a3122",
-          fillOpacity: 0.88,
-          opacity: 0.96,
+          radius: 7.8,
+          color: "#ffc39a",
+          weight: 2.6,
+          fillColor: "#ff6d32",
+          fillOpacity: 0.98,
+          opacity: 1,
           dashArray: "5 4"
         }),
         visited: createMarkerStyle({
-          radius: 7.2,
-          color: "#92553d",
-          weight: 2.2,
-          fillColor: "#4d211a",
-          fillOpacity: 0.84,
-          opacity: 0.9,
+          radius: 7.8,
+          color: "#ffab7f",
+          weight: 2.4,
+          fillColor: "#d45522",
+          fillOpacity: 0.94,
+          opacity: 0.98,
           dashArray: "5 4"
         }),
         active: createMarkerStyle({
-          radius: 8.2,
-          color: "#db8c68",
-          weight: 2.6,
-          fillColor: "#9c3d29",
+          radius: 9,
+          color: "#ffd2b4",
+          weight: 3,
+          fillColor: "#ff7a3a",
           fillOpacity: 0.98,
           opacity: 1,
           dashArray: "5 4"
         }),
         hover: createMarkerStyle({
-          radius: 7.8,
-          color: "#cf7b57",
-          weight: 2.4,
-          fillColor: "#8c3827",
-          fillOpacity: 0.94,
+          radius: 8.4,
+          color: "#ffc6a0",
+          weight: 2.8,
+          fillColor: "#ff7136",
+          fillOpacity: 0.98,
           opacity: 1,
           dashArray: "5 4"
         })
       }),
       path: Object.freeze({
         future: createPathStyle({
-          color: "#662d22",
-          weight: 2.55,
-          opacity: 0.48,
+          color: "#a54023",
+          weight: 2.8,
+          opacity: 0.62,
           dashArray: "6 7"
         }),
         completed: createPathStyle({
-          color: "#8f3f2e",
-          weight: 3.1,
-          opacity: 0.74,
+          color: "#cf4f28",
+          weight: 3.35,
+          opacity: 0.84,
           dashArray: "4 5"
         }),
         current: createPathStyle({
-          color: "#aa533a",
-          weight: 3.7,
-          opacity: 0.94,
+          color: "#ef6330",
+          weight: 4,
+          opacity: 0.98,
           dashArray: "3 4"
         })
       })
@@ -266,61 +266,61 @@
       label: "Rupture",
       marker: Object.freeze({
         default: createMarkerStyle({
-          radius: 8.2,
-          color: "#d48b7d",
-          weight: 2.8,
-          fillColor: "#8f1d1f",
-          fillOpacity: 0.96,
+          radius: 8.9,
+          color: "#ffb4b4",
+          weight: 3,
+          fillColor: "#ff2327",
+          fillOpacity: 1,
           opacity: 1,
           dashArray: "1 5"
         }),
         visited: createMarkerStyle({
-          radius: 8.2,
-          color: "#9c5f56",
-          weight: 2.6,
-          fillColor: "#5f1416",
-          fillOpacity: 0.88,
-          opacity: 0.94,
+          radius: 8.9,
+          color: "#ff8d8d",
+          weight: 2.8,
+          fillColor: "#d61d22",
+          fillOpacity: 0.96,
+          opacity: 0.98,
           dashArray: "1 5"
         }),
         active: createMarkerStyle({
-          radius: 9.4,
-          color: "#f0b1a4",
-          weight: 3.1,
-          fillColor: "#b51f22",
+          radius: 10.2,
+          color: "#ffd4d4",
+          weight: 3.4,
+          fillColor: "#ff2e33",
           fillOpacity: 1,
           opacity: 1,
           dashArray: "1 5"
         }),
         hover: createMarkerStyle({
-          radius: 8.8,
-          color: "#e29a8c",
-          weight: 2.9,
-          fillColor: "#a31f22",
-          fillOpacity: 0.98,
+          radius: 9.5,
+          color: "#ffc0c0",
+          weight: 3.15,
+          fillColor: "#ff272c",
+          fillOpacity: 1,
           opacity: 1,
           dashArray: "1 5"
         })
       }),
       path: Object.freeze({
         future: createPathStyle({
-          color: "#581213",
-          weight: 2.85,
-          opacity: 0.52,
+          color: "#86191b",
+          weight: 3.1,
+          opacity: 0.66,
           dashArray: "3 6",
           lineCap: "square"
         }),
         completed: createPathStyle({
-          color: "#791b1b",
-          weight: 3.45,
-          opacity: 0.8,
+          color: "#bf1e21",
+          weight: 3.75,
+          opacity: 0.9,
           dashArray: "2 5",
           lineCap: "square"
         }),
         current: createPathStyle({
-          color: "#971f1f",
-          weight: 4.2,
-          opacity: 0.98,
+          color: "#ff2327",
+          weight: 4.5,
+          opacity: 1,
           dashArray: "2 3",
           lineCap: "square"
         })
@@ -330,55 +330,55 @@
       label: "Separation",
       marker: Object.freeze({
         default: createMarkerStyle({
-          radius: 7.2,
-          color: "#7e99b2",
-          weight: 2.1,
-          fillColor: "#2a3b4c",
-          fillOpacity: 0.88,
+          radius: 7.8,
+          color: "#c1ddff",
+          weight: 2.5,
+          fillColor: "#2590ff",
+          fillOpacity: 1,
           opacity: 1
         }),
         visited: createMarkerStyle({
-          radius: 7.2,
-          color: "#5c7287",
-          weight: 2,
-          fillColor: "#20303f",
-          fillOpacity: 0.78,
-          opacity: 0.88
+          radius: 7.8,
+          color: "#8fc2ff",
+          weight: 2.3,
+          fillColor: "#186fd1",
+          fillOpacity: 0.96,
+          opacity: 0.98
         }),
         active: createMarkerStyle({
-          radius: 8.3,
-          color: "#97b2c9",
-          weight: 2.45,
-          fillColor: "#304657",
-          fillOpacity: 0.96,
+          radius: 8.8,
+          color: "#d4ecff",
+          weight: 2.9,
+          fillColor: "#3fa1ff",
+          fillOpacity: 1,
           opacity: 1
         }),
         hover: createMarkerStyle({
-          radius: 7.8,
-          color: "#8aa6be",
-          weight: 2.2,
-          fillColor: "#314657",
-          fillOpacity: 0.92,
+          radius: 8.3,
+          color: "#c8e5ff",
+          weight: 2.6,
+          fillColor: "#2f98ff",
+          fillOpacity: 1,
           opacity: 1
         })
       }),
       path: Object.freeze({
         future: createPathStyle({
-          color: "#374a60",
-          weight: 2.2,
-          opacity: 0.42,
+          color: "#1c64b4",
+          weight: 2.5,
+          opacity: 0.56,
           dashArray: "10 10"
         }),
         completed: createPathStyle({
-          color: "#4f6780",
-          weight: 2.6,
-          opacity: 0.64,
+          color: "#2b83dd",
+          weight: 2.95,
+          opacity: 0.8,
           dashArray: "8 8"
         }),
         current: createPathStyle({
-          color: "#6684a1",
-          weight: 3.1,
-          opacity: 0.9,
+          color: "#48a3ff",
+          weight: 3.45,
+          opacity: 0.98,
           dashArray: "6 6"
         })
       })
@@ -387,59 +387,59 @@
       label: "Numbness",
       marker: Object.freeze({
         default: createMarkerStyle({
-          radius: 6.9,
-          color: "#8190a0",
-          weight: 1.9,
-          fillColor: "#41505d",
-          fillOpacity: 0.82,
-          opacity: 0.9,
+          radius: 7.4,
+          color: "#bdd6ee",
+          weight: 2.2,
+          fillColor: "#6f95bc",
+          fillOpacity: 0.96,
+          opacity: 0.98,
           dashArray: "3 6"
         }),
         visited: createMarkerStyle({
-          radius: 6.9,
-          color: "#697683",
-          weight: 1.8,
-          fillColor: "#33404b",
-          fillOpacity: 0.72,
-          opacity: 0.8,
+          radius: 7.4,
+          color: "#9db9d5",
+          weight: 2,
+          fillColor: "#55789f",
+          fillOpacity: 0.9,
+          opacity: 0.92,
           dashArray: "3 6"
         }),
         active: createMarkerStyle({
-          radius: 7.9,
-          color: "#a4b0bc",
-          weight: 2.2,
-          fillColor: "#51616f",
-          fillOpacity: 0.92,
+          radius: 8.4,
+          color: "#dbe9f7",
+          weight: 2.6,
+          fillColor: "#82a8d0",
+          fillOpacity: 0.98,
           opacity: 0.92,
           dashArray: "3 6"
         }),
         hover: createMarkerStyle({
-          radius: 7.4,
-          color: "#93a0ad",
-          weight: 2,
-          fillColor: "#465662",
-          fillOpacity: 0.86,
+          radius: 7.9,
+          color: "#cde1f4",
+          weight: 2.4,
+          fillColor: "#769ec6",
+          fillOpacity: 0.96,
           opacity: 0.88,
           dashArray: "3 6"
         })
       }),
       path: Object.freeze({
         future: createPathStyle({
-          color: "#46515d",
-          weight: 2.05,
-          opacity: 0.38,
+          color: "#537194",
+          weight: 2.35,
+          opacity: 0.5,
           dashArray: "5 10"
         }),
         completed: createPathStyle({
-          color: "#5a6773",
-          weight: 2.4,
-          opacity: 0.58,
+          color: "#6f90b5",
+          weight: 2.7,
+          opacity: 0.74,
           dashArray: "4 8"
         }),
         current: createPathStyle({
-          color: "#76848f",
-          weight: 2.85,
-          opacity: 0.84,
+          color: "#8eb4de",
+          weight: 3.1,
+          opacity: 0.94,
           dashArray: "3 7"
         })
       })
@@ -448,55 +448,55 @@
       label: "Confession / Connection",
       marker: Object.freeze({
         default: createMarkerStyle({
-          radius: 7.4,
-          color: "#cab98b",
-          weight: 2.1,
-          fillColor: "#8a6f43",
+          radius: 8,
+          color: "#fff0b9",
+          weight: 2.5,
+          fillColor: "#e1b53c",
           fillOpacity: 0.9,
-          opacity: 0.98
+          opacity: 1
         }),
         visited: createMarkerStyle({
-          radius: 7.4,
-          color: "#9f906d",
-          weight: 2,
-          fillColor: "#5e4b2d",
-          fillOpacity: 0.8,
-          opacity: 0.88
+          radius: 8,
+          color: "#f1d67a",
+          weight: 2.3,
+          fillColor: "#b38b21",
+          fillOpacity: 0.95,
+          opacity: 0.98
         }),
         active: createMarkerStyle({
-          radius: 8.5,
-          color: "#e0cf9e",
-          weight: 2.5,
-          fillColor: "#ad8c58",
-          fillOpacity: 0.98,
+          radius: 9,
+          color: "#fff6d0",
+          weight: 2.9,
+          fillColor: "#f1c84c",
+          fillOpacity: 1,
           opacity: 1
         }),
         hover: createMarkerStyle({
-          radius: 7.9,
-          color: "#d6c392",
-          weight: 2.3,
-          fillColor: "#97774b",
-          fillOpacity: 0.94,
+          radius: 8.4,
+          color: "#fff2bf",
+          weight: 2.7,
+          fillColor: "#ebbf43",
+          fillOpacity: 1,
           opacity: 1
         })
       }),
       path: Object.freeze({
         future: createPathStyle({
-          color: "#665333",
-          weight: 2.35,
-          opacity: 0.44,
+          color: "#987626",
+          weight: 2.6,
+          opacity: 0.58,
           dashArray: "12 7"
         }),
         completed: createPathStyle({
-          color: "#8f7548",
-          weight: 3,
-          opacity: 0.7,
+          color: "#c59a30",
+          weight: 3.25,
+          opacity: 0.84,
           dashArray: "10 5"
         }),
         current: createPathStyle({
-          color: "#ad925c",
-          weight: 3.5,
-          opacity: 0.94
+          color: "#e4b940",
+          weight: 3.8,
+          opacity: 0.98
         })
       })
     })
