@@ -72,6 +72,18 @@
       .replace(/^-|-$/g, "");
   }
 
+  const PSYCHOLOGY_PHASE_LABELS = Object.freeze({
+    isolation: "Isolation",
+    conflict: "Conflict",
+    rupture: "Rupture",
+    separation: "Separation",
+    confession: "Confession"
+  });
+
+  function getPsychologyPhaseLabel(event) {
+    return PSYCHOLOGY_PHASE_LABELS[event && event.psychologyPhase] || "Isolation";
+  }
+
   function resolveStoryMood(event) {
     if (event.id === "sonya-apartment") {
       return "redemption";
@@ -88,47 +100,37 @@
     return "foreboding";
   }
 
-  function resolveNarrativePhaseKey(event) {
-    if (event.id === "sonya-apartment") {
-      return "confession";
-    }
-
-    if (event.phase === "The Murder") {
-      return "murder";
-    }
-
-    if (event.phase === "After the Murder") {
-      return "aftermath";
-    }
-
-    return "before";
-  }
-
   function createChapterCardCopy(event) {
-    switch (resolveNarrativePhaseKey(event)) {
-      case "murder":
+    switch (event.psychologyPhase) {
+      case "rupture":
         return {
-          eyebrow: "Crossing the Threshold",
-          title: "The Murder",
+          eyebrow: "Psychological Phase",
+          title: "Rupture",
           mood: "rupture"
         };
-      case "aftermath":
+      case "separation":
         return {
-          eyebrow: "The City After Blood",
-          title: "After the Murder",
+          eyebrow: "Psychological Phase",
+          title: "Separation",
           mood: "aftermath"
         };
       case "confession":
         return {
-          eyebrow: "Toward Witness and Mercy",
-          title: "Sonya and the Confession",
+          eyebrow: "Psychological Phase",
+          title: "Confession",
           mood: "redemption"
         };
-      case "before":
+      case "conflict":
+        return {
+          eyebrow: "Psychological Phase",
+          title: "Conflict",
+          mood: "foreboding"
+        };
+      case "isolation":
       default:
         return {
-          eyebrow: "The Thought Before the Act",
-          title: "Before the Murder",
+          eyebrow: "Psychological Phase",
+          title: "Isolation",
           mood: "foreboding"
         };
     }
@@ -974,14 +976,14 @@
       const slideIndex = state.currentIndex + 1;
 
       mapController.focusStorySlide(slideIndex);
-      mapController.markSlideVisited(slideIndex);
-      mapController.setActiveStoryMarker(slideIndex, {
+      mapController.markPhaseMarkerVisited(slideIndex);
+      mapController.setActivePhaseMarker(slideIndex, {
         pulse: pulseActiveMarker
       });
 
       if (state.entryMode === STORY_ENTRY_MODE.guided) {
-        mapController.showStoryPath();
-        mapController.updateStoryPathProgress(slideIndex);
+        mapController.renderPhasePath();
+        mapController.updatePhasePathProgress(slideIndex);
         return;
       }
 
@@ -1251,7 +1253,7 @@
 
       applyStoryMood(event);
       elements.storyCountElement.textContent = `${state.currentIndex + 1} / ${STORY_EVENTS.length}`;
-      elements.storyPhaseElement.textContent = event.phase;
+      elements.storyPhaseElement.textContent = `Phase: ${getPsychologyPhaseLabel(event)}`;
       elements.storyDayRangeElement.textContent = event.dayRange;
       elements.storyLocationElement.textContent = event.locationName;
       elements.storyAddressElement.textContent = event.address;
@@ -1285,7 +1287,7 @@
       const previousEvent = getCurrentEvent();
       const nextEvent = STORY_EVENTS[nextIndex];
       const shouldShowChapterCard = state.entryMode === STORY_ENTRY_MODE.guided
-        && resolveNarrativePhaseKey(previousEvent) !== resolveNarrativePhaseKey(nextEvent);
+        && previousEvent.psychologyPhase !== nextEvent.psychologyPhase;
 
       state.isBusy = true;
       updateNavigationState();
@@ -1413,7 +1415,7 @@
       elements.pageElement.classList.add("is-map-active");
       state.hasCompletedSequence = true;
       updateLaunchLabel();
-      mapController.clearActiveStoryMarker();
+      mapController.clearActivePhaseMarker();
       mapController.clearStoryPath();
       mapController.setInteractivity(true);
       audioController.setAmbientMode("map");

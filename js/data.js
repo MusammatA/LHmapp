@@ -6,13 +6,13 @@
     "Mother’s Letter": "conflict",
     "K. Boulevard": "conflict",
     "Horse Dream": "conflict",
-    Haymarket: "authorization",
+    Haymarket: "conflict",
     Murder: "rupture",
     "Police Station After Murder": "separation",
     Purse: "separation",
     "Nikolaevsky Bridge": "separation",
-    "Woman in Canal": "numbness",
-    "Sonya Confession": "connection"
+    "Woman in Canal": "separation",
+    "Sonya Confession": "confession"
   });
 
   function createStoryEvent(event) {

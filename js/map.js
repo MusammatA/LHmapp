@@ -14,15 +14,13 @@
   const KEEP_BASE_PATH_VISIBLE = true;
   const PSYCH_PHASE_LABEL_MAX_ZOOM = 13.2;
   const PSYCH_LEGEND_DESCRIPTION =
-    "The path follows Raskolnikov’s movement from isolation, through the crime, into separation, and finally toward confession.";
+    "This map tracks Raskolnikov’s movement from isolation, through conflict and rupture, into separation, and finally toward confession.";
   const PSYCHOLOGY_PHASE_ORDER = Object.freeze([
     "isolation",
     "conflict",
-    "authorization",
     "rupture",
     "separation",
-    "numbness",
-    "connection"
+    "confession"
   ]);
   const PHASE_CLASS_NAMES = Object.freeze(
     PSYCHOLOGY_PHASE_ORDER.map((phaseName) => `phase-${phaseName}`)
@@ -32,7 +30,7 @@
     Object.freeze({ title: "Tavern with Marmeladov", label: "Conflict", phase: "conflict" }),
     Object.freeze({ title: "Murder", label: "Rupture", phase: "rupture" }),
     Object.freeze({ title: "Police Station After Murder", label: "Separation", phase: "separation" }),
-    Object.freeze({ title: "Sonya Confession", label: "Confession", phase: "connection" })
+    Object.freeze({ title: "Sonya Confession", label: "Confession", phase: "confession" })
   ]);
   const PSYCHOLOGICAL_LEGEND_ITEMS = Object.freeze([
     Object.freeze({
@@ -56,14 +54,9 @@
       description: "Separation after the crime"
     }),
     Object.freeze({
-      phase: "numbness",
-      label: "Gray-blue",
-      description: "Numbness and apathy"
-    }),
-    Object.freeze({
-      phase: "connection",
+      phase: "confession",
       label: "Gold",
-      description: "Confession and return to connection"
+      description: "Confession"
     })
   ]);
 
@@ -444,8 +437,8 @@
         })
       })
     }),
-    connection: Object.freeze({
-      label: "Confession / Connection",
+    confession: Object.freeze({
+      label: "Confession",
       marker: Object.freeze({
         default: createMarkerStyle({
           radius: 8,
@@ -838,6 +831,10 @@
         : "isolation";
     }
 
+    getSlidePhase(slideIndex) {
+      return this.getPsychologyPhaseForSlide(slideIndex);
+    }
+
     getResolvedPsychologyPhase(record) {
       if (!record) {
         return "isolation";
@@ -1002,6 +999,10 @@
         return;
       }
 
+      if (this.storyPathSegments.length) {
+        return;
+      }
+
       const segments = [];
 
       for (let index = 0; index < this.storyEvents.length - 1; index += 1) {
@@ -1118,8 +1119,9 @@
               `).join("")}
             </ul>
             <div class="psych-map-legend__symbols">
-              <p><span class="psych-map-legend__marker psych-map-legend__marker--solid"></span> Solid marker = active or central moment</p>
+              <p><span class="psych-map-legend__marker psych-map-legend__marker--solid"></span> Solid marker = unvisited location</p>
               <p><span class="psych-map-legend__marker psych-map-legend__marker--faded"></span> Faded marker = already visited</p>
+              <p><span class="psych-map-legend__marker psych-map-legend__marker--pulse"></span> Pulsing marker = current location</p>
               <p><span class="psych-map-legend__path"></span> Connecting line = Raskolnikov’s psychological path through the city</p>
             </div>
           </div>
@@ -1203,7 +1205,15 @@
       this.markSlideVisited(slideIndex);
     }
 
+    markPhaseMarkerVisited(slideIndex) {
+      this.markSlideVisited(slideIndex);
+    }
+
     setActivePsychMarker(slideIndex, options) {
+      this.setActiveStoryMarker(slideIndex, options);
+    }
+
+    setActivePhaseMarker(slideIndex, options) {
       this.setActiveStoryMarker(slideIndex, options);
     }
 
@@ -1211,8 +1221,20 @@
       this.clearActiveStoryMarker();
     }
 
+    clearActivePhaseMarker() {
+      this.clearActiveStoryMarker();
+    }
+
+    renderPhasePath() {
+      this.renderPsychologicalPath();
+    }
+
     renderStoryPath() {
       this.renderPsychologicalPath();
+    }
+
+    updatePhasePathProgress(currentSlideIndex) {
+      this.updatePsychologicalPathProgress(currentSlideIndex);
     }
 
     updateStoryPathProgress(currentSlideIndex) {
