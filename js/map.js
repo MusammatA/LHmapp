@@ -8,68 +8,497 @@
   const STORY_MARKER_PULSE_MS = 1650;
   const STORY_PATH_PANE = "storyPathPane";
   const TOOLTIP_DIRECTIONS = Object.freeze(["top", "right", "left", "bottom"]);
-
-  /* Story marker pulse and visited states */
-  const STORY_MARKER_STYLES = Object.freeze({
-    default: Object.freeze({
-      radius: 7,
-      color: "#ffd4cd",
-      weight: 2,
-      fillColor: "#de1f1f",
-      fillOpacity: 0.98
+  const ENABLE_PSYCHOLOGICAL_PATH = true;
+  const ENABLE_PSYCHOLOGICAL_LEGEND = true;
+  const ENABLE_PSYCHOLOGICAL_PHASE_LABELS = true;
+  const KEEP_BASE_PATH_VISIBLE = true;
+  const PSYCH_PHASE_LABEL_MAX_ZOOM = 13.2;
+  const PSYCH_LEGEND_DESCRIPTION =
+    "The path follows Raskolnikov’s movement from isolation, through the crime, into separation, and finally toward confession.";
+  const PSYCHOLOGY_PHASE_ORDER = Object.freeze([
+    "isolation",
+    "conflict",
+    "authorization",
+    "rupture",
+    "separation",
+    "numbness",
+    "connection"
+  ]);
+  const PHASE_CLASS_NAMES = Object.freeze(
+    PSYCHOLOGY_PHASE_ORDER.map((phaseName) => `phase-${phaseName}`)
+  );
+  const PHASE_LABEL_DEFINITIONS = Object.freeze([
+    Object.freeze({ title: "Raskolnikov’s Tenement", label: "Isolation", phase: "isolation" }),
+    Object.freeze({ title: "Tavern with Marmeladov", label: "Conflict", phase: "conflict" }),
+    Object.freeze({ title: "Murder", label: "Rupture", phase: "rupture" }),
+    Object.freeze({ title: "Police Station After Murder", label: "Separation", phase: "separation" }),
+    Object.freeze({ title: "Sonya Confession", label: "Confession", phase: "connection" })
+  ]);
+  const PSYCHOLOGICAL_LEGEND_ITEMS = Object.freeze([
+    Object.freeze({
+      phase: "isolation",
+      label: "Yellow / Ochre",
+      description: "Isolation and thought forming"
     }),
-    visited: Object.freeze({
-      radius: 7,
-      color: "#cba5a1",
-      weight: 2,
-      fillColor: "#8e2929",
-      fillOpacity: 0.92
+    Object.freeze({
+      phase: "conflict",
+      label: "Orange",
+      description: "Conflict between empathy and theory"
     }),
-    active: Object.freeze({
-      radius: 8.4,
-      color: "#ffe7df",
-      weight: 2.4,
-      fillColor: "#ff3232",
-      fillOpacity: 1
+    Object.freeze({
+      phase: "rupture",
+      label: "Red",
+      description: "Murder / rupture"
     }),
-    hover: Object.freeze({
-      radius: 8,
-      color: "#ffe0d8",
-      weight: 2.2,
-      fillColor: "#ff2b2b",
-      fillOpacity: 1
+    Object.freeze({
+      phase: "separation",
+      label: "Blue",
+      description: "Separation after the crime"
+    }),
+    Object.freeze({
+      phase: "numbness",
+      label: "Gray-blue",
+      description: "Numbness and apathy"
+    }),
+    Object.freeze({
+      phase: "connection",
+      label: "Gold",
+      description: "Confession and return to connection"
     })
-  });
+  ]);
 
-  /* Guided-mode path line between story locations */
-  const STORY_PATH_STYLES = Object.freeze({
-    base: Object.freeze({
-      color: "#8f7152",
-      weight: 2.2,
-      opacity: 0.22,
-      dashArray: "10 12",
-      lineCap: "round",
-      lineJoin: "round",
-      className: "story-path-line story-path-line--base",
+  function createMarkerStyle(style) {
+    return Object.freeze(style);
+  }
+
+  function createPathStyle(style) {
+    return Object.freeze({
+      ...style,
+      lineCap: style.lineCap || "round",
+      lineJoin: style.lineJoin || "round",
+      className: "story-path-line",
       pane: STORY_PATH_PANE
+    });
+  }
+
+  /* Psychological marker and path styles */
+  const PSYCHOLOGY_PHASE_META = Object.freeze({
+    isolation: Object.freeze({
+      label: "Isolation",
+      marker: Object.freeze({
+        default: createMarkerStyle({
+          radius: 6.2,
+          color: "#cfbf83",
+          weight: 1.8,
+          fillColor: "#8d7336",
+          fillOpacity: 0.94,
+          opacity: 0.96
+        }),
+        visited: createMarkerStyle({
+          radius: 6.2,
+          color: "#9f8a59",
+          weight: 1.8,
+          fillColor: "#5f4d26",
+          fillOpacity: 0.78,
+          opacity: 0.82
+        }),
+        active: createMarkerStyle({
+          radius: 7.5,
+          color: "#ead79e",
+          weight: 2.3,
+          fillColor: "#b88e3f",
+          fillOpacity: 1,
+          opacity: 1
+        }),
+        hover: createMarkerStyle({
+          radius: 6.9,
+          color: "#ddca90",
+          weight: 2,
+          fillColor: "#9d7b39",
+          fillOpacity: 0.98,
+          opacity: 1
+        })
+      }),
+      path: Object.freeze({
+        future: createPathStyle({
+          color: "#90713c",
+          weight: 2,
+          opacity: 0.22,
+          dashArray: "8 11"
+        }),
+        completed: createPathStyle({
+          color: "#b7985c",
+          weight: 2.6,
+          opacity: 0.48,
+          dashArray: "8 8"
+        }),
+        current: createPathStyle({
+          color: "#cfb27b",
+          weight: 3.1,
+          opacity: 0.76,
+          dashArray: "6 7"
+        })
+      })
     }),
-    progress: Object.freeze({
-      color: "#d1b38b",
-      weight: 2.8,
-      opacity: 0.58,
-      lineCap: "round",
-      lineJoin: "round",
-      className: "story-path-line story-path-line--progress",
-      pane: STORY_PATH_PANE
+    conflict: Object.freeze({
+      label: "Conflict",
+      marker: Object.freeze({
+        default: createMarkerStyle({
+          radius: 6.9,
+          color: "#d6a96e",
+          weight: 2.1,
+          fillColor: "#a5662e",
+          fillOpacity: 0.92,
+          opacity: 0.96,
+          dashArray: "2 4"
+        }),
+        visited: createMarkerStyle({
+          radius: 6.9,
+          color: "#a98558",
+          weight: 2.1,
+          fillColor: "#684120",
+          fillOpacity: 0.7,
+          opacity: 0.8,
+          dashArray: "2 4"
+        }),
+        active: createMarkerStyle({
+          radius: 8,
+          color: "#ebc38f",
+          weight: 2.5,
+          fillColor: "#bf7b33",
+          fillOpacity: 1,
+          opacity: 1,
+          dashArray: "2 4"
+        }),
+        hover: createMarkerStyle({
+          radius: 7.5,
+          color: "#e2b680",
+          weight: 2.3,
+          fillColor: "#b36d30",
+          fillOpacity: 0.98,
+          opacity: 1,
+          dashArray: "2 4"
+        })
+      }),
+      path: Object.freeze({
+        future: createPathStyle({
+          color: "#9c6633",
+          weight: 2.2,
+          opacity: 0.24,
+          dashArray: "7 9"
+        }),
+        completed: createPathStyle({
+          color: "#bc8446",
+          weight: 2.7,
+          opacity: 0.52,
+          dashArray: "6 7"
+        }),
+        current: createPathStyle({
+          color: "#d9a669",
+          weight: 3.2,
+          opacity: 0.8,
+          dashArray: "5 6"
+        })
+      })
     }),
-    current: Object.freeze({
-      color: "#f1deba",
-      weight: 3.6,
-      opacity: 0.84,
-      lineCap: "round",
-      lineJoin: "round",
-      className: "story-path-line story-path-line--current",
-      pane: STORY_PATH_PANE
+    authorization: Object.freeze({
+      label: "Self-Authorization",
+      marker: Object.freeze({
+        default: createMarkerStyle({
+          radius: 7.2,
+          color: "#c36b44",
+          weight: 2.25,
+          fillColor: "#7a3122",
+          fillOpacity: 0.88,
+          opacity: 0.96,
+          dashArray: "5 4"
+        }),
+        visited: createMarkerStyle({
+          radius: 7.2,
+          color: "#92553d",
+          weight: 2.2,
+          fillColor: "#4d211a",
+          fillOpacity: 0.68,
+          opacity: 0.78,
+          dashArray: "5 4"
+        }),
+        active: createMarkerStyle({
+          radius: 8.2,
+          color: "#db8c68",
+          weight: 2.6,
+          fillColor: "#9c3d29",
+          fillOpacity: 0.98,
+          opacity: 1,
+          dashArray: "5 4"
+        }),
+        hover: createMarkerStyle({
+          radius: 7.8,
+          color: "#cf7b57",
+          weight: 2.4,
+          fillColor: "#8c3827",
+          fillOpacity: 0.94,
+          opacity: 1,
+          dashArray: "5 4"
+        })
+      }),
+      path: Object.freeze({
+        future: createPathStyle({
+          color: "#7f3d2c",
+          weight: 2.3,
+          opacity: 0.26,
+          dashArray: "6 8"
+        }),
+        completed: createPathStyle({
+          color: "#a45139",
+          weight: 2.8,
+          opacity: 0.56,
+          dashArray: "5 6"
+        }),
+        current: createPathStyle({
+          color: "#bf6a4a",
+          weight: 3.35,
+          opacity: 0.84,
+          dashArray: "4 5"
+        })
+      })
+    }),
+    rupture: Object.freeze({
+      label: "Rupture",
+      marker: Object.freeze({
+        default: createMarkerStyle({
+          radius: 8.2,
+          color: "#d48b7d",
+          weight: 2.8,
+          fillColor: "#8f1d1f",
+          fillOpacity: 0.96,
+          opacity: 1,
+          dashArray: "1 5"
+        }),
+        visited: createMarkerStyle({
+          radius: 8.2,
+          color: "#9c5f56",
+          weight: 2.6,
+          fillColor: "#5f1416",
+          fillOpacity: 0.74,
+          opacity: 0.84,
+          dashArray: "1 5"
+        }),
+        active: createMarkerStyle({
+          radius: 9.4,
+          color: "#f0b1a4",
+          weight: 3.1,
+          fillColor: "#b51f22",
+          fillOpacity: 1,
+          opacity: 1,
+          dashArray: "1 5"
+        }),
+        hover: createMarkerStyle({
+          radius: 8.8,
+          color: "#e29a8c",
+          weight: 2.9,
+          fillColor: "#a31f22",
+          fillOpacity: 0.98,
+          opacity: 1,
+          dashArray: "1 5"
+        })
+      }),
+      path: Object.freeze({
+        future: createPathStyle({
+          color: "#6a1a1a",
+          weight: 2.6,
+          opacity: 0.3,
+          dashArray: "3 7",
+          lineCap: "square"
+        }),
+        completed: createPathStyle({
+          color: "#8a2221",
+          weight: 3.1,
+          opacity: 0.64,
+          dashArray: "3 6",
+          lineCap: "square"
+        }),
+        current: createPathStyle({
+          color: "#b32a28",
+          weight: 3.9,
+          opacity: 0.9,
+          dashArray: "2 4",
+          lineCap: "square"
+        })
+      })
+    }),
+    separation: Object.freeze({
+      label: "Separation",
+      marker: Object.freeze({
+        default: createMarkerStyle({
+          radius: 7.2,
+          color: "#7e99b2",
+          weight: 2.1,
+          fillColor: "#2a3b4c",
+          fillOpacity: 0.24,
+          opacity: 0.94
+        }),
+        visited: createMarkerStyle({
+          radius: 7.2,
+          color: "#5c7287",
+          weight: 2,
+          fillColor: "#20303f",
+          fillOpacity: 0.18,
+          opacity: 0.68
+        }),
+        active: createMarkerStyle({
+          radius: 8.3,
+          color: "#97b2c9",
+          weight: 2.45,
+          fillColor: "#304657",
+          fillOpacity: 0.38,
+          opacity: 1
+        }),
+        hover: createMarkerStyle({
+          radius: 7.8,
+          color: "#8aa6be",
+          weight: 2.2,
+          fillColor: "#314657",
+          fillOpacity: 0.3,
+          opacity: 1
+        })
+      }),
+      path: Object.freeze({
+        future: createPathStyle({
+          color: "#4d6277",
+          weight: 1.8,
+          opacity: 0.22,
+          dashArray: "11 12"
+        }),
+        completed: createPathStyle({
+          color: "#607b96",
+          weight: 2.2,
+          opacity: 0.42,
+          dashArray: "9 10"
+        }),
+        current: createPathStyle({
+          color: "#7d98b2",
+          weight: 2.7,
+          opacity: 0.7,
+          dashArray: "7 8"
+        })
+      })
+    }),
+    numbness: Object.freeze({
+      label: "Numbness",
+      marker: Object.freeze({
+        default: createMarkerStyle({
+          radius: 6.9,
+          color: "#8190a0",
+          weight: 1.9,
+          fillColor: "#41505d",
+          fillOpacity: 0.2,
+          opacity: 0.76,
+          dashArray: "3 6"
+        }),
+        visited: createMarkerStyle({
+          radius: 6.9,
+          color: "#697683",
+          weight: 1.8,
+          fillColor: "#33404b",
+          fillOpacity: 0.14,
+          opacity: 0.58,
+          dashArray: "3 6"
+        }),
+        active: createMarkerStyle({
+          radius: 7.9,
+          color: "#a4b0bc",
+          weight: 2.2,
+          fillColor: "#51616f",
+          fillOpacity: 0.3,
+          opacity: 0.92,
+          dashArray: "3 6"
+        }),
+        hover: createMarkerStyle({
+          radius: 7.4,
+          color: "#93a0ad",
+          weight: 2,
+          fillColor: "#465662",
+          fillOpacity: 0.26,
+          opacity: 0.88,
+          dashArray: "3 6"
+        })
+      }),
+      path: Object.freeze({
+        future: createPathStyle({
+          color: "#566270",
+          weight: 1.7,
+          opacity: 0.18,
+          dashArray: "5 12"
+        }),
+        completed: createPathStyle({
+          color: "#697784",
+          weight: 2,
+          opacity: 0.34,
+          dashArray: "5 10"
+        }),
+        current: createPathStyle({
+          color: "#8694a0",
+          weight: 2.45,
+          opacity: 0.58,
+          dashArray: "4 9"
+        })
+      })
+    }),
+    connection: Object.freeze({
+      label: "Confession / Connection",
+      marker: Object.freeze({
+        default: createMarkerStyle({
+          radius: 7.4,
+          color: "#cab98b",
+          weight: 2.1,
+          fillColor: "#8a6f43",
+          fillOpacity: 0.78,
+          opacity: 0.96
+        }),
+        visited: createMarkerStyle({
+          radius: 7.4,
+          color: "#9f906d",
+          weight: 2,
+          fillColor: "#5e4b2d",
+          fillOpacity: 0.6,
+          opacity: 0.8
+        }),
+        active: createMarkerStyle({
+          radius: 8.5,
+          color: "#e0cf9e",
+          weight: 2.5,
+          fillColor: "#ad8c58",
+          fillOpacity: 0.92,
+          opacity: 1
+        }),
+        hover: createMarkerStyle({
+          radius: 7.9,
+          color: "#d6c392",
+          weight: 2.3,
+          fillColor: "#97774b",
+          fillOpacity: 0.86,
+          opacity: 1
+        })
+      }),
+      path: Object.freeze({
+        future: createPathStyle({
+          color: "#7d6742",
+          weight: 2.1,
+          opacity: 0.24,
+          dashArray: "14 8"
+        }),
+        completed: createPathStyle({
+          color: "#a58a5a",
+          weight: 2.7,
+          opacity: 0.52,
+          dashArray: "12 6"
+        }),
+        current: createPathStyle({
+          color: "#c5aa73",
+          weight: 3.2,
+          opacity: 0.82
+        })
+      })
     })
   });
 
@@ -80,6 +509,22 @@
 
   function toLatLng(location) {
     return [location.lat, location.lng];
+  }
+
+  function getPsychologyPhaseMeta(phaseName) {
+    return PSYCHOLOGY_PHASE_META[phaseName] || PSYCHOLOGY_PHASE_META.isolation;
+  }
+
+  function syncPhaseClassName(element, phaseName) {
+    if (!element || !element.classList) {
+      return;
+    }
+
+    element.classList.remove(...PHASE_CLASS_NAMES);
+
+    if (phaseName) {
+      element.classList.add(`phase-${phaseName}`);
+    }
   }
 
   function createTooltipContent(location) {
@@ -114,6 +559,7 @@
       marker,
       markerElement: null,
       tooltipElement: null,
+      currentPhase: location.psychologyPhase || "isolation",
       isHovered: false,
       isPulsing: false,
       pulseTimerId: null
@@ -140,9 +586,11 @@
       this.visitedStorySlides = new Set();
       this.activeStorySlideIndex = null;
       this.storyPathVisible = false;
-      this.storyPathBaseLine = null;
-      this.storyPathProgressLine = null;
-      this.storyPathCurrentLine = null;
+      this.storyPathSegments = [];
+      this.psychLegendControl = null;
+      this.psychLegendElement = null;
+      this.psychLegendToggleElement = null;
+      this.psychPhaseLabelMarkers = [];
     }
 
     async initialize({ locations, storyEvents = [], interactive = true }) {
@@ -245,7 +693,13 @@
         }
       });
 
-      this.renderStoryPath();
+      this.renderPsychologicalPath();
+      this.initPsychMapLegend();
+      this.initPsychPhaseLabels();
+
+      this.map.on("zoomend", () => {
+        this.updatePsychPhaseLabelVisibility();
+      });
 
       const initialBounds = bounds.length
         ? bounds
@@ -278,8 +732,9 @@
 
     createMarker(location) {
       if (location.markerType === "story") {
+        const phaseName = location.psychologyPhase || "isolation";
         return globalScope.L.circleMarker(toLatLng(location), {
-          ...STORY_MARKER_STYLES.default,
+          ...getPsychologyPhaseMeta(phaseName).marker.default,
           className: "story-marker-dot"
         }).addTo(this.map);
       }
@@ -372,7 +827,51 @@
       }
     }
 
+    getStoryEventBySlideIndex(slideIndex) {
+      return Number.isInteger(slideIndex) ? this.storyEvents[slideIndex - 1] || null : null;
+    }
+
+    getPsychologyPhaseForSlide(slideIndex) {
+      const storyEvent = this.getStoryEventBySlideIndex(slideIndex);
+      return storyEvent && storyEvent.psychologyPhase
+        ? storyEvent.psychologyPhase
+        : "isolation";
+    }
+
+    getResolvedPsychologyPhase(record) {
+      if (!record) {
+        return "isolation";
+      }
+
+      if (
+        Number.isInteger(this.activeStorySlideIndex)
+        && record.location.slideIndices.includes(this.activeStorySlideIndex)
+      ) {
+        return this.getPsychologyPhaseForSlide(this.activeStorySlideIndex);
+      }
+
+      const visitedSlides = record.location.slideIndices
+        .filter((slideNumber) => this.visitedStorySlides.has(slideNumber))
+        .sort((firstSlide, secondSlide) => secondSlide - firstSlide);
+
+      if (visitedSlides.length) {
+        return this.getPsychologyPhaseForSlide(visitedSlides[0]);
+      }
+
+      if (record.location.psychologyPhase) {
+        return record.location.psychologyPhase;
+      }
+
+      if (Array.isArray(record.location.psychologyPhases) && record.location.psychologyPhases.length) {
+        return record.location.psychologyPhases[0];
+      }
+
+      return this.getPsychologyPhaseForSlide(record.location.slideIndices[0]);
+    }
+
     getStoryMarkerStyle(record) {
+      const phaseName = this.getResolvedPsychologyPhase(record);
+      const phaseMeta = getPsychologyPhaseMeta(phaseName);
       const isActive = this.activeStorySlideIndex !== null
         && record.location.slideIndices.includes(this.activeStorySlideIndex);
       const isVisited = record.location.slideIndices.some((slideNumber) =>
@@ -380,14 +879,14 @@
       );
 
       if (isActive) {
-        return STORY_MARKER_STYLES.active;
+        return phaseMeta.marker.active;
       }
 
       if (record.isHovered) {
-        return STORY_MARKER_STYLES.hover;
+        return phaseMeta.marker.hover;
       }
 
-      return isVisited ? STORY_MARKER_STYLES.visited : STORY_MARKER_STYLES.default;
+      return isVisited ? phaseMeta.marker.visited : phaseMeta.marker.default;
     }
 
     applyStoryMarkerVisualState(record) {
@@ -400,17 +899,21 @@
       const isVisited = record.location.slideIndices.some((slideNumber) =>
         this.visitedStorySlides.has(slideNumber)
       );
+      const phaseName = this.getResolvedPsychologyPhase(record);
       const style = this.getStoryMarkerStyle(record);
+      record.currentPhase = phaseName;
 
       record.marker.setStyle(style);
 
       if (record.markerElement) {
+        syncPhaseClassName(record.markerElement, phaseName);
         record.markerElement.classList.toggle("is-visited", isVisited);
         record.markerElement.classList.toggle("is-active", isActive);
         record.markerElement.classList.toggle("is-pulsing", record.isPulsing);
       }
 
       if (record.tooltipElement) {
+        syncPhaseClassName(record.tooltipElement, phaseName);
         record.tooltipElement.classList.toggle("location-label--visited", isVisited);
         record.tooltipElement.classList.toggle("location-label--active", isActive);
       }
@@ -490,92 +993,234 @@
     resetVisitedStoryMarkers() {
       this.visitedStorySlides.clear();
       this.applyStoryMarkerStateToAll();
+      this.clearPsychologicalPath();
     }
 
-    /* Guided-mode path line between story locations */
-    renderStoryPath() {
-      if (!this.map || !this.storyEvents.length) {
+    /* Psychological path through the city */
+    renderPsychologicalPath() {
+      if (!ENABLE_PSYCHOLOGICAL_PATH || !this.map || !this.storyEvents.length) {
         return;
       }
 
-      const coordinates = this.storyEvents.map(toLatLng);
+      const segments = [];
 
-      if (coordinates.length < 2) {
+      for (let index = 0; index < this.storyEvents.length - 1; index += 1) {
+        const startEvent = this.storyEvents[index];
+        const endEvent = this.storyEvents[index + 1];
+        const phaseName = endEvent.psychologyPhase || startEvent.psychologyPhase || "isolation";
+        const line = globalScope.L.polyline(
+          [toLatLng(startEvent), toLatLng(endEvent)],
+          getPsychologyPhaseMeta(phaseName).path.future
+        ).addTo(this.map);
+
+        segments.push({
+          line,
+          phaseName,
+          targetSlideIndex: index + 2
+        });
+      }
+
+      this.storyPathSegments = segments;
+
+      if (!this.storyPathSegments.length) {
         return;
       }
 
-      this.storyPathBaseLine = globalScope.L.polyline(coordinates, STORY_PATH_STYLES.base).addTo(this.map);
-      this.storyPathProgressLine = globalScope.L.polyline([], STORY_PATH_STYLES.progress).addTo(this.map);
-      this.storyPathCurrentLine = globalScope.L.polyline([], STORY_PATH_STYLES.current).addTo(this.map);
-
-      this.hideStoryPathLayers();
+      this.clearPsychologicalPath();
     }
 
     hideStoryPathLayers() {
-      [this.storyPathBaseLine, this.storyPathProgressLine, this.storyPathCurrentLine].forEach((line) => {
-        if (!line) {
-          return;
-        }
-
-        line.setStyle({ opacity: 0 });
+      this.storyPathSegments.forEach((segmentRecord) => {
+        segmentRecord.line.setStyle({ opacity: 0 });
       });
     }
 
     showStoryPath() {
-      if (!this.storyPathBaseLine) {
+      this.storyPathVisible = true;
+      this.updatePsychologicalPathProgress(this.activeStorySlideIndex);
+    }
+
+    applyPsychologicalPathState(segmentRecord, stateName) {
+      if (!segmentRecord || !segmentRecord.line) {
         return;
       }
 
-      this.storyPathVisible = true;
-      this.storyPathBaseLine.setStyle({ opacity: STORY_PATH_STYLES.base.opacity });
+      const phaseMeta = getPsychologyPhaseMeta(segmentRecord.phaseName);
+      const pathStyle = phaseMeta.path[stateName] || phaseMeta.path.future;
+
+      segmentRecord.line.setStyle(pathStyle);
     }
 
-    updateStoryPathProgress(currentSlideIndex) {
-      if (!this.storyPathBaseLine || !this.storyPathProgressLine || !this.storyPathCurrentLine) {
+    updatePsychologicalPathProgress(currentSlideIndex) {
+      if (!ENABLE_PSYCHOLOGICAL_PATH || !this.storyPathSegments.length) {
         return;
       }
 
       if (!Number.isInteger(currentSlideIndex) || currentSlideIndex < 1) {
-        this.clearStoryPath();
+        this.clearPsychologicalPath();
         return;
       }
 
-      this.showStoryPath();
+      this.storyPathVisible = true;
 
-      const progressCoordinates = this.storyEvents
-        .slice(0, currentSlideIndex)
-        .map(toLatLng);
-      const currentSegmentCoordinates = currentSlideIndex > 1
-        ? this.storyEvents.slice(currentSlideIndex - 2, currentSlideIndex).map(toLatLng)
-        : [];
+      this.storyPathSegments.forEach((segmentRecord) => {
+        let stateName = "future";
 
-      this.storyPathProgressLine.setLatLngs(progressCoordinates);
-      this.storyPathProgressLine.setStyle({
-        opacity: progressCoordinates.length > 1 ? STORY_PATH_STYLES.progress.opacity : 0
-      });
+        if (segmentRecord.targetSlideIndex === currentSlideIndex) {
+          stateName = "current";
+        } else if (segmentRecord.targetSlideIndex < currentSlideIndex) {
+          stateName = "completed";
+        }
 
-      this.storyPathCurrentLine.setLatLngs(currentSegmentCoordinates);
-      this.storyPathCurrentLine.setStyle({
-        opacity: currentSegmentCoordinates.length > 1 ? STORY_PATH_STYLES.current.opacity : 0
+        this.applyPsychologicalPathState(segmentRecord, stateName);
       });
     }
 
+    clearPsychologicalPath() {
+      this.storyPathVisible = KEEP_BASE_PATH_VISIBLE;
+
+      this.storyPathSegments.forEach((segmentRecord) => {
+        if (!KEEP_BASE_PATH_VISIBLE) {
+          segmentRecord.line.setStyle({ opacity: 0 });
+          return;
+        }
+
+        this.applyPsychologicalPathState(segmentRecord, "future");
+      });
+    }
+
+    initPsychMapLegend() {
+      if (!ENABLE_PSYCHOLOGICAL_LEGEND || !this.map || this.psychLegendControl) {
+        return;
+      }
+
+      const legendControl = globalScope.L.control({ position: "bottomleft" });
+
+      legendControl.onAdd = () => {
+        const container = globalScope.document.createElement("section");
+        const isMobile = globalScope.matchMedia && globalScope.matchMedia("(max-width: 820px)").matches;
+
+        container.className = "psych-map-legend";
+        container.classList.toggle("is-collapsed", Boolean(isMobile));
+        container.innerHTML = `
+          <button class="psych-map-legend__toggle" type="button" aria-expanded="${isMobile ? "false" : "true"}">
+            <span>Psychological Map Key</span>
+            <span class="psych-map-legend__toggle-symbol" aria-hidden="true">${isMobile ? "+" : "−"}</span>
+          </button>
+          <div class="psych-map-legend__body">
+            <p class="psych-map-legend__summary">${PSYCH_LEGEND_DESCRIPTION}</p>
+            <ul class="psych-map-legend__items">
+              ${PSYCHOLOGICAL_LEGEND_ITEMS.map((item) => `
+                <li class="psych-map-legend__item">
+                  <span class="psych-map-legend__swatch phase-${item.phase}"></span>
+                  <span class="psych-map-legend__copy"><strong>${item.label}:</strong> ${item.description}</span>
+                </li>
+              `).join("")}
+            </ul>
+            <div class="psych-map-legend__symbols">
+              <p><span class="psych-map-legend__marker psych-map-legend__marker--solid"></span> Solid marker = active or central moment</p>
+              <p><span class="psych-map-legend__marker psych-map-legend__marker--faded"></span> Faded marker = already visited</p>
+              <p><span class="psych-map-legend__path"></span> Connecting line = Raskolnikov’s psychological path through the city</p>
+            </div>
+          </div>
+        `;
+
+        const toggle = container.querySelector(".psych-map-legend__toggle");
+
+        if (toggle) {
+          toggle.addEventListener("click", () => {
+            const willCollapse = !container.classList.contains("is-collapsed");
+            container.classList.toggle("is-collapsed", willCollapse);
+            toggle.setAttribute("aria-expanded", willCollapse ? "false" : "true");
+            const toggleSymbol = container.querySelector(".psych-map-legend__toggle-symbol");
+
+            if (toggleSymbol) {
+              toggleSymbol.textContent = willCollapse ? "+" : "−";
+            }
+          });
+        }
+
+        globalScope.L.DomEvent.disableClickPropagation(container);
+        globalScope.L.DomEvent.disableScrollPropagation(container);
+
+        this.psychLegendElement = container;
+        this.psychLegendToggleElement = toggle;
+
+        return container;
+      };
+
+      legendControl.addTo(this.map);
+      this.psychLegendControl = legendControl;
+    }
+
+    initPsychPhaseLabels() {
+      if (!ENABLE_PSYCHOLOGICAL_PHASE_LABELS || !this.map || this.psychPhaseLabelMarkers.length) {
+        return;
+      }
+
+      this.psychPhaseLabelMarkers = PHASE_LABEL_DEFINITIONS
+        .map((definition) => {
+          const storyEvent = this.storyEvents.find((event) => event.locationName === definition.title);
+
+          if (!storyEvent) {
+            return null;
+          }
+
+          return globalScope.L.marker([storyEvent.lat, storyEvent.lng], {
+            interactive: false,
+            keyboard: false,
+            zIndexOffset: -150,
+            icon: globalScope.L.divIcon({
+              className: `psych-phase-label psych-phase-label--${definition.phase}`,
+              html: `<span>${definition.label}</span>`,
+              iconSize: [94, 28],
+              iconAnchor: [16, 26]
+            })
+          }).addTo(this.map);
+        })
+        .filter(Boolean);
+
+      this.updatePsychPhaseLabelVisibility();
+    }
+
+    updatePsychPhaseLabelVisibility() {
+      if (!ENABLE_PSYCHOLOGICAL_PHASE_LABELS || !this.map || !this.psychPhaseLabelMarkers.length) {
+        return;
+      }
+
+      const shouldShowLabels = this.map.getZoom() <= PSYCH_PHASE_LABEL_MAX_ZOOM;
+
+      this.psychPhaseLabelMarkers.forEach((marker) => {
+        const element = marker.getElement();
+
+        if (element) {
+          element.classList.toggle("is-hidden", !shouldShowLabels);
+        }
+      });
+    }
+
+    markPsychMarkerVisited(slideIndex) {
+      this.markSlideVisited(slideIndex);
+    }
+
+    setActivePsychMarker(slideIndex, options) {
+      this.setActiveStoryMarker(slideIndex, options);
+    }
+
+    clearPsychActiveMarker() {
+      this.clearActiveStoryMarker();
+    }
+
+    renderStoryPath() {
+      this.renderPsychologicalPath();
+    }
+
+    updateStoryPathProgress(currentSlideIndex) {
+      this.updatePsychologicalPathProgress(currentSlideIndex);
+    }
+
     clearStoryPath() {
-      this.storyPathVisible = false;
-
-      if (this.storyPathProgressLine) {
-        this.storyPathProgressLine.setLatLngs([]);
-        this.storyPathProgressLine.setStyle({ opacity: 0 });
-      }
-
-      if (this.storyPathCurrentLine) {
-        this.storyPathCurrentLine.setLatLngs([]);
-        this.storyPathCurrentLine.setStyle({ opacity: 0 });
-      }
-
-      if (this.storyPathBaseLine) {
-        this.storyPathBaseLine.setStyle({ opacity: 0 });
-      }
+      this.clearPsychologicalPath();
     }
 
     focusStorySlide(slideIndex) {

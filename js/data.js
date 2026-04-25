@@ -1,6 +1,28 @@
 (function attachSceneData(globalScope) {
+  const PSYCHOLOGY_PHASE_BY_TITLE = Object.freeze({
+    "Raskolnikov’s Tenement": "isolation",
+    "Tavern with Marmeladov": "conflict",
+    "Marmeladov’s Tenement": "conflict",
+    "Mother’s Letter": "conflict",
+    "K. Boulevard": "conflict",
+    "Horse Dream": "conflict",
+    Haymarket: "authorization",
+    Murder: "rupture",
+    "Police Station After Murder": "separation",
+    Purse: "separation",
+    "Nikolaevsky Bridge": "separation",
+    "Woman in Canal": "numbness",
+    "Sonya Confession": "connection"
+  });
+
   function createStoryEvent(event) {
-    return Object.freeze(event);
+    return Object.freeze({
+      ...event,
+      psychologyPhase:
+        event.psychologyPhase
+        || PSYCHOLOGY_PHASE_BY_TITLE[event.locationName]
+        || "isolation"
+    });
   }
 
   const STORY_SOUND = Object.freeze({
@@ -359,6 +381,8 @@
     lng,
     slideIndex = null,
     slideIndices = [],
+    psychologyPhase = null,
+    psychologyPhases = [],
     markerType = "story",
     markerCaption = null,
     showTooltip = true,
@@ -372,6 +396,8 @@
       lng,
       slideIndex,
       slideIndices: Object.freeze(slideIndices.slice()),
+      psychologyPhase,
+      psychologyPhases: Object.freeze(psychologyPhases.slice()),
       markerType,
       markerCaption,
       showTooltip,
@@ -395,11 +421,16 @@
               lat: event.lat,
               lng: event.lng,
               slideIndex: slideNumber,
-              slideIndices: [slideNumber]
+              slideIndices: [slideNumber],
+              psychologyPhase: event.psychologyPhase,
+              psychologyPhases: [event.psychologyPhase]
             })
           );
         } else {
           const existingLocation = locationMap.get(key);
+          const nextPsychologyPhases = existingLocation.psychologyPhases.includes(event.psychologyPhase)
+            ? existingLocation.psychologyPhases
+            : [...existingLocation.psychologyPhases, event.psychologyPhase];
 
           if (!existingLocation.slideIndices.includes(slideNumber)) {
             locationMap.set(
@@ -407,7 +438,16 @@
               createMapLocation({
                 ...existingLocation,
                 slideIndex: existingLocation.slideIndex,
-                slideIndices: [...existingLocation.slideIndices, slideNumber]
+                slideIndices: [...existingLocation.slideIndices, slideNumber],
+                psychologyPhases: nextPsychologyPhases
+              })
+            );
+          } else if (nextPsychologyPhases !== existingLocation.psychologyPhases) {
+            locationMap.set(
+              key,
+              createMapLocation({
+                ...existingLocation,
+                psychologyPhases: nextPsychologyPhases
               })
             );
           }
