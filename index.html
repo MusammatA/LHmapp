@@ -32,98 +32,38 @@
       </span>
     </button>
 
+    <nav class="top-tabs" data-top-tabs aria-label="Primary site sections">
+      <button class="top-tabs__button is-active" type="button" data-top-tab="map">Map</button>
+      <button class="top-tabs__button" type="button" data-top-tab="abstract">Abstract Map</button>
+      <button class="top-tabs__button" type="button" data-top-tab="guide">User Guide</button>
+      <button class="top-tabs__button" type="button" data-top-tab="works">Works Cited</button>
+      <button class="top-tabs__button" type="button" data-top-tab="developer">About Developer</button>
+      <button class="top-tabs__button" type="button" data-top-tab="settings">Settings</button>
+    </nav>
+
     <button class="story-launch" type="button" data-story-launch>
       <span class="story-launch__label" data-story-launch-label>Start</span>
     </button>
 
-    <div class="audio-controls" data-audio-controls>
-      <button
-        class="ambient-toggle"
-        type="button"
-        data-ambient-toggle
-        aria-label="Toggle site sound"
-        aria-pressed="true"
-      >
-        <span class="ambient-toggle__glyph" aria-hidden="true"></span>
-        <span class="ambient-toggle__label" data-ambient-toggle-label>Sound On</span>
-      </button>
-
-      <label class="audio-controls__volume" for="story-volume">
-        <span class="audio-controls__volume-label" data-audio-volume-label>25%</span>
-        <input
-          class="audio-controls__slider"
-          id="story-volume"
-          type="range"
-          min="10"
-          max="25"
-          step="1"
-          value="25"
-          data-audio-volume
-          aria-label="Site sound volume"
-        >
-      </label>
-    </div>
-
-    <button
-      class="info-toggle"
-      type="button"
-      data-info-toggle
-      aria-label="Open website menu"
-      aria-expanded="false"
-      aria-controls="site-info-drawer"
-    >
-      <span class="info-toggle__lines" aria-hidden="true">
-        <span></span>
-        <span></span>
-        <span></span>
-      </span>
-    </button>
-
-    <div class="info-drawer-backdrop" data-info-backdrop hidden></div>
-
-    <aside
-      class="info-drawer"
-      id="site-info-drawer"
-      data-info-drawer
+    <section
+      class="abstract-map"
+      data-abstract-map
       hidden
-      aria-label="Website menu"
+      aria-live="polite"
+      aria-label="Psychological Timeline"
     >
-      <div class="info-drawer__header">
-        <p class="info-drawer__eyebrow">Modes</p>
-        <button
-          class="info-drawer__close"
-          type="button"
-          data-info-close
-          aria-label="Close website information"
-        >
-          Close
-        </button>
-      </div>
+      <div class="abstract-map__shell">
+        <header class="abstract-map__header">
+          <p class="abstract-map__eyebrow">Abstract Map</p>
+          <h2 class="abstract-map__title">Psychological Timeline</h2>
+          <p class="abstract-map__subtitle">Raskolnikov’s movement from isolation to confession</p>
+        </header>
 
-      <div class="info-drawer__menu" aria-label="Website information sections">
-        <button
-          class="info-drawer__tab info-drawer__tab--featured"
-          type="button"
-          data-info-tab="guide"
-        >
-          User Guide
-        </button>
-        <button
-          class="info-drawer__tab"
-          type="button"
-          data-info-tab="works"
-        >
-          Works Cited
-        </button>
-        <button
-          class="info-drawer__tab"
-          type="button"
-          data-info-tab="developer"
-        >
-          About Developer
-        </button>
+        <div class="abstract-map__viewport" data-abstract-map-viewport>
+          <div class="abstract-map__track" data-abstract-map-track></div>
+        </div>
       </div>
-    </aside>
+    </section>
 
     <section
       class="info-screen"
@@ -133,15 +73,6 @@
       aria-label="User Guide"
     >
       <div class="info-screen__shell">
-        <div class="info-screen__header">
-          <button class="info-screen__back" type="button" data-info-back>
-            Back to Menu
-          </button>
-          <button class="info-screen__close" type="button" data-info-screen-close>
-            Close
-          </button>
-        </div>
-
         <section class="info-screen__card">
           <h2 class="info-drawer__title">User Guide</h2>
           <p class="info-drawer__copy">
@@ -167,15 +98,6 @@
       aria-label="Works Cited"
     >
       <div class="info-screen__shell">
-        <div class="info-screen__header">
-          <button class="info-screen__back" type="button" data-info-back>
-            Back to Menu
-          </button>
-          <button class="info-screen__close" type="button" data-info-screen-close>
-            Close
-          </button>
-        </div>
-
         <section class="info-screen__card">
           <h2 class="info-drawer__title">Works Cited</h2>
           <div class="info-drawer__citations">
@@ -214,21 +136,68 @@
       aria-label="About Developer"
     >
       <div class="info-screen__shell">
-        <div class="info-screen__header">
-          <button class="info-screen__back" type="button" data-info-back>
-            Back to Menu
-          </button>
-          <button class="info-screen__close" type="button" data-info-screen-close>
-            Close
-          </button>
-        </div>
-
         <section class="info-screen__card">
           <h2 class="info-drawer__title">About Developer</h2>
           <div class="info-drawer__developer">
             <p class="info-drawer__developer-name">Musammat Aktar</p>
             <p class="info-drawer__copy">Student at Columbia University studying Mathematics and Computer Science</p>
             <p class="info-drawer__copy">Literature Humanities 2025–2026, Professor Kitzinger</p>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section
+      class="info-screen"
+      data-info-screen="settings"
+      hidden
+      aria-live="polite"
+      aria-label="Settings"
+    >
+      <div class="info-screen__shell">
+        <section class="info-screen__card settings-screen__card">
+          <h2 class="info-drawer__title">Settings</h2>
+          <div class="settings-screen__section">
+            <p class="settings-screen__label">Sound</p>
+            <div class="audio-controls settings-screen__audio" data-audio-controls>
+              <button
+                class="ambient-toggle"
+                type="button"
+                data-ambient-toggle
+                aria-label="Toggle site sound"
+                aria-pressed="true"
+              >
+                <span class="ambient-toggle__glyph" aria-hidden="true"></span>
+                <span class="ambient-toggle__label" data-ambient-toggle-label>Sound On</span>
+              </button>
+
+              <label class="audio-controls__volume" for="story-volume">
+                <span class="audio-controls__volume-label" data-audio-volume-label>25%</span>
+                <input
+                  class="audio-controls__slider"
+                  id="story-volume"
+                  type="range"
+                  min="10"
+                  max="25"
+                  step="1"
+                  value="25"
+                  data-audio-volume
+                  aria-label="Site sound volume"
+                >
+              </label>
+            </div>
+          </div>
+
+          <div class="settings-screen__section">
+            <p class="settings-screen__label">Theme</p>
+            <div class="settings-screen__themes" role="group" aria-label="Theme options">
+              <button class="settings-screen__theme-button is-active" type="button" data-theme-option="default">
+                Default
+              </button>
+              <button class="settings-screen__theme-button" type="button" data-theme-option="contrast">
+                Higher Contrast
+              </button>
+            </div>
           </div>
         </section>
       </div>

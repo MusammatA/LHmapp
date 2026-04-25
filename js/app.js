@@ -79,9 +79,25 @@
     separation: "Separation",
     confession: "Confession"
   });
+  const ABSTRACT_PHASE_ORDER = Object.freeze([
+    "isolation",
+    "conflict",
+    "rupture",
+    "separation",
+    "confession"
+  ]);
+  const DEFAULT_THEME = "default";
 
   function getPsychologyPhaseLabel(event) {
     return PSYCHOLOGY_PHASE_LABELS[event && event.psychologyPhase] || "Isolation";
+  }
+
+  function getPhaseLabelFromKey(phaseKey) {
+    return PSYCHOLOGY_PHASE_LABELS[phaseKey] || "Isolation";
+  }
+
+  function getAbstractLocationLabel(event) {
+    return event.mapLabel || event.locationName;
   }
 
   function resolveStoryMood(event) {
@@ -199,6 +215,11 @@
       pageElement: document.querySelector(".map-page"),
       mapElement: document.getElementById("map"),
       introElement: document.querySelector("[data-intro-screen]"),
+      topTabsElement: document.querySelector("[data-top-tabs]"),
+      topTabButtons: Array.from(document.querySelectorAll("[data-top-tab]")),
+      abstractMapElement: document.querySelector("[data-abstract-map]"),
+      abstractMapTrackElement: document.querySelector("[data-abstract-map-track]"),
+      abstractMapViewportElement: document.querySelector("[data-abstract-map-viewport]"),
       launchButton: document.querySelector("[data-story-launch]"),
       launchLabelElement: document.querySelector("[data-story-launch-label]"),
       audioControlsElement: document.querySelector("[data-audio-controls]"),
@@ -206,14 +227,8 @@
       ambientToggleLabelElement: document.querySelector("[data-ambient-toggle-label]"),
       audioVolumeInput: document.querySelector("[data-audio-volume]"),
       audioVolumeLabelElement: document.querySelector("[data-audio-volume-label]"),
-      infoToggleButton: document.querySelector("[data-info-toggle]"),
-      infoDrawerElement: document.querySelector("[data-info-drawer]"),
-      infoBackdropElement: document.querySelector("[data-info-backdrop]"),
-      infoCloseButton: document.querySelector("[data-info-close]"),
-      infoTabButtons: Array.from(document.querySelectorAll("[data-info-tab]")),
       infoScreenElements: Array.from(document.querySelectorAll("[data-info-screen]")),
-      infoBackButtons: Array.from(document.querySelectorAll("[data-info-back]")),
-      infoScreenCloseButtons: Array.from(document.querySelectorAll("[data-info-screen-close]")),
+      themeButtons: Array.from(document.querySelectorAll("[data-theme-option]")),
       storyVeilElement: document.querySelector("[data-story-veil]"),
       chapterCardElement: document.querySelector("[data-chapter-card]"),
       chapterCardInnerElement: document.querySelector("[data-chapter-card-inner]"),
@@ -920,7 +935,176 @@
     });
   }
 
-  function createStoryController(elements, mapController, audioController, chapterCardController) {
+  function createAbstractMapController(elements) {
+    if (!elements.abstractMapElement || !elements.abstractMapTrackElement) {
+      return Object.freeze({
+        setStoryOpenHandler() {},
+        show() {},
+        hide() {},
+        markVisited() {},
+        setActive() {},
+        clearActive() {},
+        resetVisited() {}
+      });
+    }
+
+    const state = {
+      visitedSlides: new Set(),
+      activeSlideIndex: null,
+      storyOpenHandler: null,
+      nodeRecords: new Map()
+    };
+
+    function scrollNodeIntoView(nodeButton) {
+      if (!nodeButton || typeof nodeButton.scrollIntoView !== "function") {
+        return;
+      }
+
+      nodeButton.scrollIntoView({
+        behavior: PREFERS_REDUCED_MOTION ? "auto" : "smooth",
+        block: "nearest",
+        inline: "center"
+      });
+    }
+
+    function updateNodeState(slideIndex) {
+      const nodeRecord = state.nodeRecords.get(slideIndex);
+
+      if (!nodeRecord) {
+        return;
+      }
+
+      const isVisited = state.visitedSlides.has(slideIndex);
+      const isActive = state.activeSlideIndex === slideIndex;
+
+      nodeRecord.button.classList.toggle("is-visited", isVisited);
+      nodeRecord.button.classList.toggle("is-active", isActive);
+      nodeRecord.card.classList.toggle("is-visited", isVisited);
+      nodeRecord.card.classList.toggle("is-active", isActive);
+
+      if (isActive) {
+        scrollNodeIntoView(nodeRecord.button);
+      }
+    }
+
+    function updateAllNodeStates() {
+      state.nodeRecords.forEach((_, slideIndex) => {
+        updateNodeState(slideIndex);
+      });
+    }
+
+    function buildTimeline() {
+      const groupsFragment = document.createDocumentFragment();
+      const groupsElement = document.createElement("div");
+      groupsElement.className = "abstract-map__groups";
+
+      ABSTRACT_PHASE_ORDER.forEach((phaseKey) => {
+        const phaseEvents = STORY_EVENTS
+          .map((event, index) => ({ event, slideIndex: index + 1 }))
+          .filter(({ event }) => event.psychologyPhase === phaseKey);
+
+        if (!phaseEvents.length) {
+          return;
+        }
+
+        const groupElement = document.createElement("section");
+        groupElement.className = `abstract-group phase-${phaseKey}`;
+
+        const headerElement = document.createElement("header");
+        headerElement.className = "abstract-group__header";
+        headerElement.textContent = getPhaseLabelFromKey(phaseKey);
+        groupElement.append(headerElement);
+
+        const eventsElement = document.createElement("div");
+        eventsElement.className = "abstract-group__events";
+
+        phaseEvents.forEach(({ event, slideIndex }) => {
+          const cardElement = document.createElement("article");
+          cardElement.className = "abstract-node-card";
+
+          const nodeButton = document.createElement("button");
+          nodeButton.className = `abstract-node phase-${phaseKey}`;
+          nodeButton.type = "button";
+          nodeButton.dataset.slideIndex = String(slideIndex);
+          nodeButton.setAttribute("aria-label", `Open slide ${slideIndex}: ${event.locationName}`);
+          nodeButton.innerHTML = `<span class="abstract-node__number">${slideIndex}</span>`;
+          nodeButton.addEventListener("click", () => {
+            if (typeof state.storyOpenHandler === "function") {
+              state.storyOpenHandler(slideIndex - 1);
+            }
+          });
+
+          const copyElement = document.createElement("div");
+          copyElement.className = "abstract-node-card__copy";
+          copyElement.innerHTML = `
+            <p class="abstract-node-card__title">${event.locationName}</p>
+            <p class="abstract-node-card__location">${getAbstractLocationLabel(event)}</p>
+          `;
+
+          cardElement.append(nodeButton, copyElement);
+          eventsElement.append(cardElement);
+          state.nodeRecords.set(slideIndex, {
+            button: nodeButton,
+            card: cardElement
+          });
+        });
+
+        groupElement.append(eventsElement);
+        groupsElement.append(groupElement);
+      });
+
+      groupsFragment.append(groupsElement);
+      elements.abstractMapTrackElement.replaceChildren(groupsFragment);
+      updateAllNodeStates();
+    }
+
+    buildTimeline();
+
+    return Object.freeze({
+      setStoryOpenHandler(handler) {
+        state.storyOpenHandler = typeof handler === "function" ? handler : null;
+      },
+      show() {
+        elements.abstractMapElement.hidden = false;
+        globalScope.requestAnimationFrame(() => {
+          elements.abstractMapElement.classList.add("is-visible");
+        });
+      },
+      hide() {
+        elements.abstractMapElement.classList.remove("is-visible");
+        elements.abstractMapElement.hidden = true;
+      },
+      markVisited(slideIndex) {
+        if (!Number.isInteger(slideIndex)) {
+          return;
+        }
+
+        state.visitedSlides.add(slideIndex);
+        updateNodeState(slideIndex);
+      },
+      setActive(slideIndex) {
+        state.activeSlideIndex = Number.isInteger(slideIndex) ? slideIndex : null;
+        updateAllNodeStates();
+      },
+      clearActive() {
+        state.activeSlideIndex = null;
+        updateAllNodeStates();
+      },
+      resetVisited() {
+        state.visitedSlides.clear();
+        updateAllNodeStates();
+      }
+    });
+  }
+
+  function createStoryController(
+    elements,
+    mapController,
+    audioController,
+    chapterCardController,
+    auxiliaryControllers = {}
+  ) {
+    const abstractMapController = auxiliaryControllers.abstractMapController || null;
     const state = {
       currentIndex: 0,
       isBusy: false,
@@ -980,6 +1164,10 @@
       mapController.setActivePhaseMarker(slideIndex, {
         pulse: pulseActiveMarker
       });
+      if (abstractMapController) {
+        abstractMapController.markVisited(slideIndex);
+        abstractMapController.setActive(slideIndex);
+      }
 
       if (state.entryMode === STORY_ENTRY_MODE.guided) {
         mapController.renderPhasePath();
@@ -1362,6 +1550,9 @@
         RESET_VISITED_ON_GUIDED_REPLAY
       ) {
         mapController.resetVisitedStoryMarkers();
+        if (abstractMapController) {
+          abstractMapController.resetVisited();
+        }
       }
 
       state.isBusy = true;
@@ -1417,7 +1608,13 @@
       updateLaunchLabel();
       mapController.clearActivePhaseMarker();
       mapController.clearStoryPath();
-      mapController.setInteractivity(true);
+      if (abstractMapController) {
+        abstractMapController.clearActive();
+      }
+      mapController.setInteractivity(
+        !elements.pageElement.classList.contains("is-abstract-map-open")
+        && !elements.pageElement.classList.contains("is-info-open")
+      );
       audioController.setAmbientMode("map");
       elements.launchButton.disabled = false;
 
@@ -1504,6 +1701,129 @@
 
     return Object.freeze({
       openAtSlide: openStoryAtSlide
+    });
+  }
+
+  function createThemeController(elements) {
+    if (!elements.pageElement || !elements.themeButtons.length) {
+      return Object.freeze({
+        setTheme() {},
+        getTheme() {
+          return DEFAULT_THEME;
+        }
+      });
+    }
+
+    const state = {
+      theme: DEFAULT_THEME
+    };
+
+    function render() {
+      elements.pageElement.dataset.uiTheme = state.theme;
+      elements.themeButtons.forEach((button) => {
+        button.classList.toggle("is-active", button.dataset.themeOption === state.theme);
+      });
+    }
+
+    function setTheme(themeName) {
+      state.theme = themeName === "contrast" ? "contrast" : DEFAULT_THEME;
+      render();
+    }
+
+    elements.themeButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        setTheme(button.dataset.themeOption || DEFAULT_THEME);
+      });
+    });
+
+    render();
+
+    return Object.freeze({
+      setTheme,
+      getTheme() {
+        return state.theme;
+      }
+    });
+  }
+
+  function createTopTabController(elements, mapController, abstractMapController) {
+    if (!elements.pageElement || !elements.topTabButtons.length) {
+      return Object.freeze({
+        showMap() {}
+      });
+    }
+
+    const INFO_TAB_KEYS = new Set(["guide", "works", "developer", "settings"]);
+    const state = {
+      activeTab: "map"
+    };
+
+    function showInfoScreen(tabKey) {
+      elements.infoScreenElements.forEach((screen) => {
+        const shouldShow = screen.dataset.infoScreen === tabKey;
+        screen.hidden = !shouldShow;
+        screen.classList.toggle("is-visible", shouldShow);
+      });
+    }
+
+    function hideInfoScreens() {
+      elements.infoScreenElements.forEach((screen) => {
+        screen.classList.remove("is-visible");
+        screen.hidden = true;
+      });
+    }
+
+    function syncMapAvailability() {
+      const shouldEnableMap = state.activeTab === "map"
+        && !elements.pageElement.classList.contains("is-story-mode")
+        && !elements.pageElement.classList.contains("is-intro-active")
+        && !elements.pageElement.classList.contains("is-intro-leaving");
+
+      mapController.setInteractivity(shouldEnableMap);
+    }
+
+    function render() {
+      elements.topTabButtons.forEach((button) => {
+        button.classList.toggle("is-active", button.dataset.topTab === state.activeTab);
+      });
+
+      elements.pageElement.classList.toggle("is-abstract-map-open", state.activeTab === "abstract");
+      elements.pageElement.classList.toggle("is-info-open", INFO_TAB_KEYS.has(state.activeTab));
+      elements.pageElement.classList.toggle("is-panel-open", state.activeTab !== "map");
+
+      if (state.activeTab === "abstract") {
+        hideInfoScreens();
+        abstractMapController.show();
+      } else {
+        abstractMapController.hide();
+
+        if (INFO_TAB_KEYS.has(state.activeTab)) {
+          showInfoScreen(state.activeTab);
+        } else {
+          hideInfoScreens();
+        }
+      }
+
+      syncMapAvailability();
+    }
+
+    function setActiveTab(tabKey) {
+      state.activeTab = tabKey || "map";
+      render();
+    }
+
+    elements.topTabButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        setActiveTab(button.dataset.topTab || "map");
+      });
+    });
+
+    render();
+
+    return Object.freeze({
+      showMap() {
+        setActiveTab("map");
+      }
     });
   }
 
@@ -1769,12 +2089,21 @@
 
     const ambientAudioController = createAmbientAudioController(elements);
     const chapterCardController = createChapterCardController(elements);
+    const abstractMapController = createAbstractMapController(elements);
+    createThemeController(elements);
     const storyController = createStoryController(
       elements,
       mapController,
       ambientAudioController,
-      chapterCardController
+      chapterCardController,
+      {
+        abstractMapController
+      }
     );
+    abstractMapController.setStoryOpenHandler((startIndex) => {
+      ambientAudioController.armFromInteraction();
+      storyController.openAtSlide(startIndex, STORY_ENTRY_MODE.exploratory);
+    });
     mapController.setLocationSelectHandler((location) => {
       if (!Number.isInteger(location.slideIndex)) {
         return;
@@ -1783,7 +2112,7 @@
       ambientAudioController.armFromInteraction();
       storyController.openAtSlide(location.slideIndex - 1, STORY_ENTRY_MODE.exploratory);
     });
-    createInfoDrawerController(elements);
+    createTopTabController(elements, mapController, abstractMapController);
     createIntroController(elements, mapController, ambientAudioController);
   }
 

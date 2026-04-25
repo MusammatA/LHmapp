@@ -10,7 +10,7 @@
   const TOOLTIP_DIRECTIONS = Object.freeze(["top", "right", "left", "bottom"]);
   const ENABLE_PSYCHOLOGICAL_PATH = true;
   const ENABLE_PSYCHOLOGICAL_LEGEND = true;
-  const ENABLE_PSYCHOLOGICAL_PHASE_LABELS = true;
+  const ENABLE_PSYCHOLOGICAL_PHASE_LABELS = false;
   const KEEP_BASE_PATH_VISIBLE = true;
   const PSYCH_PHASE_LABEL_MAX_ZOOM = 13.2;
   const PSYCH_LEGEND_DESCRIPTION =
