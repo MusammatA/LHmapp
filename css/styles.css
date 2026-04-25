@@ -2238,9 +2238,9 @@ body {
 
 .story-marker-dot.is-visited {
   filter:
-    saturate(0.72)
-    brightness(0.88)
-    drop-shadow(0 0 4px rgba(0, 0, 0, 0.22));
+    saturate(0.9)
+    brightness(0.96)
+    drop-shadow(0 0 5px rgba(0, 0, 0, 0.24));
 }
 
 .story-marker-dot.is-active {
@@ -2292,7 +2292,7 @@ body {
   stroke-linecap: round;
   stroke-linejoin: round;
   pointer-events: none;
-  filter: drop-shadow(0 0 6px rgba(36, 24, 19, 0.24));
+  filter: drop-shadow(0 0 7px rgba(24, 18, 15, 0.34));
 }
 
 /* Psychological map legend and phase labels */
