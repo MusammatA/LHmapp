@@ -1841,6 +1841,7 @@ body {
 .story-panel__content,
 .story-panel__body,
 .story-panel__details-body,
+.story-panel__reading-box,
 .story-panel__media-gallery,
 .story-mode {
   scrollbar-width: thin;
@@ -1850,6 +1851,7 @@ body {
 .story-panel__content::-webkit-scrollbar,
 .story-panel__body::-webkit-scrollbar,
 .story-panel__details-body::-webkit-scrollbar,
+.story-panel__reading-box::-webkit-scrollbar,
 .story-panel__media-gallery::-webkit-scrollbar,
 .story-mode::-webkit-scrollbar {
   width: 10px;
@@ -1859,6 +1861,7 @@ body {
 .story-panel__content::-webkit-scrollbar-track,
 .story-panel__body::-webkit-scrollbar-track,
 .story-panel__details-body::-webkit-scrollbar-track,
+.story-panel__reading-box::-webkit-scrollbar-track,
 .story-panel__media-gallery::-webkit-scrollbar-track,
 .story-mode::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.03);
@@ -1867,6 +1870,7 @@ body {
 .story-panel__content::-webkit-scrollbar-thumb,
 .story-panel__body::-webkit-scrollbar-thumb,
 .story-panel__details-body::-webkit-scrollbar-thumb,
+.story-panel__reading-box::-webkit-scrollbar-thumb,
 .story-panel__media-gallery::-webkit-scrollbar-thumb,
 .story-mode::-webkit-scrollbar-thumb {
   border: 2px solid transparent;
@@ -2264,16 +2268,30 @@ body {
 }
 
 .story-panel__details-body {
-  display: grid;
-  flex: 1 1 auto;
-  gap: 22px;
-  min-height: 0;
+  display: block;
   padding: 6px 18px 20px;
-  max-height: none;
-  overflow-y: auto;
+  border-top: 1px solid color-mix(in srgb, var(--story-phase-accent) 18%, rgba(138, 116, 88, 0.1));
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 100%),
+    rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.story-panel__reading-box {
+  display: grid;
+  gap: 22px;
+  height: clamp(240px, 34vh, 380px);
+  padding: 14px 16px 18px;
+  border: 1px solid color-mix(in srgb, var(--story-phase-accent) 18%, rgba(138, 116, 88, 0.12));
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 100%),
+    rgba(8, 7, 6, 0.16);
+  overflow-y: scroll;
   overflow-x: hidden;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+  scrollbar-gutter: stable both-edges;
 }
 
 .story-panel__quote-block {
@@ -3556,8 +3574,20 @@ body {
   }
 
   .story-panel__details-body {
-    max-height: none;
+    height: auto;
     overflow: visible;
+    border-top: 0;
+    background: transparent;
+  }
+
+  .story-panel__reading-box {
+    height: auto;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    overflow: visible;
+    scrollbar-gutter: auto;
   }
 
   .story-panel__phase {
