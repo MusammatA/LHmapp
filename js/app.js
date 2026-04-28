@@ -2091,6 +2091,7 @@
     const chapterCardController = createChapterCardController(elements);
     const abstractMapController = createAbstractMapController(elements);
     createThemeController(elements);
+    const topTabController = createTopTabController(elements, mapController, abstractMapController);
     const storyController = createStoryController(
       elements,
       mapController,
@@ -2102,6 +2103,7 @@
     );
     abstractMapController.setStoryOpenHandler((startIndex) => {
       ambientAudioController.armFromInteraction();
+      topTabController.showMap();
       storyController.openAtSlide(startIndex, STORY_ENTRY_MODE.exploratory);
     });
     mapController.setLocationSelectHandler((location) => {
@@ -2112,7 +2114,6 @@
       ambientAudioController.armFromInteraction();
       storyController.openAtSlide(location.slideIndex - 1, STORY_ENTRY_MODE.exploratory);
     });
-    createTopTabController(elements, mapController, abstractMapController);
     createIntroController(elements, mapController, ambientAudioController);
   }
 
