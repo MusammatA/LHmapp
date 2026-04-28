@@ -80,33 +80,33 @@
       label: "Isolation",
       marker: Object.freeze({
         default: createMarkerStyle({
-          radius: 7.2,
+          radius: 8.1,
           color: "#fff4ad",
-          weight: 2.4,
+          weight: 3.2,
           fillColor: "#f0c53d",
           fillOpacity: 1,
           opacity: 1
         }),
         visited: createMarkerStyle({
-          radius: 7.2,
-          color: "#f7e084",
-          weight: 2.2,
-          fillColor: "#cda42c",
-          fillOpacity: 0.96,
-          opacity: 0.98
+          radius: 7.8,
+          color: "#8b6f17",
+          weight: 2.9,
+          fillColor: "#7b5f14",
+          fillOpacity: 0.58,
+          opacity: 0.72
         }),
         active: createMarkerStyle({
-          radius: 8.5,
+          radius: 9.4,
           color: "#fff9cf",
-          weight: 2.8,
+          weight: 3.7,
           fillColor: "#ffd34a",
           fillOpacity: 1,
           opacity: 1
         }),
         hover: createMarkerStyle({
-          radius: 7.9,
+          radius: 8.6,
           color: "#fff5b8",
-          weight: 2.6,
+          weight: 3.4,
           fillColor: "#f8cb44",
           fillOpacity: 1,
           opacity: 1
@@ -137,36 +137,36 @@
       label: "Conflict",
       marker: Object.freeze({
         default: createMarkerStyle({
-          radius: 7.5,
+          radius: 8.3,
           color: "#ffe4a3",
-          weight: 2.5,
+          weight: 3.2,
           fillColor: "#ffb22e",
           fillOpacity: 1,
           opacity: 1,
           dashArray: "2 4"
         }),
         visited: createMarkerStyle({
-          radius: 7.5,
-          color: "#ffd278",
-          weight: 2.3,
-          fillColor: "#d98e18",
-          fillOpacity: 0.96,
-          opacity: 0.98,
+          radius: 8,
+          color: "#92560f",
+          weight: 2.9,
+          fillColor: "#7d4708",
+          fillOpacity: 0.56,
+          opacity: 0.72,
           dashArray: "2 4"
         }),
         active: createMarkerStyle({
-          radius: 8.8,
+          radius: 9.6,
           color: "#fff0c2",
-          weight: 2.9,
+          weight: 3.7,
           fillColor: "#ffc341",
           fillOpacity: 1,
           opacity: 1,
           dashArray: "2 4"
         }),
         hover: createMarkerStyle({
-          radius: 8.2,
+          radius: 8.8,
           color: "#ffe8ab",
-          weight: 2.7,
+          weight: 3.4,
           fillColor: "#ffbc35",
           fillOpacity: 1,
           opacity: 1,
@@ -198,36 +198,36 @@
       label: "Self-Authorization",
       marker: Object.freeze({
         default: createMarkerStyle({
-          radius: 7.8,
+          radius: 8.5,
           color: "#ffc39a",
-          weight: 2.6,
+          weight: 3.3,
           fillColor: "#ff6d32",
           fillOpacity: 0.98,
           opacity: 1,
           dashArray: "5 4"
         }),
         visited: createMarkerStyle({
-          radius: 7.8,
-          color: "#ffab7f",
-          weight: 2.4,
-          fillColor: "#d45522",
-          fillOpacity: 0.94,
-          opacity: 0.98,
+          radius: 8.1,
+          color: "#8f3b18",
+          weight: 3,
+          fillColor: "#722d11",
+          fillOpacity: 0.56,
+          opacity: 0.72,
           dashArray: "5 4"
         }),
         active: createMarkerStyle({
-          radius: 9,
+          radius: 9.9,
           color: "#ffd2b4",
-          weight: 3,
+          weight: 3.8,
           fillColor: "#ff7a3a",
           fillOpacity: 0.98,
           opacity: 1,
           dashArray: "5 4"
         }),
         hover: createMarkerStyle({
-          radius: 8.4,
+          radius: 9,
           color: "#ffc6a0",
-          weight: 2.8,
+          weight: 3.5,
           fillColor: "#ff7136",
           fillOpacity: 0.98,
           opacity: 1,
@@ -259,36 +259,36 @@
       label: "Rupture",
       marker: Object.freeze({
         default: createMarkerStyle({
-          radius: 8.9,
+          radius: 9.6,
           color: "#ffb4b4",
-          weight: 3,
+          weight: 3.8,
           fillColor: "#ff2327",
           fillOpacity: 1,
           opacity: 1,
           dashArray: "1 5"
         }),
         visited: createMarkerStyle({
-          radius: 8.9,
-          color: "#ff8d8d",
-          weight: 2.8,
-          fillColor: "#d61d22",
-          fillOpacity: 0.96,
-          opacity: 0.98,
+          radius: 9.2,
+          color: "#8a1216",
+          weight: 3.4,
+          fillColor: "#700d11",
+          fillOpacity: 0.58,
+          opacity: 0.74,
           dashArray: "1 5"
         }),
         active: createMarkerStyle({
-          radius: 10.2,
+          radius: 10.9,
           color: "#ffd4d4",
-          weight: 3.4,
+          weight: 4.3,
           fillColor: "#ff2e33",
           fillOpacity: 1,
           opacity: 1,
           dashArray: "1 5"
         }),
         hover: createMarkerStyle({
-          radius: 9.5,
+          radius: 10,
           color: "#ffc0c0",
-          weight: 3.15,
+          weight: 4,
           fillColor: "#ff272c",
           fillOpacity: 1,
           opacity: 1,
@@ -323,33 +323,33 @@
       label: "Separation",
       marker: Object.freeze({
         default: createMarkerStyle({
-          radius: 7.8,
+          radius: 8.5,
           color: "#c1ddff",
-          weight: 2.5,
+          weight: 3.2,
           fillColor: "#2590ff",
           fillOpacity: 1,
           opacity: 1
         }),
         visited: createMarkerStyle({
-          radius: 7.8,
-          color: "#8fc2ff",
-          weight: 2.3,
-          fillColor: "#186fd1",
-          fillOpacity: 0.96,
-          opacity: 0.98
+          radius: 8.1,
+          color: "#164f8f",
+          weight: 2.9,
+          fillColor: "#123f74",
+          fillOpacity: 0.54,
+          opacity: 0.7
         }),
         active: createMarkerStyle({
-          radius: 8.8,
+          radius: 9.6,
           color: "#d4ecff",
-          weight: 2.9,
+          weight: 3.7,
           fillColor: "#3fa1ff",
           fillOpacity: 1,
           opacity: 1
         }),
         hover: createMarkerStyle({
-          radius: 8.3,
+          radius: 8.9,
           color: "#c8e5ff",
-          weight: 2.6,
+          weight: 3.4,
           fillColor: "#2f98ff",
           fillOpacity: 1,
           opacity: 1
@@ -380,36 +380,36 @@
       label: "Numbness",
       marker: Object.freeze({
         default: createMarkerStyle({
-          radius: 7.4,
+          radius: 8.1,
           color: "#bdd6ee",
-          weight: 2.2,
+          weight: 3,
           fillColor: "#6f95bc",
           fillOpacity: 0.96,
           opacity: 0.98,
           dashArray: "3 6"
         }),
         visited: createMarkerStyle({
-          radius: 7.4,
-          color: "#9db9d5",
-          weight: 2,
-          fillColor: "#55789f",
-          fillOpacity: 0.9,
-          opacity: 0.92,
+          radius: 7.8,
+          color: "#4e6884",
+          weight: 2.7,
+          fillColor: "#3e536c",
+          fillOpacity: 0.5,
+          opacity: 0.66,
           dashArray: "3 6"
         }),
         active: createMarkerStyle({
-          radius: 8.4,
+          radius: 9.1,
           color: "#dbe9f7",
-          weight: 2.6,
+          weight: 3.5,
           fillColor: "#82a8d0",
           fillOpacity: 0.98,
           opacity: 0.92,
           dashArray: "3 6"
         }),
         hover: createMarkerStyle({
-          radius: 7.9,
+          radius: 8.5,
           color: "#cde1f4",
-          weight: 2.4,
+          weight: 3.2,
           fillColor: "#769ec6",
           fillOpacity: 0.96,
           opacity: 0.88,
@@ -441,33 +441,33 @@
       label: "Confession",
       marker: Object.freeze({
         default: createMarkerStyle({
-          radius: 8,
+          radius: 8.6,
           color: "#fff0b9",
-          weight: 2.5,
+          weight: 3.2,
           fillColor: "#e1b53c",
-          fillOpacity: 0.9,
+          fillOpacity: 0.98,
           opacity: 1
         }),
         visited: createMarkerStyle({
-          radius: 8,
-          color: "#f1d67a",
-          weight: 2.3,
-          fillColor: "#b38b21",
-          fillOpacity: 0.95,
-          opacity: 0.98
+          radius: 8.2,
+          color: "#7f6217",
+          weight: 2.9,
+          fillColor: "#6d5211",
+          fillOpacity: 0.56,
+          opacity: 0.72
         }),
         active: createMarkerStyle({
-          radius: 9,
+          radius: 9.7,
           color: "#fff6d0",
-          weight: 2.9,
+          weight: 3.8,
           fillColor: "#f1c84c",
           fillOpacity: 1,
           opacity: 1
         }),
         hover: createMarkerStyle({
-          radius: 8.4,
+          radius: 9,
           color: "#fff2bf",
-          weight: 2.7,
+          weight: 3.5,
           fillColor: "#ebbf43",
           fillOpacity: 1,
           opacity: 1
@@ -559,6 +559,18 @@
     };
   }
 
+  function createAuxiliaryMarkerRecord(location, marker) {
+    return {
+      location,
+      marker,
+      markerElement: null,
+      markerInnerElement: null,
+      tooltipElement: null,
+      selectionKey: `${location.markerType || "aux"}::${location.label}::${location.lat}::${location.lng}`,
+      isHovered: false
+    };
+  }
+
   class SceneMapController {
     constructor(elements) {
       this.mapElement = elements.mapElement;
@@ -578,6 +590,9 @@
       this.storyMarkerBySlideIndex = new Map();
       this.visitedStorySlides = new Set();
       this.activeStorySlideIndex = null;
+      this.auxiliaryMarkerRecords = [];
+      this.auxiliaryMarkerByKey = new Map();
+      this.activeAuxiliaryMarkerKey = null;
       this.storyPathVisible = false;
       this.storyPathSegments = [];
       this.psychLegendControl = null;
@@ -634,14 +649,15 @@
       this.locations.forEach((location, index) => {
         const marker = this.createMarker(location);
         const isStoryLocation = Array.isArray(location.slideIndices) && location.slideIndices.length > 0;
+        const isAuxiliaryMarker = !isStoryLocation;
         const markerLabelClass = isStoryLocation
           ? "location-label location-label--interactive location-label--story"
-          : "location-label";
+          : "location-label location-label--interactive location-label--auxiliary";
 
         if (location.showTooltip !== false && location.label) {
           marker.bindTooltip(createTooltipContent(location), {
             permanent: true,
-            interactive: isStoryLocation,
+            interactive: true,
             direction: this.getTooltipDirection(location, index),
             offset: this.getTooltipOffset(location, index),
             className: markerLabelClass
@@ -677,6 +693,32 @@
           }
 
           this.deferStoryMarkerElementSync(record);
+        } else if (isAuxiliaryMarker) {
+          const record = createAuxiliaryMarkerRecord(location, marker);
+          this.auxiliaryMarkerRecords.push(record);
+          this.auxiliaryMarkerByKey.set(record.selectionKey, record);
+
+          marker.on("click", () => {
+            this.handleAuxiliaryLocationSelection(location);
+          });
+          marker.on("mouseover", () => {
+            record.isHovered = true;
+            this.applyAuxiliaryMarkerVisualState(record);
+          });
+          marker.on("mouseout", () => {
+            record.isHovered = false;
+            this.applyAuxiliaryMarkerVisualState(record);
+          });
+
+          const tooltip = marker.getTooltip();
+
+          if (tooltip) {
+            tooltip.on("click", () => {
+              this.handleAuxiliaryLocationSelection(location);
+            });
+          }
+
+          this.deferAuxiliaryMarkerElementSync(record);
         }
 
         this.markers.push(marker);
@@ -820,6 +862,44 @@
       }
     }
 
+    deferAuxiliaryMarkerElementSync(record, attemptsRemaining = 4) {
+      globalScope.requestAnimationFrame(() => {
+        this.syncAuxiliaryMarkerElements(record, attemptsRemaining);
+      });
+    }
+
+    syncAuxiliaryMarkerElements(record, attemptsRemaining = 0) {
+      if (!record) {
+        return;
+      }
+
+      record.markerElement = record.marker.getElement() || null;
+      record.markerInnerElement = record.markerElement
+        ? record.markerElement.querySelector(".map-marker")
+        : null;
+
+      if (record.markerInnerElement) {
+        record.markerInnerElement.classList.add("map-marker--interactive");
+      }
+
+      const tooltip = record.marker.getTooltip();
+      record.tooltipElement = tooltip && typeof tooltip.getElement === "function"
+        ? tooltip.getElement()
+        : null;
+
+      if (record.tooltipElement) {
+        record.tooltipElement.classList.add("location-label--auxiliary");
+      }
+
+      this.applyAuxiliaryMarkerVisualState(record);
+
+      if ((!record.markerElement || !record.markerInnerElement) && attemptsRemaining > 0) {
+        globalScope.setTimeout(() => {
+          this.deferAuxiliaryMarkerElementSync(record, attemptsRemaining - 1);
+        }, 80);
+      }
+    }
+
     getStoryEventBySlideIndex(slideIndex) {
       return Number.isInteger(slideIndex) ? this.storyEvents[slideIndex - 1] || null : null;
     }
@@ -922,6 +1002,37 @@
       });
     }
 
+    applyAuxiliaryMarkerVisualState(record) {
+      if (!record || !record.marker) {
+        return;
+      }
+
+      const isActive = this.activeAuxiliaryMarkerKey === record.selectionKey;
+
+      if (record.markerInnerElement) {
+        record.markerInnerElement.classList.toggle("is-hovered", record.isHovered);
+        record.markerInnerElement.classList.toggle("is-selected", isActive);
+      }
+
+      if (record.markerElement) {
+        record.markerElement.classList.toggle("map-marker-icon--selected", isActive);
+      }
+
+      if (record.tooltipElement) {
+        record.tooltipElement.classList.toggle("location-label--active", isActive);
+      }
+
+      if (typeof record.marker.setZIndexOffset === "function") {
+        record.marker.setZIndexOffset(isActive ? 1200 : 0);
+      }
+    }
+
+    applyAuxiliaryMarkerStateToAll() {
+      this.auxiliaryMarkerRecords.forEach((record) => {
+        this.applyAuxiliaryMarkerVisualState(record);
+      });
+    }
+
     triggerStoryMarkerPulse(record) {
       if (!record) {
         return;
@@ -963,6 +1074,7 @@
       const previousRecord = this.storyMarkerBySlideIndex.get(this.activeStorySlideIndex);
       const nextRecord = this.storyMarkerBySlideIndex.get(slideIndex);
 
+      this.clearAuxiliaryMarkerSelection();
       this.activeStorySlideIndex = Number.isInteger(slideIndex) ? slideIndex : null;
 
       if (previousRecord && previousRecord !== nextRecord) {
@@ -984,6 +1096,35 @@
 
       if (record) {
         this.applyStoryMarkerVisualState(record);
+      }
+    }
+
+    setActiveAuxiliaryMarker(location) {
+      const selectionKey = `${location.markerType || "aux"}::${location.label}::${location.lat}::${location.lng}`;
+      const previousRecord = this.auxiliaryMarkerByKey.get(this.activeAuxiliaryMarkerKey);
+      const nextRecord = this.auxiliaryMarkerByKey.get(selectionKey);
+
+      if (this.activeStorySlideIndex !== null) {
+        this.clearActiveStoryMarker();
+      }
+
+      this.activeAuxiliaryMarkerKey = nextRecord ? selectionKey : null;
+
+      if (previousRecord && previousRecord !== nextRecord) {
+        this.applyAuxiliaryMarkerVisualState(previousRecord);
+      }
+
+      if (nextRecord) {
+        this.applyAuxiliaryMarkerVisualState(nextRecord);
+      }
+    }
+
+    clearAuxiliaryMarkerSelection() {
+      const record = this.auxiliaryMarkerByKey.get(this.activeAuxiliaryMarkerKey);
+      this.activeAuxiliaryMarkerKey = null;
+
+      if (record) {
+        this.applyAuxiliaryMarkerVisualState(record);
       }
     }
 
@@ -1312,6 +1453,15 @@
         this.locationSelectTimer = null;
         this.locationSelectHandler(location);
       }, STORY_MARKER_OPEN_DELAY_MS);
+    }
+
+    handleAuxiliaryLocationSelection(location) {
+      if (!this.interactionEnabled) {
+        return;
+      }
+
+      this.focusLocation(location);
+      this.setActiveAuxiliaryMarker(location);
     }
 
     focusLocation(location) {
