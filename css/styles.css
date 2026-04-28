@@ -1822,10 +1822,7 @@ body {
   min-height: 0;
   height: 100%;
   align-self: stretch;
-  overflow-y: auto;
-  overflow-x: hidden;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
+  overflow: hidden;
   padding-right: 8px;
   padding-bottom: 12px;
 }
@@ -1843,6 +1840,7 @@ body {
 
 .story-panel__content,
 .story-panel__body,
+.story-panel__details-body,
 .story-panel__media-gallery,
 .story-mode {
   scrollbar-width: thin;
@@ -1851,6 +1849,7 @@ body {
 
 .story-panel__content::-webkit-scrollbar,
 .story-panel__body::-webkit-scrollbar,
+.story-panel__details-body::-webkit-scrollbar,
 .story-panel__media-gallery::-webkit-scrollbar,
 .story-mode::-webkit-scrollbar {
   width: 10px;
@@ -1859,6 +1858,7 @@ body {
 
 .story-panel__content::-webkit-scrollbar-track,
 .story-panel__body::-webkit-scrollbar-track,
+.story-panel__details-body::-webkit-scrollbar-track,
 .story-panel__media-gallery::-webkit-scrollbar-track,
 .story-mode::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.03);
@@ -1866,6 +1866,7 @@ body {
 
 .story-panel__content::-webkit-scrollbar-thumb,
 .story-panel__body::-webkit-scrollbar-thumb,
+.story-panel__details-body::-webkit-scrollbar-thumb,
 .story-panel__media-gallery::-webkit-scrollbar-thumb,
 .story-mode::-webkit-scrollbar-thumb {
   border: 2px solid transparent;
@@ -2181,6 +2182,11 @@ body {
 
 .story-panel__details {
   margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  align-self: stretch;
   border: 1px solid color-mix(in srgb, var(--story-phase-accent) 22%, rgba(138, 116, 88, 0.14));
   border-radius: 10px;
   background:
@@ -2259,10 +2265,15 @@ body {
 
 .story-panel__details-body {
   display: grid;
+  flex: 1 1 auto;
   gap: 22px;
+  min-height: 0;
   padding: 6px 18px 20px;
   max-height: none;
-  overflow: visible;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .story-panel__quote-block {
