@@ -246,6 +246,9 @@
       storyMediaVideoElement: document.querySelector("[data-story-media-video]"),
       storyMediaGalleryElement: document.querySelector("[data-story-media-gallery]"),
       storyMediaFallbackElement: document.querySelector("[data-story-media-fallback]"),
+      storyBodyElement: document.querySelector("[data-story-body]"),
+      storyDetailsBodyElement: document.querySelector("[data-story-details-body]"),
+      storyReadingBoxElement: document.querySelector("[data-story-reading-box]"),
       storyLocationElement: document.querySelector("[data-story-location]"),
       storyAddressElement: document.querySelector("[data-story-address]"),
       storyDescriptionElement: document.querySelector("[data-story-description]"),
@@ -1436,6 +1439,23 @@
       }
     }
 
+    // Reset every internal scroll region when a slide changes so later slides
+    // cannot inherit an old scroll offset and appear partially blank.
+    function resetStoryScrollPositions() {
+      [
+        elements.storyContentElement,
+        elements.storyBodyElement,
+        elements.storyDetailsBodyElement,
+        elements.storyReadingBoxElement,
+        elements.storyMediaGalleryElement
+      ].forEach((region) => {
+        if (region) {
+          region.scrollTop = 0;
+          region.scrollLeft = 0;
+        }
+      });
+    }
+
     function renderSlide({ syncMapState = false, pulseActiveMarker = true } = {}) {
       const event = getCurrentEvent();
 
@@ -1449,9 +1469,7 @@
       renderStoryNotes(event);
       updateTimeline(event);
       renderMedia(event);
-      if (elements.storyContentElement) {
-        elements.storyContentElement.scrollTop = 0;
-      }
+      resetStoryScrollPositions();
 
       if (syncMapState) {
         syncMapStoryState({

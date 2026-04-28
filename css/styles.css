@@ -1584,50 +1584,55 @@ body {
   display: flex;
   justify-content: space-between;
   margin-bottom: 8px;
-  color: var(--story-timeline-ink-soft);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
+  color: rgba(11, 8, 6, 0.96);
+  font-size: 0.92rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
   font-variant-caps: all-small-caps;
+  text-shadow: 0 1px 0 rgba(255, 248, 236, 0.06);
 }
 
 .story-timeline__track {
   position: relative;
-  height: 2px;
-  background: var(--story-track);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03);
+  height: 3px;
+  background: rgba(14, 10, 9, 0.62);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.03),
+    0 0 0 1px rgba(10, 8, 7, 0.08);
 }
 
 .story-timeline__range {
   position: absolute;
   top: 50%;
-  height: 2px;
+  height: 3px;
   min-width: 2px;
   background: linear-gradient(
     90deg,
-    color-mix(in srgb, var(--story-timeline-ink) 82%, var(--story-phase-accent)),
-    color-mix(in srgb, var(--story-timeline-ink) 58%, var(--story-phase-accent))
+    rgba(8, 6, 5, 0.96),
+    color-mix(in srgb, rgba(8, 6, 5, 0.96) 82%, var(--story-phase-accent))
   );
-  box-shadow: 0 0 16px var(--story-range-glow);
+  box-shadow:
+    0 0 10px rgba(0, 0, 0, 0.22),
+    0 0 16px color-mix(in srgb, var(--story-range-glow) 72%, rgba(0, 0, 0, 0.14));
   transform: translateY(-50%);
 }
 
 .story-timeline__marker {
   position: absolute;
   top: 50%;
-  width: 11px;
-  height: 11px;
-  border: 1px solid rgba(18, 13, 10, 0.86);
+  width: 15px;
+  height: 15px;
+  border: 2px solid rgba(10, 8, 7, 0.94);
   border-radius: 50%;
   background: radial-gradient(
     circle,
-    color-mix(in srgb, var(--story-timeline-ink) 56%, var(--story-phase-accent)) 0 48%,
+    color-mix(in srgb, rgba(8, 6, 5, 0.95) 54%, var(--story-phase-accent)) 0 48%,
     rgba(10, 8, 7, 0.98) 58% 100%
   );
   box-shadow:
-    0 0 0 4px rgba(18, 13, 10, 0.12),
-    0 0 0 7px var(--story-range-glow);
+    0 0 0 4px rgba(18, 13, 10, 0.14),
+    0 0 0 8px var(--story-range-glow);
   transform: translate(-50%, -50%);
 }
 
@@ -1757,11 +1762,16 @@ body {
 .story-panel__count,
 .story-panel__phase {
   margin: 0;
-  font-size: 0.78rem;
-  font-weight: 700;
+  font-size: 0.98rem;
+  font-weight: 800;
   letter-spacing: 0.24em;
   text-transform: uppercase;
   font-variant-caps: all-small-caps;
+}
+
+.story-panel__count {
+  color: rgba(11, 8, 6, 0.96);
+  text-shadow: 0 1px 0 rgba(255, 248, 236, 0.06);
 }
 
 .story-panel__phase {
@@ -1816,8 +1826,9 @@ body {
 }
 
 .story-panel__body {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: auto auto auto auto minmax(0, 1fr);
+  align-content: start;
   gap: 12px;
   min-height: 0;
   height: 100%;
@@ -1825,6 +1836,13 @@ body {
   overflow: hidden;
   padding-right: 8px;
   padding-bottom: 12px;
+}
+
+.story-panel__day-range,
+.story-panel__title,
+.story-panel__address,
+.story-panel__description {
+  flex: 0 0 auto;
 }
 
 .story-panel__content {
@@ -2137,13 +2155,14 @@ body {
 
 .story-panel__day-range {
   margin: 0;
-  color: var(--story-phase-accent);
-  font-size: 0.78rem;
-  font-weight: 700;
+  color: rgba(11, 8, 6, 0.96);
+  font-size: 0.98rem;
+  font-weight: 800;
   letter-spacing: 0.24em;
   text-transform: uppercase;
   opacity: 0.92;
   font-variant-caps: all-small-caps;
+  text-shadow: 0 1px 0 rgba(255, 248, 236, 0.06);
 }
 
 .story-panel__title {
@@ -2188,7 +2207,7 @@ body {
   margin-top: 8px;
   display: flex;
   flex-direction: column;
-  flex: 1 1 auto;
+  flex: 1 1 0;
   min-height: 0;
   align-self: stretch;
   border: 1px solid color-mix(in srgb, var(--story-phase-accent) 22%, rgba(138, 116, 88, 0.14));
@@ -2268,7 +2287,9 @@ body {
 }
 
 .story-panel__details-body {
-  display: block;
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
   padding: 6px 18px 20px;
   border-top: 1px solid color-mix(in srgb, var(--story-phase-accent) 18%, rgba(138, 116, 88, 0.1));
   background:
@@ -2280,7 +2301,9 @@ body {
 .story-panel__reading-box {
   display: grid;
   gap: 22px;
-  height: clamp(240px, 34vh, 380px);
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
   padding: 14px 16px 18px;
   border: 1px solid color-mix(in srgb, var(--story-phase-accent) 18%, rgba(138, 116, 88, 0.12));
   border-radius: 8px;
@@ -3574,6 +3597,7 @@ body {
   }
 
   .story-panel__details-body {
+    display: block;
     height: auto;
     overflow: visible;
     border-top: 0;
