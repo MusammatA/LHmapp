@@ -4,6 +4,7 @@
   const TILE_LAYER_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
   const TILE_LAYER_ATTRIBUTION = "&copy; OpenStreetMap contributors";
   const STORY_MARKER_FOCUS_ZOOM = 15;
+  const GLOBAL_MAP_MAX_ZOOM = 3;
   const STORY_MARKER_OPEN_DELAY_MS = 420;
   const STORY_MARKER_PULSE_MS = 1650;
   const STORY_PATH_PANE = "storyPathPane";
@@ -1401,6 +1402,34 @@
         animate: true,
         duration: 0.9,
         easeLinearity: 0.25
+      });
+    }
+
+    // Fit the map to every location so the user can quickly reveal the global
+    // markers that sit outside the default St. Petersburg story bounds.
+    zoomOutToAllLocations() {
+      if (!this.map || !this.locations.length) {
+        return;
+      }
+
+      const allBounds = this.locations.map(toLatLng);
+      this.clearActiveAuxiliaryMarker();
+
+      if (allBounds.length === 1) {
+        this.map.flyTo(allBounds[0], GLOBAL_MAP_MAX_ZOOM, {
+          animate: true,
+          duration: 0.95,
+          easeLinearity: 0.22
+        });
+        return;
+      }
+
+      this.map.flyToBounds(allBounds, {
+        animate: true,
+        duration: 1.05,
+        easeLinearity: 0.2,
+        padding: [72, 72],
+        maxZoom: GLOBAL_MAP_MAX_ZOOM
       });
     }
 

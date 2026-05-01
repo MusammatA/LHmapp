@@ -259,11 +259,19 @@ body {
   transform: scale(1.012);
 }
 
-.story-launch {
+.map-actions {
   position: absolute;
   right: 24px;
   bottom: 24px;
   z-index: 1250;
+  display: inline-flex;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.map-action,
+.story-launch {
+  position: relative;
   overflow: hidden;
   min-width: 104px;
   padding: 12px 18px;
@@ -283,9 +291,13 @@ body {
     transform 260ms ease,
     border-color 260ms ease,
     background 260ms ease;
+}
+
+.story-launch {
   animation: story-launch-breathe 3.6s ease-in-out infinite;
 }
 
+.map-action::before,
 .story-launch::before {
   content: "";
   position: absolute;
@@ -295,13 +307,26 @@ body {
   pointer-events: none;
 }
 
-.map-page.is-intro-active .story-launch,
-.map-page.is-intro-leaving .story-launch {
+.map-action--secondary {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.022), transparent 32%),
+    linear-gradient(180deg, rgba(18, 14, 12, 0.88), rgba(5, 5, 5, 0.96));
+}
+
+.map-action--secondary:hover {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 34%),
+    linear-gradient(180deg, rgba(26, 20, 17, 0.92), rgba(6, 6, 6, 0.97));
+}
+
+.map-page.is-intro-active .map-actions,
+.map-page.is-intro-leaving .map-actions {
   opacity: 0;
   transform: translateY(-12px);
   pointer-events: none;
 }
 
+.map-action:hover,
 .story-launch:hover {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 34%),
@@ -309,16 +334,19 @@ body {
   border-color: rgba(161, 133, 98, 0.5);
 }
 
+.map-action:focus-visible,
 .story-launch:focus-visible {
   outline: 2px solid rgba(243, 234, 217, 0.85);
   outline-offset: 3px;
 }
 
+.map-action[disabled],
 .story-launch[disabled] {
   cursor: default;
   opacity: 0.6;
 }
 
+.map-action__label,
 .story-launch__label {
   display: inline-block;
   font-family: var(--font-display);
@@ -330,15 +358,15 @@ body {
   font-variant-caps: all-small-caps;
 }
 
-.map-page.is-transitioning-to-story .story-launch,
-.map-page.is-story-mode .story-launch,
-.map-page.is-transitioning-to-map .story-launch {
+.map-page.is-transitioning-to-story .map-actions,
+.map-page.is-story-mode .map-actions,
+.map-page.is-transitioning-to-map .map-actions {
   opacity: 0;
   transform: translateY(12px);
   pointer-events: none;
 }
 
-.map-page.is-panel-open:not(.is-story-mode) .story-launch {
+.map-page.is-panel-open:not(.is-story-mode) .map-actions {
   opacity: 0;
   transform: translateY(12px);
   pointer-events: none;
@@ -3343,6 +3371,8 @@ body {
   .map-canvas,
   .intro-screen,
   .intro-screen__content,
+  .map-actions,
+  .map-action,
   .story-launch,
   .top-tabs,
   .abstract-map,
@@ -3386,9 +3416,14 @@ body {
     gap: 10px;
   }
 
-  .story-launch {
+  .map-actions {
     right: 16px;
     bottom: 16px;
+    gap: 8px;
+  }
+
+  .map-action,
+  .story-launch {
     min-width: 92px;
     padding: 10px 14px;
   }

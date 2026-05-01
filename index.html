@@ -41,9 +41,15 @@
       <button class="top-tabs__button" type="button" data-top-tab="settings">Settings</button>
     </nav>
 
-    <button class="story-launch" type="button" data-story-launch>
-      <span class="story-launch__label" data-story-launch-label>Start</span>
-    </button>
+    <div class="map-actions" aria-label="Primary map controls">
+      <button class="map-action map-action--secondary" type="button" data-zoom-out>
+        <span class="map-action__label">Zoom Out</span>
+      </button>
+
+      <button class="story-launch map-action" type="button" data-story-launch>
+        <span class="story-launch__label map-action__label" data-story-launch-label>Start</span>
+      </button>
+    </div>
 
     <section
       class="abstract-map"

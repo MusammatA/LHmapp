@@ -222,6 +222,7 @@
       abstractMapViewportElement: document.querySelector("[data-abstract-map-viewport]"),
       launchButton: document.querySelector("[data-story-launch]"),
       launchLabelElement: document.querySelector("[data-story-launch-label]"),
+      zoomOutButton: document.querySelector("[data-zoom-out]"),
       audioControlsElement: document.querySelector("[data-audio-controls]"),
       ambientToggleButton: document.querySelector("[data-ambient-toggle]"),
       ambientToggleLabelElement: document.querySelector("[data-ambient-toggle-label]"),
@@ -1710,6 +1711,12 @@
         audioController.armFromInteraction();
         openStoryAtSlide(0, STORY_ENTRY_MODE.guided);
       });
+      if (elements.zoomOutButton) {
+        elements.zoomOutButton.addEventListener("click", () => {
+          audioController.armFromInteraction();
+          mapController.zoomOutToAllLocations();
+        });
+      }
       elements.storyExitButton.addEventListener("click", returnToMap);
       elements.storyNextButton.addEventListener("click", handleNext);
       elements.storyBackButton.addEventListener("click", handleBack);
