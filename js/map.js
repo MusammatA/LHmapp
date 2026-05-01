@@ -1399,7 +1399,7 @@
       this.map.stop();
     }
 
-    focusStorySlide(slideIndex) {
+    focusStorySlide(slideIndex, options = {}) {
       if (!this.map || !Number.isInteger(slideIndex)) {
         return;
       }
@@ -1410,7 +1410,16 @@
         return;
       }
 
+      const animate = options.animate !== false;
       this.stopMapMotion();
+
+      if (!animate) {
+        this.map.setView([storyEvent.lat, storyEvent.lng], STORY_MARKER_FOCUS_ZOOM, {
+          animate: false
+        });
+        return;
+      }
+
       this.map.flyTo([storyEvent.lat, storyEvent.lng], STORY_MARKER_FOCUS_ZOOM, {
         animate: true,
         duration: 0.9,

@@ -1160,10 +1160,12 @@
       elements.launchLabelElement.textContent = state.hasCompletedSequence ? "Replay" : "Start";
     }
 
-    function syncMapStoryState({ pulseActiveMarker = true } = {}) {
+    function syncMapStoryState({ pulseActiveMarker = true, animateMapFocus = true } = {}) {
       const slideIndex = state.currentIndex + 1;
 
-      mapController.focusStorySlide(slideIndex);
+      mapController.focusStorySlide(slideIndex, {
+        animate: animateMapFocus
+      });
       mapController.markPhaseMarkerVisited(slideIndex);
       mapController.setActivePhaseMarker(slideIndex, {
         pulse: pulseActiveMarker
@@ -1180,6 +1182,16 @@
       }
 
       mapController.clearStoryPath();
+    }
+
+    // Wait for the story shell to reach the next painted layout before asking
+    // the browser to reveal another layer of content inside it.
+    function waitForStoryPaint() {
+      return new Promise((resolve) => {
+        globalScope.requestAnimationFrame(() => {
+          globalScope.requestAnimationFrame(resolve);
+        });
+      });
     }
 
     function updateNavigationState() {
@@ -1581,8 +1593,8 @@
       audioController.setAmbientMode("story");
       elements.storyPanelElement.classList.remove("is-changing");
       renderSlide({
-        syncMapState: true,
-        pulseActiveMarker: true
+        syncMapState: false,
+        pulseActiveMarker: false
       });
 
       elements.launchButton.disabled = true;
@@ -1593,17 +1605,25 @@
       showVeil();
       await wait(motionSafeDuration(BLACKOUT_MS));
 
+      // While the screen is black, snap the geographic map to the active story
+      // point so the story shell never has to reveal itself during a live map
+      // animation from a previous Zoom Out action.
+      syncMapStoryState({
+        pulseActiveMarker: true,
+        animateMapFocus: false
+      });
+
       elements.pageElement.classList.remove("is-transitioning-to-story");
       elements.pageElement.classList.add("is-story-mode", "is-story-active");
       showStoryMode();
 
-      // Re-render after the story shell becomes visible so the text column and
-      // slide header cannot inherit a collapsed hidden-state layout.
-      globalScope.requestAnimationFrame(() => {
-        renderSlide({
-          syncMapState: false,
-          pulseActiveMarker: false
-        });
+      // Re-render only after the visible story shell has completed a paint
+      // cycle, so the text column cannot inherit a half-collapsed hidden-state
+      // layout from the map handoff.
+      await waitForStoryPaint();
+      renderSlide({
+        syncMapState: false,
+        pulseActiveMarker: false
       });
 
       await wait(motionSafeDuration(STORY_REVEAL_DELAY_MS));
