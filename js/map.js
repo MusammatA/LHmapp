@@ -1391,6 +1391,14 @@
       this.clearPsychologicalPath();
     }
 
+    stopMapMotion() {
+      if (!this.map || typeof this.map.stop !== "function") {
+        return;
+      }
+
+      this.map.stop();
+    }
+
     focusStorySlide(slideIndex) {
       if (!this.map || !Number.isInteger(slideIndex)) {
         return;
@@ -1402,6 +1410,7 @@
         return;
       }
 
+      this.stopMapMotion();
       this.map.flyTo([storyEvent.lat, storyEvent.lng], STORY_MARKER_FOCUS_ZOOM, {
         animate: true,
         duration: 0.9,
@@ -1416,6 +1425,7 @@
         return;
       }
 
+      this.stopMapMotion();
       const allBounds = this.locations.map(toLatLng);
       this.clearAuxiliaryMarkerSelection();
 
