@@ -1129,6 +1129,10 @@
       }
     }
 
+    clearActiveAuxiliaryMarker() {
+      this.clearAuxiliaryMarkerSelection();
+    }
+
     resetVisitedStoryMarkers() {
       this.visitedStorySlides.clear();
       this.applyStoryMarkerStateToAll();
@@ -1413,7 +1417,7 @@
       }
 
       const allBounds = this.locations.map(toLatLng);
-      this.clearActiveAuxiliaryMarker();
+      this.clearAuxiliaryMarkerSelection();
 
       if (allBounds.length === 1) {
         this.map.flyTo(allBounds[0], GLOBAL_MAP_MAX_ZOOM, {
