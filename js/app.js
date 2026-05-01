@@ -1552,6 +1552,7 @@
     function hideStoryMode() {
       state.mediaRequestToken += 1;
       resetMediaElements();
+      elements.storyPanelElement.classList.remove("is-changing");
       elements.storyModeElement.classList.remove("is-visible");
       elements.storyModeElement.hidden = true;
       delete elements.pageElement.dataset.storyMood;
@@ -1578,6 +1579,7 @@
       state.entryMode = entryMode;
       state.currentIndex = normalizeStoryIndex(startIndex);
       audioController.setAmbientMode("story");
+      elements.storyPanelElement.classList.remove("is-changing");
       renderSlide({
         syncMapState: true,
         pulseActiveMarker: true
@@ -1594,6 +1596,15 @@
       elements.pageElement.classList.remove("is-transitioning-to-story");
       elements.pageElement.classList.add("is-story-mode", "is-story-active");
       showStoryMode();
+
+      // Re-render after the story shell becomes visible so the text column and
+      // slide header cannot inherit a collapsed hidden-state layout.
+      globalScope.requestAnimationFrame(() => {
+        renderSlide({
+          syncMapState: false,
+          pulseActiveMarker: false
+        });
+      });
 
       await wait(motionSafeDuration(STORY_REVEAL_DELAY_MS));
       await hideVeil();
